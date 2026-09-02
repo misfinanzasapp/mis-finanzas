@@ -1,7 +1,7 @@
 {
   "name": "Mis Finanzas",
   "short_name": "Finanzas",
-  "description": "Control personal de ingresos, gastos y presupuestos",
+  "description": "Control personal de ingresos, gastos y presupuestos.",
   "start_url": "/mis-finanzas/",
   "scope": "/mis-finanzas/",
   "display": "standalone",
@@ -9,6 +9,10 @@
   "background_color": "#f4f6f8",
   "theme_color": "#111827",
   "lang": "es",
+  "categories": [
+    "finance",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "/mis-finanzas/icon-192.png",
