@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#111827">
+    <link rel="icon" href="icon.svg">
+
+    <title>Mis Finanzas</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+<header class="app-header">
+
+    <h1>💰 Mis Finanzas</h1>
+
+</header>
+
+
+<main id="contenidoPrincipal">
+
+
+    <!-- ========================= -->
+    <!-- INICIO -->
+    <!-- ========================= -->
+
+    <section id="inicio" class="dashboard">
+
+        <h2>📊 Resumen financiero</h2>
+
+        <div class="dashboard-grid">
+
+            <div class="dashboard-item">
+                <span>Ingresos</span>
+                <strong id="dashboardIngresos">₡0</strong>
+            </div>
+
+            <div class="dashboard-item">
+                <span>Gastos fijos</span>
+                <strong id="dashboardFijos">₡0</strong>
+            </div>
+
+            <div class="dashboard-item">
+                <span>Gastos variables</span>
+                <strong id="dashboardVariables">₡0</strong>
+            </div>
+
+            <div class="dashboard-item">
+                <span>Disponible</span>
+                <strong id="dashboardDisponible">₡0</strong>
+            </div>
+
+        </div>
+
+
+        <p>
+            Dinero comprometido:
+            <strong id="porcentajeCompromiso">0%</strong>
+        </p>
+
+
+        <div class="progress-container">
+
+            <div
+                id="barraCompromiso"
+                class="progress-bar"
+            ></div>
+
+        </div>
+
+
+        <p id="mensajeDashboard"></p>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- CONSEJOS -->
+    <!-- ========================= -->
+
+    <section
+        id="consejos"
+        class="card"
+    >
+
+        <h2>🤖 Consejos financieros</h2>
+
+        <p class="descripcion">
+            Analizamos tus movimientos automáticamente.
+        </p>
+
+        <div id="listaConsejos"></div>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- AGREGAR -->
+    <!-- ========================= -->
+
+    <section
+        id="agregar"
+        class="card"
+    >
+
+        <h2>➕ Agregar movimiento</h2>
+
+
+        <label>Tipo</label>
+
+        <select id="tipo">
+
+            <option value="ingreso">
+                Ingreso
+            </option>
+
+            <option value="gasto">
+                Gasto
+            </option>
+
+        </select>
+
+
+
+        <label>Descripción</label>
+
+        <input
+            type="text"
+            id="descripcion"
+            placeholder="Ej: Salario"
+        >
+
+
+
+        <label>Monto</label>
+
+        <input
+            type="number"
+            id="monto"
+            inputmode="decimal"
+            placeholder="Ej: 50000"
+        >
+
+
+
+        <label>Categoría</label>
+
+        <select id="categoria">
+
+            <option value="Salario">
+                Salario
+            </option>
+
+            <option value="Comida">
+                Comida
+            </option>
+
+            <option value="Transporte">
+                Transporte
+            </option>
+
+            <option value="Casa">
+                Casa
+            </option>
+
+            <option value="Entretenimiento">
+                Entretenimiento
+            </option>
+
+            <option value="Deudas">
+                Deudas
+            </option>
+
+            <option value="Salud">
+                Salud
+            </option>
+
+            <option value="Otros">
+                Otros
+            </option>
+
+        </select>
+
+
+
+        <label>Tipo de gasto</label>
+
+        <select id="tipoGasto">
+
+            <option value="variable">
+                Variable
+            </option>
+
+            <option value="fijo">
+                Fijo
+            </option>
+
+        </select>
+
+
+
+        <button
+            class="cta"
+            onclick="agregarMovimiento()"
+        >
+            ➕ Agregar movimiento
+        </button>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- FILTRO -->
+    <!-- ========================= -->
+
+    <section class="card">
+
+        <h2>📅 Filtrar por mes</h2>
+
+
+        <input
+            type="month"
+            id="filtroMes"
+            onchange="filtrarPorMes()"
+        >
+
+
+        <button
+            class="secondary-cta"
+            onclick="mostrarTodos()"
+        >
+            Mostrar todos
+        </button>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- RESUMEN -->
+    <!-- ========================= -->
+
+    <section class="card">
+
+        <h2>📋 Resumen</h2>
+
+
+        <div class="summary-grid">
+
+            <div>
+
+                <span>Ingresos</span>
+
+                <strong id="totalIngresos">
+                    ₡0
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>Gastos</span>
+
+                <strong id="totalGastos">
+                    ₡0
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>Saldo</span>
+
+                <strong id="saldo">
+                    ₡0
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- DINERO DISPONIBLE -->
+    <!-- ========================= -->
+
+    <section class="card">
+
+        <h2>
+            💵 Dinero realmente disponible
+        </h2>
+
+
+        <p>
+
+            Ingresos:
+
+            <strong id="dineroIngresos">
+                ₡0
+            </strong>
+
+        </p>
+
+
+        <p>
+
+            Gastos fijos:
+
+            <strong id="dineroFijos">
+                ₡0
+            </strong>
+
+        </p>
+
+
+        <p>
+
+            Después de gastos fijos:
+
+            <strong id="dineroDespuesFijos">
+                ₡0
+            </strong>
+
+        </p>
+
+
+        <p>
+
+            Gastos variables:
+
+            <strong id="dineroVariables">
+                ₡0
+            </strong>
+
+        </p>
+
+
+        <h3>
+
+            Puedes gastar:
+
+            <strong id="dineroDisponible">
+                ₡0
+            </strong>
+
+        </h3>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- PRESUPUESTO -->
+    <!-- ========================= -->
+
+    <section
+        id="presupuesto"
+        class="card"
+    >
+
+        <h2>
+            🎯 Presupuesto mensual
+        </h2>
+
+
+        <label>
+            Mes
+        </label>
+
+
+        <input
+            type="month"
+            id="mesPresupuesto"
+        >
+
+
+        <label>
+            Presupuesto
+        </label>
+
+
+        <input
+            type="number"
+            id="montoPresupuesto"
+            inputmode="decimal"
+            placeholder="Ej: 500000"
+        >
+
+
+        <button
+            class="cta"
+            onclick="guardarPresupuesto()"
+        >
+            💾 Guardar presupuesto
+        </button>
+
+
+        <div class="budget-info">
+
+            <p>
+
+                Presupuesto:
+
+                <strong id="presupuestoActual">
+                    ₡0
+                </strong>
+
+            </p>
+
+
+            <p>
+
+                Gastado:
+
+                <strong id="presupuestoGastado">
+                    ₡0
+                </strong>
+
+            </p>
+
+
+            <p>
+
+                Disponible:
+
+                <strong id="presupuestoDisponible">
+                    ₡0
+                </strong>
+
+            </p>
+
+        </div>
+
+
+        <div class="progress-container">
+
+            <div
+                id="barraPresupuesto"
+                class="progress-bar"
+            ></div>
+
+        </div>
+
+
+        <p id="mensajePresupuesto"></p>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- RECURRENTES -->
+    <!-- ========================= -->
+
+    <section
+        id="recurrentes"
+        class="card"
+    >
+
+        <h2>
+            🔄 Gastos recurrentes
+        </h2>
+
+
+        <label>
+            Descripción
+        </label>
+
+
+        <input
+            type="text"
+            id="recurrenteDescripcion"
+            placeholder="Ej: Internet"
+        >
+
+
+        <label>
+            Monto
+        </label>
+
+
+        <input
+            type="number"
+            id="recurrenteMonto"
+            inputmode="decimal"
+            placeholder="Ej: 25000"
+        >
+
+
+        <label>
+            Categoría
+        </label>
+
+
+        <select id="recurrenteCategoria">
+
+            <option value="Casa">
+                Casa
+            </option>
+
+            <option value="Transporte">
+                Transporte
+            </option>
+
+            <option value="Deudas">
+                Deudas
+            </option>
+
+            <option value="Salud">
+                Salud
+            </option>
+
+            <option value="Otros">
+                Otros
+            </option>
+
+        </select>
+
+
+        <label>
+            Día del mes
+        </label>
+
+
+        <input
+            type="number"
+            id="recurrenteDia"
+            min="1"
+            max="31"
+            inputmode="numeric"
+            placeholder="Ej: 15"
+        >
+
+
+        <button
+            class="cta"
+            onclick="agregarRecurrente()"
+        >
+            💾 Guardar gasto recurrente
+        </button>
+
+
+        <button
+            class="secondary-cta"
+            onclick="generarRecurrentesDelMes()"
+        >
+            🔄 Generar gastos del mes
+        </button>
+
+
+        <div id="listaRecurrentes"></div>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- TIPOS -->
+    <!-- ========================= -->
+
+    <section class="card">
+
+        <h2>
+            🏷️ Gastos fijos y variables
+        </h2>
+
+
+        <p>
+
+            Gastos fijos:
+
+            <strong id="totalFijos">
+                ₡0
+            </strong>
+
+        </p>
+
+
+        <p>
+
+            Gastos variables:
+
+            <strong id="totalVariables">
+                ₡0
+            </strong>
+
+        </p>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- CATEGORIAS -->
+    <!-- ========================= -->
+
+    <section class="card">
+
+        <h2>
+            📊 Gastos por categoría
+        </h2>
+
+
+        <div id="listaCategorias"></div>
+
+
+        <div class="chart-container">
+
+            <canvas id="graficoCategorias"></canvas>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- MOVIMIENTOS -->
+    <!-- ========================= -->
+
+    <section
+        id="movimientos"
+        class="card"
+    >
+
+        <h2>
+            📜 Movimientos
+        </h2>
+
+
+        <button
+            class="danger-cta"
+            onclick="eliminarTodos()"
+        >
+            🗑️ Eliminar todos
+        </button>
+
+
+        <div id="listaMovimientos"></div>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- COPIA DE SEGURIDAD -->
+    <!-- ========================= -->
+
+    <section
+        class="card backup-section"
+    >
+
+        <h2>
+            🛡️ Copia de seguridad
+        </h2>
+
+
+        <p>
+            Guarda todos tus datos en un archivo
+            para recuperarlos después.
+        </p>
+
+
+        <button
+            class="cta"
+            onclick="exportarDatos()"
+        >
+            📥 Descargar copia de seguridad
+        </button>
+
+
+        <label class="file-label">
+
+            📤 Restaurar copia de seguridad
+
+
+            <input
+                type="file"
+                id="archivoImportacion"
+                accept=".json,application/json"
+                onchange="importarDatos(event)"
+            >
+
+        </label>
+
+    </section>
+
+</main>
+
+
+
+<!-- ========================= -->
+<!-- NAVEGACION -->
+<!-- ========================= -->
+
+<nav class="bottom-nav">
+
+
+    <a
+        href="#inicio"
+        onclick="irAInicio()"
+    >
+
+        🏠
+
+        <span>
+            Inicio
+        </span>
+
+    </a>
+
+
+
+    <a href="#agregar">
+
+        ➕
+
+        <span>
+            Agregar
+        </span>
+
+    </a>
+
+
+
+    <a href="#presupuesto">
+
+        🎯
+
+        <span>
+            Presupuesto
+        </span>
+
+    </a>
+
+
+
+    <a href="#recurrentes">
+
+        🔄
+
+        <span>
+            Recurrentes
+        </span>
+
+    </a>
+
+
+
+    <a href="#movimientos">
+
+        📜
+
+        <span>
+            Movimientos
+        </span>
+
+    </a>
+
+
+</nav>
+
+
+
+<!-- JavaScript principal -->
+
+<script src="script.js"></script>
+
+
+<!-- Registro del Service Worker -->
+
+<script>
+
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", () => {
+
+        navigator.serviceWorker
+            .register("./sw.js")
+
+            .then(() => {
+
+                console.log(
+                    "PWA activada correctamente"
+                );
+
+            })
+
+            .catch(error => {
+
+                console.log(
+                    "Error activando PWA:",
+                    error
+                );
+
+            });
+
+    });
+
+}
+
+</script>
+
+
+</body>
+
+</html>
