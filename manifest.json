@@ -1,6 +1,7 @@
 {
   "name": "Mis Finanzas",
   "short_name": "Finanzas",
+  "id": "/mis-finanzas/",
   "description": "Control personal de ingresos, gastos y presupuestos.",
   "start_url": "/mis-finanzas/",
   "scope": "/mis-finanzas/",
