@@ -1,2191 +1,488 @@
-let movimientos =
-    JSON.parse(localStorage.getItem("movimientos")) || [];
+const $ = id => document.getElementById(id);
 
-let presupuestos =
-    JSON.parse(localStorage.getItem("presupuestos")) || {};
+let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
+let presupuestos = JSON.parse(localStorage.getItem("presupuestos")) || [];
+let recurrentes = JSON.parse(localStorage.getItem("recurrentes")) || [];
 
-let recurrentes =
-    JSON.parse(localStorage.getItem("recurrentes")) || [];
-
+let moneda = localStorage.getItem("moneda") || "CRC";
 let filtroActual = null;
-
 let grafico = null;
 
-let estaEnInicio = true;
+const simbolos = {
+CRC: "₡",
+USD: "$",
+EUR: "€",
+MXN: "$",
+GBP: "£",
+BRL: "R$",
+COP: "$",
+CAD: "$"
+};
 
-
-/* =========================
-   GUARDAR
-========================= */
-
-function guardarMovimientos() {
-    localStorage.setItem(
-        "movimientos",
-        JSON.stringify(movimientos)
-    );
+function guardarDatos() {
+localStorage.setItem("movimientos", JSON.stringify(movimientos));
+localStorage.setItem("presupuestos", JSON.stringify(presupuestos));
+localStorage.setItem("recurrentes", JSON.stringify(recurrentes));
+localStorage.setItem("moneda", moneda);
 }
 
-function guardarPresupuestos() {
-    localStorage.setItem(
-        "presupuestos",
-        JSON.stringify(presupuestos)
-    );
+function formato(monto) {
+return (simbolos[moneda] || "") +
+Number(monto || 0).toLocaleString("es-CR", {
+minimumFractionDigits: 2,
+maximumFractionDigits: 2
+});
 }
 
-function guardarRecurrentes() {
-    localStorage.setItem(
-        "recurrentes",
-        JSON.stringify(recurrentes)
-    );
-}
+function fechaActual() {
+const fecha = new Date();
+const año = fecha.getFullYear();
+const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+const dia = String(fecha.getDate()).padStart(2, "0");
 
-
-/* =========================
-   MONEDA
-========================= */
-
-function formatoMoneda(valor) {
-
-    return new Intl.NumberFormat("es-CR", {
-        style: "currency",
-        currency: "CRC",
-        maximumFractionDigits: 0
-    }).format(valor);
+return `${año}-${mes}-${dia}`;
 
 }
 
-
-/* =========================
-   INICIO
-========================= */
-
-function irAInicio() {
-
-    estaEnInicio = true;
-
-    window.scrollTo(0, 0);
-
+function cambiarMoneda() {
+moneda = $("selectorMoneda").value;
+guardarDatos();
+actualizarTodo();
 }
-
-
-/* =========================
-   AGREGAR MOVIMIENTO
-========================= */
 
 function agregarMovimiento() {
+const tipo = $("tipo").value;
+const descripcion = $("descripcion").value.trim();
+const monto = Number($("monto").value);
+const categoria = $("categoria").value;
+const tipoGasto = $("tipoGasto").value;
 
-    const tipo =
-        document.getElementById("tipo").value;
+if (!descripcion || !Number.isFinite(monto) || monto <= 0) {
+    alert("Completa la descripción y coloca un monto válido.");
+    return;
+}
 
-    const descripcion =
-        document.getElementById("descripcion").value.trim();
+movimientos.push({
+    id: Date.now(),
+    tipo,
+    descripcion,
+    monto,
+    categoria,
+    tipoGasto: tipo === "gasto" ? tipoGasto : null,
+    fecha: fechaActual()
+});
 
-    const monto =
-        Number(
-            document.getElementById("monto").value
-        );
+$("descripcion").value = "";
+$("monto").value = "";
 
-    const categoria =
-        document.getElementById("categoria").value;
+filtroActual = null;
+guardarDatos();
+actualizarTodo();
 
-    const tipoGasto =
-        document.getElementById("tipoGasto").value;
-
-
-    if (!descripcion || monto <= 0) {
-
-        alert(
-            "Completa la descripción y el monto."
-        );
-
-        return;
-    }
-
-
-    movimientos.push({
-
-        id: Date.now(),
-
-        tipo: tipo,
-
-        descripcion: descripcion,
-
-        monto: monto,
-
-        categoria: categoria,
-
-        tipoGasto:
-            tipo === "gasto"
-                ? tipoGasto
-                : "",
-
-        fecha:
-            new Date().toISOString()
-
-    });
-
-
-    guardarMovimientos();
-
-
-    document.getElementById(
-        "descripcion"
-    ).value = "";
-
-
-    document.getElementById(
-        "monto"
-    ).value = "";
-
-
-    actualizarTodo();
-
-
-    irAInicio();
+alert("Movimiento agregado correctamente.");
 
 }
 
+function obtenerMovimientos() {
+if (!filtroActual) return movimientos;
 
-/* =========================
-   ELIMINAR
-========================= */
-
-function eliminarMovimiento(id) {
-
-    movimientos =
-        movimientos.filter(
-            m => m.id !== id
-        );
-
-    guardarMovimientos();
-
-    actualizarTodo();
+return movimientos.filter(m =>
+    m.fecha.startsWith(filtroActual)
+);
 
 }
 
+function calcularResumen() {
+const lista = obtenerMovimientos();
 
-function eliminarTodos() {
+const ingresos = lista
+    .filter(m => m.tipo === "ingreso")
+    .reduce((s, m) => s + m.monto, 0);
 
-    if (movimientos.length === 0) {
+const gastos = lista
+    .filter(m => m.tipo === "gasto")
+    .reduce((s, m) => s + m.monto, 0);
 
-        alert("No hay movimientos.");
+const fijos = lista
+    .filter(m => m.tipo === "gasto" && m.tipoGasto === "fijo")
+    .reduce((s, m) => s + m.monto, 0);
 
-        return;
-    }
+const variables = lista
+    .filter(m => m.tipo === "gasto" && m.tipoGasto === "variable")
+    .reduce((s, m) => s + m.monto, 0);
 
-
-    if (
-        !confirm(
-            "¿Seguro que quieres eliminar todos los movimientos?"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    movimientos = [];
-
-    guardarMovimientos();
-
-    actualizarTodo();
-
-}
-
-
-/* =========================
-   FILTRO
-========================= */
-
-function filtrarPorMes() {
-
-    const valor =
-        document.getElementById(
-            "filtroMes"
-        ).value;
-
-    filtroActual =
-        valor || null;
-
-    actualizarTodo();
+return {
+    ingresos,
+    gastos,
+    fijos,
+    variables,
+    disponible: ingresos - gastos
+};
 
 }
-
-
-function mostrarTodos() {
-
-    filtroActual = null;
-
-    document.getElementById(
-        "filtroMes"
-    ).value = "";
-
-    actualizarTodo();
-
-}
-
-
-/* =========================
-   MOVIMIENTOS FILTRADOS
-========================= */
-
-function obtenerMovimientosFiltrados() {
-
-    if (!filtroActual) {
-
-        return movimientos;
-
-    }
-
-
-    return movimientos.filter(m => {
-
-        if (!m.fecha) return false;
-
-
-        const fecha =
-            new Date(m.fecha);
-
-
-        const año =
-            fecha.getFullYear();
-
-
-        const mes =
-            String(
-                fecha.getMonth() + 1
-            ).padStart(2, "0");
-
-
-        return `${año}-${mes}` ===
-            filtroActual;
-
-    });
-
-}
-
-
-/* =========================
-   FINANZAS
-========================= */
-
-function calcularFinanzas(lista) {
-
-    let ingresos = 0;
-
-    let fijos = 0;
-
-    let variables = 0;
-
-
-    lista.forEach(m => {
-
-        if (m.tipo === "ingreso") {
-
-            ingresos +=
-                Number(m.monto);
-
-        }
-
-
-        if (m.tipo === "gasto") {
-
-            if (
-                m.tipoGasto === "fijo"
-            ) {
-
-                fijos +=
-                    Number(m.monto);
-
-            }
-
-            else {
-
-                variables +=
-                    Number(m.monto);
-
-            }
-
-        }
-
-    });
-
-
-    const gastos =
-        fijos + variables;
-
-
-    const disponible =
-        ingresos - gastos;
-
-
-    return {
-        ingresos,
-        fijos,
-        variables,
-        gastos,
-        disponible
-    };
-
-}
-
-
-/* =========================
-   DISPONIBLE
-========================= */
-
-function actualizarDineroDisponible() {
-
-    const finanzas =
-        calcularFinanzas(
-            obtenerMovimientosFiltrados()
-        );
-
-
-    document.getElementById(
-        "dineroIngresos"
-    ).textContent =
-        formatoMoneda(
-            finanzas.ingresos
-        );
-
-
-    document.getElementById(
-        "dineroFijos"
-    ).textContent =
-        formatoMoneda(
-            finanzas.fijos
-        );
-
-
-    document.getElementById(
-        "dineroDespuesFijos"
-    ).textContent =
-        formatoMoneda(
-            finanzas.ingresos -
-            finanzas.fijos
-        );
-
-
-    document.getElementById(
-        "dineroVariables"
-    ).textContent =
-        formatoMoneda(
-            finanzas.variables
-        );
-
-
-    document.getElementById(
-        "dineroDisponible"
-    ).textContent =
-        formatoMoneda(
-            finanzas.disponible
-        );
-
-}
-
-
-/* =========================
-   DASHBOARD
-========================= */
 
 function actualizarDashboard() {
+const r = calcularResumen();
 
-    const finanzas =
-        calcularFinanzas(
-            obtenerMovimientosFiltrados()
-        );
+$("dashboardIngresos").textContent = formato(r.ingresos);
+$("dashboardFijos").textContent = formato(r.fijos);
+$("dashboardVariables").textContent = formato(r.variables);
+$("dashboardDisponible").textContent = formato(r.disponible);
 
+const compromiso = r.ingresos > 0
+    ? (r.gastos / r.ingresos) * 100
+    : 0;
 
-    document.getElementById(
-        "dashboardIngresos"
-    ).textContent =
-        formatoMoneda(
-            finanzas.ingresos
-        );
+$("porcentajeCompromiso").textContent =
+    Math.round(compromiso) + "%";
 
+$("barraCompromiso").style.width =
+    Math.min(100, Math.max(0, compromiso)) + "%";
 
-    document.getElementById(
-        "dashboardFijos"
-    ).textContent =
-        formatoMoneda(
-            finanzas.fijos
-        );
+let mensaje = "";
 
+if (r.ingresos === 0) {
+    mensaje = "Agrega tus ingresos para comenzar a controlar tus finanzas.";
+} else if (r.disponible < 0) {
+    mensaje = "Atención: tus gastos superan tus ingresos.";
+} else if (compromiso >= 80) {
+    mensaje = "Cuidado: tienes gran parte de tus ingresos comprometidos.";
+} else if (compromiso >= 50) {
+    mensaje = "Vas avanzando. Revisa tus gastos para mejorar tu ahorro.";
+} else {
+    mensaje = "¡Excelente! Mantienes tus gastos bajo control.";
+}
 
-    document.getElementById(
-        "dashboardVariables"
-    ).textContent =
-        formatoMoneda(
-            finanzas.variables
-        );
+$("mensajeDashboard").textContent = mensaje;
 
+$("totalIngresos").textContent = formato(r.ingresos);
+$("totalGastos").textContent = formato(r.gastos);
+$("saldo").textContent = formato(r.disponible);
 
-    document.getElementById(
-        "dashboardDisponible"
-    ).textContent =
-        formatoMoneda(
-            finanzas.disponible
-        );
-
-
-    let porcentaje = 0;
-
-
-    if (finanzas.ingresos > 0) {
-
-        porcentaje =
-            (
-                finanzas.gastos /
-                finanzas.ingresos
-            ) * 100;
-
-    }
-
-
-    document.getElementById(
-        "porcentajeCompromiso"
-    ).textContent =
-        Math.round(porcentaje) + "%";
-
-
-    document.getElementById(
-        "barraCompromiso"
-    ).style.width =
-        Math.min(
-            porcentaje,
-            100
-        ) + "%";
-
-
-    const mensaje =
-        document.getElementById(
-            "mensajeDashboard"
-        );
-
-
-    if (
-        finanzas.ingresos === 0
-    ) {
-
-        mensaje.textContent =
-            "Agrega un ingreso para comenzar.";
-
-    }
-
-    else if (
-        finanzas.disponible < 0
-    ) {
-
-        mensaje.textContent =
-            "🚨 Estás gastando más de lo que ingresas.";
-
-    }
-
-    else if (
-        porcentaje >= 80
-    ) {
-
-        mensaje.textContent =
-            "⚠️ La mayor parte de tus ingresos está comprometida.";
-
-    }
-
-    else if (
-        porcentaje >= 50
-    ) {
-
-        mensaje.textContent =
-            "⚠️ Más de la mitad de tus ingresos está comprometida.";
-
-    }
-
-    else {
-
-        mensaje.textContent =
-            "✅ Tu nivel de gastos está bajo control.";
-
-    }
+$("dineroIngresos").textContent = formato(r.ingresos);
+$("dineroFijos").textContent = formato(r.fijos);
+$("dineroDespuesFijos").textContent =
+    formato(r.ingresos - r.fijos);
+$("dineroVariables").textContent = formato(r.variables);
+$("dineroDisponible").textContent = formato(r.disponible);
 
 }
 
-
-/* =========================
-   RESUMEN
-========================= */
-
-function actualizarResumen() {
-
-    const finanzas =
-        calcularFinanzas(
-            obtenerMovimientosFiltrados()
-        );
-
-
-    document.getElementById(
-        "totalIngresos"
-    ).textContent =
-        formatoMoneda(
-            finanzas.ingresos
-        );
-
-
-    document.getElementById(
-        "totalGastos"
-    ).textContent =
-        formatoMoneda(
-            finanzas.gastos
-        );
-
-
-    document.getElementById(
-        "saldo"
-    ).textContent =
-        formatoMoneda(
-            finanzas.disponible
-        );
-
+function filtrarPorMes() {
+filtroActual = $("filtroMes").value || null;
+actualizarTodo();
 }
 
-
-/* =========================
-   TIPOS
-========================= */
-
-function actualizarTiposGasto() {
-
-    const finanzas =
-        calcularFinanzas(
-            obtenerMovimientosFiltrados()
-        );
-
-
-    document.getElementById(
-        "totalFijos"
-    ).textContent =
-        formatoMoneda(
-            finanzas.fijos
-        );
-
-
-    document.getElementById(
-        "totalVariables"
-    ).textContent =
-        formatoMoneda(
-            finanzas.variables
-        );
-
+function mostrarTodos() {
+filtroActual = null;
+$("filtroMes").value = "";
+actualizarTodo();
 }
-
-
-/* =========================
-   MOVIMIENTOS
-========================= */
 
 function mostrarMovimientos() {
+const contenedor = $("listaMovimientos");
+contenedor.innerHTML = "";
 
-    const contenedor =
-        document.getElementById(
-            "listaMovimientos"
-        );
+const lista = [...obtenerMovimientos()].reverse();
 
+if (lista.length === 0) {
+    contenedor.textContent = "No hay movimientos registrados.";
+    return;
+}
 
-    const lista =
-        obtenerMovimientosFiltrados();
+lista.forEach(m => {
+    const item = document.createElement("div");
 
+    const titulo = document.createElement("strong");
+    titulo.textContent = m.descripcion;
 
-    if (lista.length === 0) {
+    const detalle = document.createElement("p");
+    detalle.textContent =
+        `${m.fecha} | ${m.categoria} | ` +
+        `${m.tipo === "ingreso" ? "Ingreso" : "Gasto"}`;
 
-        contenedor.innerHTML =
-            "<p>No hay movimientos.</p>";
+    const monto = document.createElement("p");
+    monto.textContent = formato(m.monto);
+    monto.style.fontWeight = "bold";
+    monto.style.color =
+        m.tipo === "ingreso" ? "#059669" : "#dc2626";
 
-        return;
+    const eliminar = document.createElement("button");
+    eliminar.textContent = "Eliminar";
+    eliminar.onclick = () => eliminarMovimiento(m.id);
 
-    }
-
-
-    contenedor.innerHTML = "";
-
-
-    [...lista]
-        .reverse()
-        .forEach(m => {
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-
-            div.className =
-                "movimiento " +
-                (
-                    m.tipo === "ingreso"
-                        ? "movimiento-ingreso"
-                        : "movimiento-gasto"
-                );
-
-
-            const fecha =
-                m.fecha
-                    ? new Date(
-                        m.fecha
-                    ).toLocaleDateString(
-                        "es-CR"
-                    )
-                    : "";
-
-
-            const signo =
-                m.tipo === "ingreso"
-                    ? "+"
-                    : "-";
-
-
-            const tipoTexto =
-                m.tipo === "ingreso"
-                    ? "Ingreso"
-                    : `Gasto ${
-                        m.tipoGasto ||
-                        "variable"
-                    }`;
-
-
-            div.innerHTML = `
-
-                <div class="movimiento-header">
-
-                    <div class="movimiento-descripcion">
-                        ${m.descripcion}
-                    </div>
-
-                    <div class="movimiento-monto">
-                        ${signo}${formatoMoneda(m.monto)}
-                    </div>
-
-                </div>
-
-                <div class="movimiento-info">
-                    ${m.categoria}
-                    ·
-                    ${tipoTexto}
-                    ·
-                    ${fecha}
-                </div>
-
-                <button
-                    onclick="eliminarMovimiento(${m.id})"
-                >
-                    🗑️ Eliminar
-                </button>
-
-            `;
-
-
-            contenedor.appendChild(div);
-
-        });
+    item.append(titulo, detalle, monto, eliminar);
+    contenedor.appendChild(item);
+});
 
 }
 
+function eliminarMovimiento(id) {
+if (!confirm("¿Deseas eliminar este movimiento?")) return;
 
-/* =========================
-   CATEGORIAS
-========================= */
+movimientos = movimientos.filter(m => m.id !== id);
 
-function obtenerCategorias() {
-
-    const categorias = {};
-
-
-    obtenerMovimientosFiltrados()
-        .filter(
-            m => m.tipo === "gasto"
-        )
-        .forEach(m => {
-
-            const categoria =
-                m.categoria ||
-                "Otros";
-
-
-            categorias[categoria] =
-                (
-                    categorias[categoria] ||
-                    0
-                ) +
-                Number(m.monto);
-
-        });
-
-
-    return categorias;
+guardarDatos();
+actualizarTodo();
 
 }
 
+function actualizarGrafico() {
+if (typeof Chart === "undefined") return;
 
-function mostrarCategorias() {
+const gastos = {};
 
-    const contenedor =
-        document.getElementById(
-            "listaCategorias"
-        );
+obtenerMovimientos()
+    .filter(m => m.tipo === "gasto")
+    .forEach(m => {
+        gastos[m.categoria] =
+            (gastos[m.categoria] || 0) + m.monto;
+    });
 
+const canvas = $("graficoGastos");
+if (!canvas) return;
 
-    const categorias =
-        obtenerCategorias();
+if (grafico) grafico.destroy();
 
-
-    contenedor.innerHTML = "";
-
-
-    const ordenadas =
-        Object.entries(categorias)
-            .sort(
-                (a, b) =>
-                    b[1] - a[1]
-            );
-
-
-    if (
-        ordenadas.length === 0
-    ) {
-
-        contenedor.innerHTML =
-            "<p>No hay gastos.</p>";
-
-        return;
-
-    }
-
-
-    ordenadas.forEach(
-        ([categoria, monto]) => {
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-
-            div.className =
-                "categoria-item";
-
-
-            div.innerHTML = `
-
-                <span>
-                    ${categoria}
-                </span>
-
-                <strong>
-                    ${formatoMoneda(monto)}
-                </strong>
-
-            `;
-
-
-            contenedor.appendChild(div);
-
-        }
-    );
-
-}
-
-
-/* =========================
-   GRAFICO
-========================= */
-
-function crearGrafico() {
-
-    const categorias =
-        obtenerCategorias();
-
-
-    const canvas =
-        document.getElementById(
-            "graficoCategorias"
-        );
-
-
-    if (grafico) {
-
-        grafico.destroy();
-
-        grafico = null;
-
-    }
-
-
-    if (
-        Object.keys(categorias)
-            .length === 0
-    ) {
-
-        return;
-
-    }
-
-
-    grafico =
-        new Chart(
-            canvas,
-            {
-
-                type: "doughnut",
-
-                data: {
-
-                    labels:
-                        Object.keys(
-                            categorias
-                        ),
-
-                    datasets: [
-
-                        {
-                            data:
-                                Object.values(
-                                    categorias
-                                )
-                        }
-
-                    ]
-
-                },
-
-                options: {
-
-                    responsive: true,
-
-                    animation: false,
-
-                    plugins: {
-
-                        legend: {
-
-                            position:
-                                "bottom"
-
-                        }
-
-                    }
-
+grafico = new Chart(canvas, {
+    type: "doughnut",
+    data: {
+        labels: Object.keys(gastos),
+        datasets: [{
+            data: Object.values(gastos),
+            backgroundColor: [
+                "#2563eb",
+                "#10b981",
+                "#f59e0b",
+                "#ef4444",
+                "#8b5cf6",
+                "#06b6d4",
+                "#ec4899",
+                "#64748b"
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: "bottom"
+            },
+            tooltip: {
+                callbacks: {
+                    label: context =>
+                        context.label + ": " +
+                        formato(context.raw)
                 }
-
             }
-        );
+        }
+    }
+});
 
 }
 
+function agregarPresupuesto() {
+const categoria = $("presupuestoCategoria").value;
+const monto = Number($("presupuestoMonto").value);
 
-/* =========================
-   PRESUPUESTO
-========================= */
+if (!Number.isFinite(monto) || monto <= 0) {
+    alert("Ingresa un presupuesto válido.");
+    return;
+}
 
-function guardarPresupuesto() {
+presupuestos = presupuestos.filter(p =>
+    !(p.categoria === categoria && p.mes === mesActual())
+);
 
-    const mes =
-        document.getElementById(
-            "mesPresupuesto"
-        ).value;
+presupuestos.push({
+    id: Date.now(),
+    categoria,
+    monto,
+    mes: mesActual()
+});
 
+$("presupuestoMonto").value = "";
 
-    const monto =
-        Number(
-            document.getElementById(
-                "montoPresupuesto"
-            ).value
-        );
+guardarDatos();
+mostrarPresupuestos();
 
-
-    if (
-        !mes ||
-        monto <= 0
-    ) {
-
-        alert(
-            "Selecciona un mes y coloca un presupuesto válido."
-        );
-
-        return;
-
-    }
-
-
-    presupuestos[mes] =
-        monto;
-
-
-    guardarPresupuestos();
-
-
-    actualizarTodo();
+alert("Presupuesto guardado.");
 
 }
 
-
-function actualizarPresupuesto() {
-
-    let mes =
-        document.getElementById(
-            "mesPresupuesto"
-        ).value;
-
-
-    if (!mes) {
-
-        const hoy =
-            new Date();
-
-
-        mes =
-            `${hoy.getFullYear()}-${
-                String(
-                    hoy.getMonth() + 1
-                ).padStart(2, "0")
-            }`;
-
-
-        document.getElementById(
-            "mesPresupuesto"
-        ).value =
-            mes;
-
-    }
-
-
-    const presupuesto =
-        Number(
-            presupuestos[mes] || 0
-        );
-
-
-    const movimientosMes =
-        movimientos.filter(m => {
-
-            if (!m.fecha)
-                return false;
-
-
-            const fecha =
-                new Date(m.fecha);
-
-
-            const fechaMes =
-                `${fecha.getFullYear()}-${
-                    String(
-                        fecha.getMonth() + 1
-                    ).padStart(2, "0")
-                }`;
-
-
-            return fechaMes === mes;
-
-        });
-
-
-    const gastado =
-        movimientosMes
-            .filter(
-                m => m.tipo === "gasto"
-            )
-            .reduce(
-                (total, m) =>
-                    total +
-                    Number(m.monto),
-                0
-            );
-
-
-    const disponible =
-        presupuesto -
-        gastado;
-
-
-    document.getElementById(
-        "presupuestoActual"
-    ).textContent =
-        formatoMoneda(
-            presupuesto
-        );
-
-
-    document.getElementById(
-        "presupuestoGastado"
-    ).textContent =
-        formatoMoneda(
-            gastado
-        );
-
-
-    document.getElementById(
-        "presupuestoDisponible"
-    ).textContent =
-        formatoMoneda(
-            disponible
-        );
-
-
-    let porcentaje = 0;
-
-
-    if (presupuesto > 0) {
-
-        porcentaje =
-            (
-                gastado /
-                presupuesto
-            ) * 100;
-
-    }
-
-
-    document.getElementById(
-        "barraPresupuesto"
-    ).style.width =
-        Math.min(
-            porcentaje,
-            100
-        ) + "%";
-
-
-    const mensaje =
-        document.getElementById(
-            "mensajePresupuesto"
-        );
-
-
-    if (!presupuesto) {
-
-        mensaje.textContent =
-            "Define un presupuesto para este mes.";
-
-    }
-
-    else if (
-        gastado >= presupuesto
-    ) {
-
-        mensaje.textContent =
-            "🚨 Has superado tu presupuesto.";
-
-    }
-
-    else if (
-        porcentaje >= 80
-    ) {
-
-        mensaje.textContent =
-            "⚠️ Has utilizado más del 80%.";
-
-    }
-
-    else {
-
-        mensaje.textContent =
-            "✅ Vas dentro de tu presupuesto.";
-
-    }
-
+function mesActual() {
+return fechaActual().slice(0, 7);
 }
 
+function mostrarPresupuestos() {
+const contenedor = $("listaPresupuestos");
+contenedor.innerHTML = "";
 
-/* =========================
-   RECURRENTES
-========================= */
+const mes = filtroActual || mesActual();
+
+const lista = presupuestos.filter(p => p.mes === mes);
+
+if (lista.length === 0) {
+    contenedor.textContent = "No hay presupuestos para este mes.";
+    return;
+}
+
+lista.forEach(p => {
+    const gastado = obtenerMovimientos()
+        .filter(m =>
+            m.tipo === "gasto" &&
+            m.categoria === p.categoria &&
+            m.fecha.startsWith(p.mes)
+        )
+        .reduce((s, m) => s + m.monto, 0);
+
+    const restante = p.monto - gastado;
+
+    const item = document.createElement("div");
+
+    const titulo = document.createElement("strong");
+    titulo.textContent = p.categoria;
+
+    const detalle = document.createElement("p");
+    detalle.textContent =
+        `Presupuesto: ${formato(p.monto)} | Gastado: ${formato(gastado)}`;
+
+    const saldo = document.createElement("p");
+    saldo.textContent =
+        restante >= 0
+            ? `Disponible: ${formato(restante)}`
+            : `Excedido por: ${formato(Math.abs(restante))}`;
+
+    saldo.style.color = restante >= 0 ? "#059669" : "#dc2626";
+
+    const eliminar = document.createElement("button");
+    eliminar.textContent = "Eliminar presupuesto";
+    eliminar.onclick = () => {
+        presupuestos = presupuestos.filter(x => x.id !== p.id);
+        guardarDatos();
+        mostrarPresupuestos();
+    };
+
+    item.append(titulo, detalle, saldo, eliminar);
+    contenedor.appendChild(item);
+});
+
+}
 
 function agregarRecurrente() {
+const descripcion = $("recurrenteDescripcion").value.trim();
+const monto = Number($("recurrenteMonto").value);
+const categoria = $("recurrenteCategoria").value;
+const frecuencia = $("recurrenteFrecuencia").value;
 
-    const descripcion =
-        document.getElementById(
-            "recurrenteDescripcion"
-        ).value.trim();
-
-
-    const monto =
-        Number(
-            document.getElementById(
-                "recurrenteMonto"
-            ).value
-        );
-
-
-    const categoria =
-        document.getElementById(
-            "recurrenteCategoria"
-        ).value;
-
-
-    const dia =
-        Number(
-            document.getElementById(
-                "recurrenteDia"
-            ).value
-        );
-
-
-    if (
-        !descripcion ||
-        monto <= 0 ||
-        dia < 1 ||
-        dia > 31
-    ) {
-
-        alert(
-            "Completa correctamente los datos."
-        );
-
-        return;
-
-    }
-
-
-    recurrentes.push({
-
-        id: Date.now(),
-
-        descripcion,
-
-        monto,
-
-        categoria,
-
-        dia
-
-    });
-
-
-    guardarRecurrentes();
-
-
-    document.getElementById(
-        "recurrenteDescripcion"
-    ).value = "";
-
-
-    document.getElementById(
-        "recurrenteMonto"
-    ).value = "";
-
-
-    document.getElementById(
-        "recurrenteDia"
-    ).value = "";
-
-
-    mostrarRecurrentes();
-
+if (!descripcion || !Number.isFinite(monto) || monto <= 0) {
+    alert("Completa los datos del gasto recurrente.");
+    return;
 }
 
-
-function mostrarRecurrentes() {
-
-    const contenedor =
-        document.getElementById(
-            "listaRecurrentes"
-        );
-
-
-    contenedor.innerHTML = "";
-
-
-    if (
-        recurrentes.length === 0
-    ) {
-
-        contenedor.innerHTML =
-            "<p>No tienes gastos recurrentes.</p>";
-
-        return;
-
-    }
-
-
-    recurrentes.forEach(r => {
-
-        const div =
-            document.createElement(
-                "div"
-            );
-
-
-        div.className =
-            "recurrente";
-
-
-        div.innerHTML = `
-
-            <strong>
-                ${r.descripcion}
-            </strong>
-
-            <p>
-                ${formatoMoneda(r.monto)}
-                · ${r.categoria}
-                · Día ${r.dia}
-            </p>
-
-            <button
-                onclick="eliminarRecurrente(${r.id})"
-            >
-                🗑️ Eliminar
-            </button>
-
-        `;
-
-
-        contenedor.appendChild(div);
-
-    });
-
-}
-
-
-function eliminarRecurrente(id) {
-
-    recurrentes =
-        recurrentes.filter(
-            r => r.id !== id
-        );
-
-
-    guardarRecurrentes();
-
-    mostrarRecurrentes();
-
-}
-
-
-function generarRecurrentesDelMes() {
-
-    let mes =
-        document.getElementById(
-            "mesPresupuesto"
-        ).value;
-
-
-    if (!mes) {
-
-        const hoy =
-            new Date();
-
-
-        mes =
-            `${hoy.getFullYear()}-${
-                String(
-                    hoy.getMonth() + 1
-                ).padStart(2, "0")
-            }`;
-
-    }
-
-
-    const partes =
-        mes.split("-");
-
-
-    const año =
-        Number(partes[0]);
-
-
-    const mesNumero =
-        Number(partes[1]);
-
-
-    let generados = 0;
-
-
-    recurrentes.forEach(r => {
-
-        const yaExiste =
-            movimientos.some(m =>
-                m.recurrenteId === r.id &&
-                m.mesGenerado === mes
-            );
-
-
-        if (yaExiste)
-            return;
-
-
-        const ultimoDia =
-            new Date(
-                año,
-                mesNumero,
-                0
-            ).getDate();
-
-
-        const diaReal =
-            Math.min(
-                r.dia,
-                ultimoDia
-            );
-
-
-        const fecha =
-            new Date(
-                año,
-                mesNumero - 1,
-                diaReal,
-                12,
-                0,
-                0
-            );
-
-
-        movimientos.push({
-
-            id:
-                Date.now() +
-                generados,
-
-            tipo: "gasto",
-
-            descripcion:
-                r.descripcion,
-
-            monto:
-                r.monto,
-
-            categoria:
-                r.categoria,
-
-            tipoGasto:
-                "fijo",
-
-            fecha:
-                fecha.toISOString(),
-
-            recurrenteId:
-                r.id,
-
-            mesGenerado:
-                mes
-
-        });
-
-
-        generados++;
-
-    });
-
-
-    guardarMovimientos();
-
-    actualizarTodo();
-
-
-    alert(
-        generados === 0
-            ? "Los gastos de este mes ya estaban generados."
-            : `Se generaron ${generados} gasto(s).`
-    );
-
-}
-
-
-/* =========================
-   CONSEJOS
-========================= */
-
-function generarConsejos() {
-
-    const contenedor =
-        document.getElementById(
-            "listaConsejos"
-        );
-
-
-    const lista =
-        obtenerMovimientosFiltrados();
-
-
-    const finanzas =
-        calcularFinanzas(lista);
-
-
-    const consejos = [];
-
-
-    if (
-        finanzas.ingresos === 0
-    ) {
-
-        consejos.push({
-
-            tipo: "info",
-
-            titulo:
-                "💡 Registra tus ingresos",
-
-            texto:
-                "Agrega tu salario u otras entradas de dinero para comenzar el análisis."
-
-        });
-
-    }
-
-
-    if (
-        finanzas.disponible < 0
-    ) {
-
-        consejos.push({
-
-            tipo: "danger",
-
-            titulo:
-                "🚨 Gastas más de lo que ingresas",
-
-            texto:
-                `Estás gastando ${formatoMoneda(
-                    Math.abs(
-                        finanzas.disponible
-                    )
-                )} más de lo que ingresas.`
-
-        });
-
-    }
-
-
-    if (
-        finanzas.ingresos > 0 &&
-        finanzas.disponible > 0
-    ) {
-
-        consejos.push({
-
-            tipo: "success",
-
-            titulo:
-                "💰 Dinero disponible",
-
-            texto:
-                `Tienes ${formatoMoneda(
-                    finanzas.disponible
-                )} disponibles después de los gastos registrados.`
-
-        });
-
-    }
-
-
-    if (
-        finanzas.ingresos > 0
-    ) {
-
-        const compromiso =
-            (
-                finanzas.gastos /
-                finanzas.ingresos
-            ) * 100;
-
-
-        if (
-            compromiso >= 80
-        ) {
-
-            consejos.push({
-
-                tipo: "danger",
-
-                titulo:
-                    "⚠️ Gastos muy altos",
-
-                texto:
-                    `Tienes comprometido aproximadamente el ${Math.round(
-                        compromiso
-                    )}% de tus ingresos.`
-
-            });
-
-        }
-
-        else if (
-            compromiso >= 50
-        ) {
-
-            consejos.push({
-
-                tipo: "warning",
-
-                titulo:
-                    "👀 Vigila tus gastos",
-
-                texto:
-                    `Has comprometido aproximadamente el ${Math.round(
-                        compromiso
-                    )}% de tus ingresos.`
-
-            });
-
-        }
-
-    }
-
-
-    if (
-        finanzas.ingresos > 0
-    ) {
-
-        const porcentajeFijos =
-            (
-                finanzas.fijos /
-                finanzas.ingresos
-            ) * 100;
-
-
-        if (
-            porcentajeFijos >= 50
-        ) {
-
-            consejos.push({
-
-                tipo: "danger",
-
-                titulo:
-                    "🔒 Gastos fijos elevados",
-
-                texto:
-                    `Tus gastos fijos representan aproximadamente el ${Math.round(
-                        porcentajeFijos
-                    )}% de tus ingresos.`
-
-            });
-
-        }
-
-        else if (
-            porcentajeFijos >= 30
-        ) {
-
-            consejos.push({
-
-                tipo: "warning",
-
-                titulo:
-                    "🔒 Revisa tus gastos fijos",
-
-                texto:
-                    `Tus gastos fijos representan aproximadamente el ${Math.round(
-                        porcentajeFijos
-                    )}% de tus ingresos.`
-
-            });
-
-        }
-
-    }
-
-
-    const categorias =
-        obtenerCategorias();
-
-
-    const ordenadas =
-        Object.entries(categorias)
-            .sort(
-                (a, b) =>
-                    b[1] - a[1]
-            );
-
-
-    if (
-        ordenadas.length > 0 &&
-        finanzas.gastos > 0
-    ) {
-
-        const categoria =
-            ordenadas[0][0];
-
-
-        const monto =
-            ordenadas[0][1];
-
-
-        const porcentaje =
-            (
-                monto /
-                finanzas.gastos
-            ) * 100;
-
-
-        if (
-            porcentaje >= 30
-        ) {
-
-            consejos.push({
-
-                tipo: "warning",
-
-                titulo:
-                    `📊 Mayor gasto: ${categoria}`,
-
-                texto:
-                    `${categoria} representa aproximadamente el ${Math.round(
-                        porcentaje
-                    )}% de tus gastos.`
-
-            });
-
-        }
-
-    }
-
-
-    const mes =
-        document.getElementById(
-            "mesPresupuesto"
-        ).value;
-
-
-    const presupuesto =
-        Number(
-            presupuestos[mes] || 0
-        );
-
-
-    if (
-        presupuesto > 0
-    ) {
-
-        const gastado =
-            movimientos
-                .filter(m => {
-
-                    if (!m.fecha)
-                        return false;
-
-
-                    const fecha =
-                        new Date(m.fecha);
-
-
-                    const fechaMes =
-                        `${fecha.getFullYear()}-${
-                            String(
-                                fecha.getMonth() + 1
-                            ).padStart(2, "0")
-                        }`;
-
-
-                    return (
-                        fechaMes === mes &&
-                        m.tipo === "gasto"
-                    );
-
-                })
-                .reduce(
-                    (total, m) =>
-                        total +
-                        Number(m.monto),
-                    0
-                );
-
-
-        const porcentaje =
-            (
-                gastado /
-                presupuesto
-            ) * 100;
-
-
-        if (
-            porcentaje >= 100
-        ) {
-
-            consejos.push({
-
-                tipo: "danger",
-
-                titulo:
-                    "🚨 Presupuesto superado",
-
-                texto:
-                    `Has gastado ${formatoMoneda(
-                        gastado
-                    )} de ${formatoMoneda(
-                        presupuesto
-                    )}.`
-
-            });
-
-        }
-
-        else if (
-            porcentaje >= 80
-        ) {
-
-            consejos.push({
-
-                tipo: "warning",
-
-                titulo:
-                    "⚠️ Presupuesto cerca del límite",
-
-                texto:
-                    `Ya utilizaste aproximadamente el ${Math.round(
-                        porcentaje
-                    )}% de tu presupuesto.`
-
-            });
-
-        }
-
-        else {
-
-            consejos.push({
-
-                tipo: "success",
-
-                titulo:
-                    "🎯 Presupuesto bajo control",
-
-                texto:
-                    `Has utilizado aproximadamente el ${Math.round(
-                        porcentaje
-                    )}% de tu presupuesto.`
-
-            });
-
-        }
-
-    }
-
-
-    contenedor.innerHTML = "";
-
-
-    consejos.forEach(c => {
-
-        const div =
-            document.createElement(
-                "div"
-            );
-
-
-        div.className =
-            `consejo ${c.tipo}`;
-
-
-        div.innerHTML = `
-
-            <strong>
-                ${c.titulo}
-            </strong>
-
-            <p>
-                ${c.texto}
-            </p>
-
-        `;
-
-
-        contenedor.appendChild(div);
-
-    });
-
-
-    if (
-        consejos.length === 0
-    ) {
-
-        contenedor.innerHTML = `
-
-            <div class="consejo success">
-
-                <strong>
-                    ✅ Todo se ve bien
-                </strong>
-
-                <p>
-                    Sigue registrando tus movimientos para obtener mejores recomendaciones.
-                </p>
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* =========================
-   EXPORTAR DATOS
-========================= */
-
-function exportarDatos() {
-
-    try {
-
-        const datos = {
-
-            version: 1,
-
-            fechaExportacion:
-                new Date().toISOString(),
-
-            movimientos:
-                movimientos,
-
-            presupuestos:
-                presupuestos,
-
-            recurrentes:
-                recurrentes
-
-        };
-
-
-        const contenido =
-            JSON.stringify(
-                datos,
-                null,
-                2
-            );
-
-
-        const blob =
-            new Blob(
-                [contenido],
-                {
-                    type:
-                        "application/json"
-                }
-            );
-
-
-        const url =
-            URL.createObjectURL(
-                blob
-            );
-
-
-        const enlace =
-            document.createElement(
-                "a"
-            );
-
-
-        const fecha =
-            new Date()
-                .toISOString()
-                .split("T")[0];
-
-
-        enlace.href =
-            url;
-
-
-        enlace.download =
-            `mis-finanzas-respaldo-${fecha}.json`;
-
-
-        enlace.style.display =
-            "none";
-
-
-        document.body.appendChild(
-            enlace
-        );
-
-
-        enlace.click();
-
-
-        setTimeout(() => {
-
-            document.body.removeChild(
-                enlace
-            );
-
-            URL.revokeObjectURL(
-                url
-            );
-
-        }, 1000);
-
-
-        alert(
-            "✅ Copia de seguridad preparada. Revisa la carpeta de descargas."
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        alert(
-            "❌ No se pudo crear la copia de seguridad."
-        );
-
-    }
-
-}
-
-
-/* =========================
-   IMPORTAR DATOS
-========================= */
-
-function importarDatos(event) {
-
-    const archivo =
-        event.target.files[0];
-
-
-    if (!archivo)
-        return;
-
-
-    const lector =
-        new FileReader();
-
-
-    lector.onload =
-        function(e) {
-
-            try {
-
-                const datos =
-                    JSON.parse(
-                        e.target.result
-                    );
-
-
-                if (
-                    !Array.isArray(
-                        datos.movimientos
-                    ) ||
-                    typeof datos.presupuestos !==
-                        "object" ||
-                    !Array.isArray(
-                        datos.recurrentes
-                    )
-                ) {
-
-                    alert(
-                        "❌ El archivo no es un respaldo válido."
-                    );
-
-                    return;
-
-                }
-
-
-                if (
-                    !confirm(
-                        "Esto reemplazará tus datos actuales. ¿Continuar?"
-                    )
-                ) {
-
-                    return;
-
-                }
-
-
-                movimientos =
-                    datos.movimientos;
-
-
-                presupuestos =
-                    datos.presupuestos;
-
-
-                recurrentes =
-                    datos.recurrentes;
-
-
-                guardarMovimientos();
-
-                guardarPresupuestos();
-
-                guardarRecurrentes();
-
-
-                actualizarTodo();
-
-
-                alert(
-                    "✅ Datos restaurados correctamente."
-                );
-
-            }
-
-            catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "❌ No se pudo leer el archivo."
-                );
-
-            }
-
-        };
-
-
-    lector.readAsText(
-        archivo
-    );
-
-}
-
-
-/* =========================
-   ACTUALIZAR TODO
-========================= */
-
-function actualizarTodo() {
-
-    actualizarDashboard();
-
-    actualizarDineroDisponible();
-
-    actualizarResumen();
-
-    actualizarTiposGasto();
-
-    actualizarPresupuesto();
-
-    mostrarMovimientos();
-
-    mostrarCategorias();
-
-    crearGrafico();
-
-    mostrarRecurrentes();
-
-    generarConsejos();
-
-}
-
-
-/* =========================
-   BOTÓN ATRÁS ANDROID
-========================= */
-
-window.addEventListener(
-    "popstate",
-    function() {
-
-        if (!estaEnInicio) {
-
-            estaEnInicio = true;
-
-            window.scrollTo(
-                0,
-                0
-            );
-
-            history.pushState(
-                {
-                    inicio: true
-                },
-                "",
-                "#inicio"
-            );
-
-            return;
-
-        }
-
-        /*
-         * En navegador no podemos
-         * cerrar la aplicación.
-         *
-         * Cuando esto sea APK,
-         * aquí conectaremos el
-         * botón Atrás de Android
-         * con el cierre real.
-         */
-
-        alert(
-            "Para salir, cierra la ventana de la aplicación."
-        );
-
-    }
-);
-
-
-/* =========================
-   DETECTAR NAVEGACION
-========================= */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const enlace =
-            event.target.closest(
-                ".bottom-nav a"
-            );
-
-
-        if (!enlace)
-            return;
-
-
-        const destino =
-            enlace.getAttribute(
-                "href"
-            );
-
-
-        if (
-            destino !== "#inicio"
-        ) {
-
-            estaEnInicio = false;
-
-            history.pushState(
-                {
-                    seccion: destino
-                },
-                "",
-                destino
-            );
-
-        }
-
-        else {
-
-            estaEnInicio = true;
-
-            history.pushState(
-                {
-                    inicio: true
-                },
-                "",
-                "#inicio"
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================
-   INICIO
-========================= */
-
-history.replaceState(
-    {
-        inicio: true
-    },
-    "",
-    "#inicio"
-);
-
-
+recurrentes.push({
+    id: Date.now(),
+    descripcion,
+    monto,
+    categoria,
+    frecuencia
+});
+
+$("recurrenteDescripcion").value = "";
+$("recurrenteMonto").value = "";
+
+guardarDatos();
 mostrarRecurrentes();
 
+}
+
+function mostrarRecurrentes() {
+const contenedor = $("listaRecurrentes");
+contenedor.innerHTML = "";
+
+if (recurrentes.length === 0) {
+    contenedor.textContent = "No tienes gastos recurrentes registrados.";
+    return;
+}
+
+recurrentes.forEach(r => {
+    const item = document.createElement("div");
+
+    const titulo = document.createElement("strong");
+    titulo.textContent = r.descripcion;
+
+    const detalle = document.createElement("p");
+    detalle.textContent =
+        `${formato(r.monto)} | ${r.categoria} | ${r.frecuencia}`;
+
+    const eliminar = document.createElement("button");
+    eliminar.textContent = "Eliminar";
+    eliminar.onclick = () => {
+        recurrentes = recurrentes.filter(x => x.id !== r.id);
+        guardarDatos();
+        mostrarRecurrentes();
+    };
+
+    item.append(titulo, detalle, eliminar);
+    contenedor.appendChild(item);
+});
+
+}
+
+function mostrarConsejos() {
+const r = calcularResumen();
+const consejos = [];
+
+if (r.ingresos === 0) {
+    consejos.push("Registra tus ingresos para conocer tu capacidad financiera.");
+} else {
+    const porcentaje = r.gastos / r.ingresos * 100;
+
+    if (porcentaje > 80) {
+        consejos.push("Tus gastos son elevados. Revisa cuáles puedes reducir.");
+    } else {
+        consejos.push("Mantén el control de tus gastos y evita compras innecesarias.");
+    }
+
+    if (r.disponible > 0) {
+        consejos.push("Considera destinar parte de tu dinero disponible al ahorro.");
+    } else {
+        consejos.push("Prioriza los gastos esenciales y evita aumentar tus deudas.");
+    }
+}
+
+consejos.push("Establece presupuestos para controlar tus gastos por categoría.");
+consejos.push("Revisa periódicamente tus gastos recurrentes.");
+
+const contenedor = $("listaConsejos");
+contenedor.innerHTML = "";
+
+consejos.forEach(consejo => {
+    const item = document.createElement("div");
+    item.textContent = "💡 " + consejo;
+    contenedor.appendChild(item);
+});
+
+}
+
+function actualizarTodo() {
+actualizarDashboard();
+mostrarMovimientos();
+actualizarGrafico();
+mostrarPresupuestos();
+mostrarRecurrentes();
+mostrarConsejos();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+$("selectorMoneda").value = moneda;
+
+if (typeof Chart === "undefined") {
+    console.warn("Chart.js no está disponible.");
+}
+
 actualizarTodo();
+
+});
