@@ -1,11 +1,12 @@
+
 "use strict";
 
-/* =========================================================
+/* =====================================================
    MIS FINANZAS 2.0
-   Idiomas: Español / English
-   Moneda principal inicial: CRC
-   Tipos de cambio: automático + manual
-   ========================================================= */
+   Compatible con index.html y style.css actuales
+   CRC principal | Tasas automáticas y manuales
+   Español / English
+   ===================================================== */
 
 const CLAVES = {
   movimientos: "mf_movimientos_v2",
@@ -27,407 +28,242 @@ const MONEDAS = {
   CAD: "Dólar canadiense"
 };
 
-const TEXTOS = {
+const TRADUCCIONES = {
   es: {
-    app_title: "Mis Finanzas",
-    app_subtitle: "Controla tu dinero, construye tu futuro",
-    home_title: "Resumen financiero",
-    home_subtitle: "Tu situación financiera",
-    total_income: "Ingresos",
-    total_expenses: "Gastos",
-    total_balance: "Balance",
-    total_savings: "Ahorros",
-    financial_overview: "Panorama financiero",
-    recent_movements: "Movimientos recientes",
-    view_all: "Ver todos",
-    no_movements: "Todavía no tienes movimientos registrados.",
-    daily_tip: "Consejo financiero",
-    more_tips: "Más consejos",
-    movements_title: "Movimientos",
-    movements_subtitle: "Registra tus ingresos y gastos",
-    new_movement: "Nuevo movimiento",
-    movement_type: "Tipo",
-    income: "Ingreso",
-    expense: "Gasto",
+    appTitle: "Mis Finanzas",
+    balance: "Balance total",
+    income: "Ingresos",
+    expenses: "Gastos",
+    savings: "Ahorros",
+    budget: "Presupuesto",
+    available: "Disponible",
+    quickActions: "Acciones rápidas",
+    addMovement: "+ Movimiento",
+    addSavings: "+ Ahorro",
+    myBudget: "Presupuesto",
+    financialTips: "Consejos financieros",
+    recentMovements: "Movimientos recientes",
+    expenseSummary: "Resumen de gastos",
+    movements: "Movimientos",
+    type: "Tipo",
     description: "Descripción",
     amount: "Monto",
     currency: "Moneda",
     category: "Categoría",
     date: "Fecha",
-    save_movement: "Guardar movimiento",
-    movement_history: "Historial de movimientos",
-    savings_title: "Ahorros",
-    savings_subtitle: "Construye tus metas financieras",
-    saved_total: "Total ahorrado",
-    create_goal: "Crear meta de ahorro",
-    goal_name: "Nombre de la meta",
-    goal_amount: "Monto objetivo",
-    target_date: "Fecha objetivo",
-    save_goal: "Crear meta",
-    my_goals: "Mis metas",
-    no_goals: "Todavía no tienes metas de ahorro.",
-    register_saving: "Registrar ahorro o retiro",
-    select_goal: "Meta",
-    operation_type: "Operación",
-    deposit: "Depósito",
+    saveMovement: "Guardar movimiento",
+    movementHistory: "Historial",
+    mySavings: "Mis ahorros",
+    savingsDescription: "Crea metas y registra tus aportes y retiros.",
+    createGoal: "Crear meta de ahorro",
+    goalName: "Nombre de la meta",
+    targetAmount: "Monto objetivo",
+    targetDate: "Fecha objetivo",
+    recordSavings: "Registrar ahorro o retiro",
+    savingsGoal: "Meta de ahorro",
+    operation: "Operación",
+    deposit: "Aporte",
     withdrawal: "Retiro",
-    save_operation: "Guardar operación",
-    savings_history: "Historial de ahorros",
-    budget_title: "Presupuestos",
-    budget_subtitle: "Planifica cuánto puedes gastar",
-    create_budget: "Crear presupuesto",
-    budget_amount: "Monto del presupuesto",
-    save_budget: "Guardar presupuesto",
-    my_budgets: "Mis presupuestos",
-    recurring_title: "Gastos recurrentes",
-    recurring_subtitle: "Controla tus pagos habituales",
-    add_recurring: "Agregar gasto recurrente",
+    save: "Guardar",
+    myGoals: "Mis metas",
+    budgetAmount: "Monto del presupuesto",
+    saveBudget: "Guardar presupuesto",
+    budgetOverview: "Resumen del presupuesto",
+    recurring: "Recurrentes",
     frequency: "Frecuencia",
+    monthly: "Mensual",
     weekly: "Semanal",
     biweekly: "Quincenal",
-    monthly: "Mensual",
-    yearly: "Anual",
-    payment_day: "Día de pago",
-    save_recurring: "Guardar gasto recurrente",
-    my_recurring: "Mis gastos recurrentes",
-    statistics_title: "Estadísticas",
-    statistics_subtitle: "Comprende tus hábitos financieros",
-    expenses_by_category: "Gastos por categoría",
-    income_vs_expenses: "Ingresos frente a gastos",
-    financial_summary: "Resumen financiero",
-    tips_title: "Consejos financieros",
-    tips_subtitle: "Pequeños hábitos para mejorar tus finanzas",
-    saving_tips: "Consejos para ahorrar",
-    budget_tips: "Consejos para presupuestar",
-    debt_tips: "Consejos para manejar deudas",
-    emergency_fund: "Fondo de emergencia",
-    settings_title: "Configuración",
-    settings_subtitle: "Personaliza tu aplicación",
-    language_settings: "Idioma",
-    app_language: "Idioma de la aplicación",
-    currency_settings: "Moneda principal",
-    main_currency: "Selecciona tu moneda principal",
-    save_currency: "Guardar moneda",
-    exchange_rates: "Tipos de cambio",
-    exchange_description: "Actualiza las tasas automáticamente o introduce tus propios valores.",
-    rate_status: "Estado de actualización:",
-    last_update: "Última actualización:",
-    update_rates: "Actualizar automáticamente",
-    manual_rates: "Tipos de cambio manuales",
-    manual_rates_help: "Indica cuántas unidades de tu moneda principal equivale una unidad de cada moneda.",
-    save_rates: "Guardar tipos de cambio",
-    data_management: "Gestión de datos",
-    backup_description: "Puedes exportar tus datos para conservar una copia o importarlos posteriormente.",
-    export_data: "Exportar datos",
-    import_data: "Importar datos",
-    import_button: "Importar copia",
-    app_version: "Versión",
-    app_footer: "Mis Finanzas · Tu dinero bajo control",
-    nav_home: "Inicio",
-    nav_movements: "Movimientos",
-    nav_savings: "Ahorros",
-    nav_budget: "Presupuesto",
-    nav_more: "Más",
-    cat_salary: "Salario",
-    cat_business: "Negocio",
-    cat_food: "Alimentación",
-    cat_transport: "Transporte",
-    cat_housing: "Vivienda",
-    cat_services: "Servicios",
-    cat_health: "Salud",
-    cat_education: "Educación",
-    cat_entertainment: "Entretenimiento",
-    cat_debts: "Deudas",
-    cat_other: "Otros",
-    delete: "Eliminar",
-    edit: "Editar",
-    confirm_delete: "¿Deseas eliminar este registro?",
-    saved: "Guardado correctamente.",
-    deleted: "Registro eliminado.",
-    invalid_amount: "Introduce un monto válido.",
-    no_goal_selected: "Primero crea una meta de ahorro.",
-    goal_progress: "Progreso",
-    remaining: "Restante",
-    spent: "Gastado",
-    available: "Disponible",
-    exceeded: "Presupuesto excedido",
-    within_budget: "Dentro del presupuesto",
-    no_budget: "No hay presupuestos registrados.",
-    no_recurring: "No hay gastos recurrentes registrados.",
-    no_savings: "Todavía no hay operaciones de ahorro.",
-    no_statistics: "Registra movimientos para ver tus estadísticas.",
-    rate_success: "Tipos de cambio actualizados.",
-    rate_error: "No fue posible actualizar las tasas. Puedes utilizar las tasas manuales.",
-    rate_saved: "Tipos de cambio guardados.",
-    currency_saved: "Moneda principal actualizada.",
-    language_saved: "Idioma actualizado.",
-    export_success: "Archivo de respaldo preparado.",
-    import_success: "Datos importados correctamente.",
-    import_error: "No se pudo importar el archivo. Verifica que sea un respaldo válido.",
-    automatic: "Automático",
-    manual: "Manual",
-    pending: "Pendiente",
-    conversion_note: "Los totales se muestran en tu moneda principal.",
-    total: "Total",
-    goal_completed: "Meta completada",
-    savings_deposit: "Depósito",
-    savings_withdrawal: "Retiro",
-    tips: [
-      "Aparta una cantidad de dinero cada vez que recibas ingresos.",
-      "Registra incluso los gastos pequeños: al final del mes pueden sumar bastante.",
-      "Compara precios antes de realizar compras importantes.",
-      "Establece una meta de ahorro concreta y una fecha para alcanzarla.",
-      "Evita comprar por impulso. Espera 24 horas antes de una compra no necesaria."
-    ],
-    saving_advice: [
-      "Intenta ahorrar entre el 5% y el 10% de tus ingresos, si tu situación lo permite.",
-      "Automatiza una transferencia a tu cuenta de ahorro.",
-      "Separa el dinero de tus gastos diarios del dinero destinado a tus metas.",
-      "Ahorra primero y gasta después, en lugar de esperar a ver qué sobra.",
-      "Revisa tus suscripciones y elimina las que no utilizas."
-    ],
-    budget_advice: [
-      "Asigna un límite mensual a cada categoría de gasto.",
-      "Revisa tu presupuesto al menos una vez por semana.",
-      "Prioriza vivienda, alimentación, transporte y servicios esenciales.",
-      "No confundas el dinero disponible en tu cuenta con dinero libre para gastar."
-    ],
-    debt_advice: [
-      "Haz una lista de todas tus deudas, tasas de interés y pagos mínimos.",
-      "Evita utilizar tarjetas de crédito para gastos que no puedes pagar.",
-      "Prioriza las deudas con intereses más altos, sin descuidar los pagos mínimos.",
-      "Consulta las condiciones antes de aceptar una refinanciación."
-    ],
-    emergency_advice: [
-      "Construye un fondo de emergencia poco a poco.",
-      "Una meta inicial puede ser ahorrar el equivalente a un mes de gastos esenciales.",
-      "A largo plazo, intenta alcanzar entre tres y seis meses de gastos esenciales.",
-      "Mantén este dinero separado y disponible para imprevistos reales."
-    ],
-    rate_explanation: "Las tasas representan cuántas unidades de tu moneda principal recibes por una unidad de moneda extranjera.",
-    confirm_currency: "Al cambiar la moneda principal, actualiza las tasas de cambio antes de realizar nuevas conversiones.",
-    empty: "Sin registros",
-    month: "Mes",
-    no_data: "Sin datos disponibles",
-    saving_goal: "Meta de ahorro",
-    category_summary: "Resumen por categoría",
-    recurring_day: "Día",
-    frequency_label: "Frecuencia",
-    date_label: "Fecha",
-    currency_label: "Moneda"
+    day: "Día",
+    myRecurring: "Mis gastos recurrentes",
+    statistics: "Estadísticas",
+    tipsDescription: "Ideas para ahorrar, administrar tu dinero y reducir deudas.",
+    settings: "Configuración",
+    language: "Idioma",
+    mainCurrency: "Moneda principal",
+    saveCurrency: "Guardar moneda",
+    exchangeRates: "Tipos de cambio",
+    exchangeDescription: "Puedes actualizar las tasas automáticamente o introducirlas manualmente.",
+    updateRates: "Actualizar tasas automáticas",
+    saveRates: "Guardar tasas manuales",
+    dataManagement: "Administrar datos",
+    exportData: "Exportar datos",
+    importData: "Importar datos",
+    home: "Inicio",
+    more: "Más"
   },
 
   en: {
-    app_title: "My Finances",
-    app_subtitle: "Manage your money, build your future",
-    home_title: "Financial overview",
-    home_subtitle: "Your financial situation",
-    total_income: "Income",
-    total_expenses: "Expenses",
-    total_balance: "Balance",
-    total_savings: "Savings",
-    financial_overview: "Financial overview",
-    recent_movements: "Recent transactions",
-    view_all: "View all",
-    no_movements: "You have no transactions yet.",
-    daily_tip: "Financial tip",
-    more_tips: "More tips",
-    movements_title: "Transactions",
-    movements_subtitle: "Track your income and expenses",
-    new_movement: "New transaction",
-    movement_type: "Type",
+    appTitle: "My Finances",
+    balance: "Total balance",
     income: "Income",
-    expense: "Expense",
+    expenses: "Expenses",
+    savings: "Savings",
+    budget: "Budget",
+    available: "Available",
+    quickActions: "Quick actions",
+    addMovement: "+ Transaction",
+    addSavings: "+ Savings",
+    myBudget: "Budget",
+    financialTips: "Financial tips",
+    recentMovements: "Recent transactions",
+    expenseSummary: "Expense summary",
+    movements: "Transactions",
+    type: "Type",
     description: "Description",
     amount: "Amount",
     currency: "Currency",
     category: "Category",
     date: "Date",
-    save_movement: "Save transaction",
-    movement_history: "Transaction history",
-    savings_title: "Savings",
-    savings_subtitle: "Build your financial goals",
-    saved_total: "Total saved",
-    create_goal: "Create savings goal",
-    goal_name: "Goal name",
-    goal_amount: "Target amount",
-    target_date: "Target date",
-    save_goal: "Create goal",
-    my_goals: "My goals",
-    no_goals: "You have no savings goals yet.",
-    register_saving: "Record a deposit or withdrawal",
-    select_goal: "Goal",
-    operation_type: "Operation",
+    saveMovement: "Save transaction",
+    movementHistory: "History",
+    mySavings: "My savings",
+    savingsDescription: "Create goals and record deposits and withdrawals.",
+    createGoal: "Create savings goal",
+    goalName: "Goal name",
+    targetAmount: "Target amount",
+    targetDate: "Target date",
+    recordSavings: "Record deposit or withdrawal",
+    savingsGoal: "Savings goal",
+    operation: "Operation",
     deposit: "Deposit",
     withdrawal: "Withdrawal",
-    save_operation: "Save operation",
-    savings_history: "Savings history",
-    budget_title: "Budgets",
-    budget_subtitle: "Plan how much you can spend",
-    create_budget: "Create budget",
-    budget_amount: "Budget amount",
-    save_budget: "Save budget",
-    my_budgets: "My budgets",
-    recurring_title: "Recurring expenses",
-    recurring_subtitle: "Track your regular payments",
-    add_recurring: "Add recurring expense",
+    save: "Save",
+    myGoals: "My goals",
+    budgetAmount: "Budget amount",
+    saveBudget: "Save budget",
+    budgetOverview: "Budget overview",
+    recurring: "Recurring",
     frequency: "Frequency",
+    monthly: "Monthly",
     weekly: "Weekly",
     biweekly: "Biweekly",
-    monthly: "Monthly",
-    yearly: "Yearly",
-    payment_day: "Payment day",
-    save_recurring: "Save recurring expense",
-    my_recurring: "My recurring expenses",
-    statistics_title: "Statistics",
-    statistics_subtitle: "Understand your financial habits",
-    expenses_by_category: "Expenses by category",
-    income_vs_expenses: "Income vs. expenses",
-    financial_summary: "Financial summary",
-    tips_title: "Financial tips",
-    tips_subtitle: "Small habits to improve your finances",
-    saving_tips: "Saving tips",
-    budget_tips: "Budgeting tips",
-    debt_tips: "Debt management tips",
-    emergency_fund: "Emergency fund",
-    settings_title: "Settings",
-    settings_subtitle: "Customize your application",
-    language_settings: "Language",
-    app_language: "Application language",
-    currency_settings: "Main currency",
-    main_currency: "Choose your main currency",
-    save_currency: "Save currency",
-    exchange_rates: "Exchange rates",
-    exchange_description: "Update rates automatically or enter your own values.",
-    rate_status: "Update status:",
-    last_update: "Last update:",
-    update_rates: "Update automatically",
-    manual_rates: "Manual exchange rates",
-    manual_rates_help: "Enter how many units of your main currency equal one unit of each currency.",
-    save_rates: "Save exchange rates",
-    data_management: "Data management",
-    backup_description: "Export your data to keep a backup or import it later.",
-    export_data: "Export data",
-    import_data: "Import data",
-    import_button: "Import backup",
-    app_version: "Version",
-    app_footer: "My Finances · Your money under control",
-    nav_home: "Home",
-    nav_movements: "Activity",
-    nav_savings: "Savings",
-    nav_budget: "Budget",
-    nav_more: "More",
-    cat_salary: "Salary",
-    cat_business: "Business",
-    cat_food: "Food",
-    cat_transport: "Transportation",
-    cat_housing: "Housing",
-    cat_services: "Utilities",
-    cat_health: "Healthcare",
-    cat_education: "Education",
-    cat_entertainment: "Entertainment",
-    cat_debts: "Debt",
-    cat_other: "Other",
-    delete: "Delete",
-    edit: "Edit",
-    confirm_delete: "Do you want to delete this record?",
-    saved: "Saved successfully.",
-    deleted: "Record deleted.",
-    invalid_amount: "Enter a valid amount.",
-    no_goal_selected: "Create a savings goal first.",
-    goal_progress: "Progress",
-    remaining: "Remaining",
-    spent: "Spent",
-    available: "Available",
-    exceeded: "Budget exceeded",
-    within_budget: "Within budget",
-    no_budget: "No budgets recorded.",
-    no_recurring: "No recurring expenses recorded.",
-    no_savings: "No savings operations yet.",
-    no_statistics: "Record transactions to see your statistics.",
-    rate_success: "Exchange rates updated.",
-    rate_error: "Unable to update rates. You can use manual rates.",
-    rate_saved: "Exchange rates saved.",
-    currency_saved: "Main currency updated.",
-    language_saved: "Language updated.",
-    export_success: "Backup file prepared.",
-    import_success: "Data imported successfully.",
-    import_error: "Unable to import the file. Check that it is a valid backup.",
-    automatic: "Automatic",
-    manual: "Manual",
-    pending: "Pending",
-    conversion_note: "Totals are displayed in your main currency.",
-    total: "Total",
-    goal_completed: "Goal completed",
-    savings_deposit: "Deposit",
-    savings_withdrawal: "Withdrawal",
-    tips: [
-      "Set aside some money every time you receive income.",
-      "Track even small expenses: they can add up by the end of the month.",
-      "Compare prices before making important purchases.",
-      "Set a specific savings goal and a target date.",
-      "Avoid impulse purchases. Wait 24 hours before buying something unnecessary."
-    ],
-    saving_advice: [
-      "Try to save between 5% and 10% of your income, if your situation allows it.",
-      "Automate a transfer to your savings account.",
-      "Keep your daily spending money separate from your savings goals.",
-      "Save first and spend afterward instead of waiting to see what is left.",
-      "Review your subscriptions and cancel the ones you do not use."
-    ],
-    budget_advice: [
-      "Set a monthly spending limit for each category.",
-      "Review your budget at least once a week.",
-      "Prioritize housing, food, transportation and essential utilities.",
-      "Do not confuse your account balance with money available to spend."
-    ],
-    debt_advice: [
-      "List all your debts, interest rates and minimum payments.",
-      "Avoid using credit cards for purchases you cannot afford to repay.",
-      "Prioritize higher-interest debts while keeping up with minimum payments.",
-      "Review the terms before accepting debt refinancing."
-    ],
-    emergency_advice: [
-      "Build an emergency fund gradually.",
-      "An initial goal could be saving one month of essential expenses.",
-      "Over time, aim for three to six months of essential expenses.",
-      "Keep this money separate and available for genuine emergencies."
-    ],
-    rate_explanation: "Rates show how many units of your main currency equal one unit of foreign currency.",
-    confirm_currency: "After changing your main currency, update exchange rates before making new conversions.",
-    empty: "No records",
-    month: "Month",
-    no_data: "No data available",
-    saving_goal: "Savings goal",
-    category_summary: "Category summary",
-    recurring_day: "Day",
-    frequency_label: "Frequency",
-    date_label: "Date",
-    currency_label: "Currency"
+    day: "Day",
+    myRecurring: "My recurring expenses",
+    statistics: "Statistics",
+    tipsDescription: "Ideas to save money, manage finances and reduce debt.",
+    settings: "Settings",
+    language: "Language",
+    mainCurrency: "Main currency",
+    saveCurrency: "Save currency",
+    exchangeRates: "Exchange rates",
+    exchangeDescription: "Update rates automatically or enter them manually.",
+    updateRates: "Update automatic rates",
+    saveRates: "Save manual rates",
+    dataManagement: "Manage data",
+    exportData: "Export data",
+    importData: "Import data",
+    home: "Home",
+    more: "More"
   }
 };
 
-/* =========================================================
-   DATOS Y CONFIGURACIÓN
-   ========================================================= */
+const CATEGORIAS = {
+  es: {
+    Salario: "Salario",
+    Negocio: "Negocio",
+    Alimentación: "Alimentación",
+    Vivienda: "Vivienda",
+    Transporte: "Transporte",
+    Servicios: "Servicios",
+    Salud: "Salud",
+    Educación: "Educación",
+    Entretenimiento: "Entretenimiento",
+    Deudas: "Deudas",
+    Otros: "Otros"
+  },
+  en: {
+    Salario: "Salary",
+    Negocio: "Business",
+    Alimentación: "Food",
+    Vivienda: "Housing",
+    Transporte: "Transportation",
+    Servicios: "Utilities",
+    Salud: "Healthcare",
+    Educación: "Education",
+    Entretenimiento: "Entertainment",
+    Deudas: "Debt",
+    Otros: "Other"
+  }
+};
+
+const CONSEJOS = {
+  es: {
+    ahorro: [
+      "Aparta una cantidad de dinero cada vez que recibas ingresos.",
+      "Intenta ahorrar entre el 5% y el 10% de tus ingresos.",
+      "Automatiza una transferencia a tu cuenta de ahorro.",
+      "Revisa tus suscripciones y elimina las que no utilizas.",
+      "Separa tus ahorros del dinero destinado a gastos diarios."
+    ],
+    presupuesto: [
+      "Asigna un límite mensual a cada categoría.",
+      "Revisa tu presupuesto al menos una vez por semana.",
+      "Prioriza vivienda, alimentación y servicios esenciales.",
+      "No confundas tu saldo bancario con dinero libre para gastar."
+    ],
+    deudas: [
+      "Haz una lista de tus deudas, tasas de interés y pagos mínimos.",
+      "Prioriza las deudas con intereses más altos.",
+      "Evita utilizar tarjetas para gastos que no puedes pagar.",
+      "Revisa las condiciones antes de aceptar una refinanciación."
+    ],
+    emergencia: [
+      "Construye un fondo de emergencia poco a poco.",
+      "Una primera meta puede ser un mes de gastos esenciales.",
+      "A largo plazo, intenta alcanzar entre tres y seis meses.",
+      "Mantén este dinero separado para imprevistos reales."
+    ]
+  },
+  en: {
+    ahorro: [
+      "Set aside money every time you receive income.",
+      "Try to save between 5% and 10% of your income.",
+      "Automate a transfer to your savings account.",
+      "Review your subscriptions and cancel unused ones.",
+      "Keep savings separate from your daily spending money."
+    ],
+    presupuesto: [
+      "Set a monthly limit for each spending category.",
+      "Review your budget at least once a week.",
+      "Prioritize housing, food and essential utilities.",
+      "Do not confuse your bank balance with money available to spend."
+    ],
+    deudas: [
+      "List your debts, interest rates and minimum payments.",
+      "Prioritize debts with the highest interest rates.",
+      "Avoid using credit cards for purchases you cannot repay.",
+      "Review the terms before accepting refinancing."
+    ],
+    emergencia: [
+      "Build an emergency fund gradually.",
+      "An initial goal could be one month of essential expenses.",
+      "Over time, aim for three to six months of expenses.",
+      "Keep this money separate for genuine emergencies."
+    ]
+  }
+};
+
+/* =====================================================
+   CARGA Y CONSERVACIÓN DE DATOS
+   ===================================================== */
 
 function cargarArray(clave) {
   try {
-    const valor = JSON.parse(localStorage.getItem(clave) || "[]");
-    return Array.isArray(valor) ? valor : [];
-  } catch (e) {
+    const datos = JSON.parse(localStorage.getItem(clave) || "[]");
+    return Array.isArray(datos) ? datos : [];
+  } catch {
     return [];
   }
 }
 
-function cargarObjeto(clave, defecto = {}) {
+function cargarObjeto(clave) {
   try {
-    const valor = JSON.parse(localStorage.getItem(clave) || "null");
-    return valor && typeof valor === "object" && !Array.isArray(valor)
-      ? valor
-      : defecto;
-  } catch (e) {
-    return defecto;
+    const datos = JSON.parse(localStorage.getItem(clave) || "{}");
+    return datos && typeof datos === "object" && !Array.isArray(datos)
+      ? datos : {};
+  } catch {
+    return {};
   }
 }
 
@@ -437,7 +273,7 @@ let operacionesAhorro = cargarArray(CLAVES.operaciones);
 let presupuestos = cargarArray(CLAVES.presupuestos);
 let recurrentes = cargarArray(CLAVES.recurrentes);
 
-let configuracion = {
+const CONFIG_DEFAULT = {
   idioma: "es",
   monedaPrincipal: "CRC",
   tasasManuales: {
@@ -452,11 +288,23 @@ let configuracion = {
   },
   tasasAutomaticas: {},
   fechaTasas: null,
-  modoTasas: "both",
+  modoTasas: "both"
+};
+
+let configuracion = {
+  ...CONFIG_DEFAULT,
   ...cargarObjeto(CLAVES.configuracion)
 };
 
-if (!TEXTOS[configuracion.idioma]) {
+configuracion.tasasManuales = {
+  ...CONFIG_DEFAULT.tasasManuales,
+  ...(configuracion.tasasManuales || {})
+};
+
+configuracion.tasasAutomaticas =
+  configuracion.tasasAutomaticas || {};
+
+if (!TRADUCCIONES[configuracion.idioma]) {
   configuracion.idioma = "es";
 }
 
@@ -474,32 +322,32 @@ function guardarTodo() {
 }
 
 function t(clave) {
-  return TEXTOS[configuracion.idioma][clave] ??
-    TEXTOS.es[clave] ??
-    clave;
+  return TRADUCCIONES[configuracion.idioma]?.[clave] ||
+    TRADUCCIONES.es[clave] || clave;
 }
 
-function generarId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+function id() {
+  return Date.now().toString(36) +
+    Math.random().toString(36).slice(2, 8);
 }
 
-function fechaHoy() {
-  const ahora = new Date();
-  const local = new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 10);
+function hoy() {
+  const fecha = new Date();
+  fecha.setMinutes(fecha.getMinutes() - fecha.getTimezoneOffset());
+  return fecha.toISOString().slice(0, 10);
 }
 
 function mesActual() {
-  return fechaHoy().slice(0, 7);
+  return hoy().slice(0, 7);
 }
 
 function numero(valor) {
-  const n = Number(valor);
-  return Number.isFinite(n) ? n : 0;
+  const resultado = Number(valor);
+  return Number.isFinite(resultado) ? resultado : 0;
 }
 
-function escapar(texto) {
-  return String(texto ?? "").replace(/[&<>"']/g, caracter => ({
+function escapar(valor) {
+  return String(valor ?? "").replace(/[&<>"']/g, caracter => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -508,9 +356,14 @@ function escapar(texto) {
   })[caracter]);
 }
 
-/* =========================================================
+function nombreCategoria(categoria) {
+  return CATEGORIAS[configuracion.idioma]?.[categoria] ||
+    CATEGORIAS.es[categoria] || categoria;
+}
+
+/* =====================================================
    MONEDAS Y CONVERSIONES
-   ========================================================= */
+   ===================================================== */
 
 function formatoMoneda(valor, moneda = configuracion.monedaPrincipal) {
   try {
@@ -522,7 +375,7 @@ function formatoMoneda(valor, moneda = configuracion.monedaPrincipal) {
         maximumFractionDigits: 2
       }
     ).format(numero(valor));
-  } catch (e) {
+  } catch {
     return moneda + " " + numero(valor).toFixed(2);
   }
 }
@@ -534,12 +387,12 @@ function obtenerTasa(moneda) {
   const manuales = configuracion.tasasManuales || {};
 
   if (configuracion.modoTasas !== "manual") {
-    const tasa = numero(automaticas[moneda]);
-    if (tasa > 0) return tasa;
+    const tasaAutomatica = numero(automaticas[moneda]);
+    if (tasaAutomatica > 0) return tasaAutomatica;
   }
 
-  const manual = numero(manuales[moneda]);
-  return manual > 0 ? manual : 0;
+  const tasaManual = numero(manuales[moneda]);
+  return tasaManual > 0 ? tasaManual : 0;
 }
 
 function convertirAMonedaPrincipal(monto, moneda) {
@@ -549,138 +402,172 @@ function convertirAMonedaPrincipal(monto, moneda) {
   if (moneda === configuracion.monedaPrincipal) return monto;
 
   const tasa = obtenerTasa(moneda);
-  if (!tasa) return monto;
-
-  return monto * tasa;
-}
-
-function convertirEntreMonedas(monto, origen, destino) {
-  const enPrincipal = convertirAMonedaPrincipal(monto, origen);
-  const tasaDestino = obtenerTasa(destino);
-
-  if (!tasaDestino) return enPrincipal;
-  return enPrincipal / tasaDestino;
-}
-
-function opcionesMonedas(seleccionada = configuracion.monedaPrincipal) {
-  return Object.keys(MONEDAS).map(codigo =>
-    `<option value="${codigo}" ${codigo === seleccionada ? "selected" : ""}>
-      ${codigo} - ${escapar(
-        configuracion.idioma === "en"
-          ? ({
-              CRC: "Costa Rican Colon",
-              USD: "US Dollar",
-              EUR: "Euro",
-              MXN: "Mexican Peso",
-              GBP: "British Pound",
-              BRL: "Brazilian Real",
-              COP: "Colombian Peso",
-              CAD: "Canadian Dollar"
-            })[codigo]
-          : MONEDAS[codigo]
-      )}
-    </option>`
-  ).join("");
+  return tasa > 0 ? monto * tasa : monto;
 }
 
 function llenarSelectoresMonedas() {
-  [
+  const ids = [
     "mov-moneda",
     "ahorro-moneda",
     "ahorro-moneda-movimiento",
     "presupuesto-moneda",
     "recurrente-moneda"
-  ].forEach(id => {
-    const select = document.getElementById(id);
+  ];
+
+  ids.forEach(idSelect => {
+    const select = document.getElementById(idSelect);
     if (!select) return;
 
     const anterior = select.value || configuracion.monedaPrincipal;
-    select.innerHTML = opcionesMonedas(anterior);
+
+    select.innerHTML = Object.keys(MONEDAS).map(codigo => {
+      const nombres = {
+        CRC: ["Colón costarricense", "Costa Rican Colon"],
+        USD: ["Dólar estadounidense", "US Dollar"],
+        EUR: ["Euro", "Euro"],
+        MXN: ["Peso mexicano", "Mexican Peso"],
+        GBP: ["Libra esterlina", "British Pound"],
+        BRL: ["Real brasileño", "Brazilian Real"],
+        COP: ["Peso colombiano", "Colombian Peso"],
+        CAD: ["Dólar canadiense", "Canadian Dollar"]
+      };
+
+      const nombre = nombres[codigo][configuracion.idioma === "en" ? 1 : 0];
+
+      return `<option value="${codigo}">${codigo} - ${nombre}</option>`;
+    }).join("");
+
     select.value = anterior;
-  });
+  }
 
   const principal = document.getElementById("moneda-principal");
   if (principal) principal.value = configuracion.monedaPrincipal;
 }
 
-/* =========================================================
+/* =====================================================
    IDIOMA
-   ========================================================= */
+   ===================================================== */
+
+function traducirOpciones() {
+  const idioma = configuracion.idioma;
+
+  const categorias = [
+    "mov-categoria",
+    "presupuesto-categoria",
+    "recurrente-categoria"
+  ];
+
+  categorias.forEach(idSelect => {
+    const select = document.getElementById(idSelect);
+    if (!select) return;
+
+    [...select.options].forEach(opcion => {
+      if (CATEGORIAS.es[opcion.value]) {
+        opcion.textContent = nombreCategoria(opcion.value);
+      }
+    });
+  });
+
+  const tipo = document.getElementById("mov-tipo");
+  if (tipo) {
+    tipo.options[0].textContent = idioma === "en" ? "Income" : "Ingreso";
+    tipo.options[1].textContent = idioma === "en" ? "Expense" : "Gasto";
+  }
+
+  const operacion = document.getElementById("ahorro-tipo");
+  if (operacion) {
+    operacion.options[0].textContent = idioma === "en" ? "Deposit" : "Aporte";
+    operacion.options[1].textContent = idioma === "en" ? "Withdrawal" : "Retiro";
+  }
+
+  const frecuencia = document.getElementById("recurrente-frecuencia");
+  if (frecuencia) {
+    frecuencia.options[0].textContent = idioma === "en" ? "Monthly" : "Mensual";
+    frecuencia.options[1].textContent = idioma === "en" ? "Weekly" : "Semanal";
+    frecuencia.options[2].textContent = idioma === "en" ? "Biweekly" : "Quincenal";
+  }
+}
 
 function aplicarIdioma() {
   document.documentElement.lang = configuracion.idioma;
 
   document.querySelectorAll("[data-i18n]").forEach(elemento => {
     const clave = elemento.dataset.i18n;
-    const traduccion = t(clave);
-
-    if (typeof traduccion === "string") {
-      elemento.textContent = traduccion;
-    }
+    elemento.textContent = t(clave);
   });
 
-  const idioma = document.getElementById("idioma-aplicacion");
-  if (idioma) idioma.value = configuracion.idioma;
+  const selector = document.getElementById("idioma-aplicacion");
+  if (selector) selector.value = configuracion.idioma;
 
   const principal = document.getElementById("moneda-principal");
   if (principal) principal.value = configuracion.monedaPrincipal;
 
   const placeholders = {
-    "mov-descripcion": configuracion.idioma === "en"
-      ? "E.g. Salary, food"
-      : "Ej. Salario, alimentación",
-    "ahorro-nombre": configuracion.idioma === "en"
-      ? "E.g. Emergency fund"
-      : "Ej. Fondo de emergencia",
-    "recurrente-descripcion": configuracion.idioma === "en"
-      ? "E.g. Rent, internet, loan"
-      : "Ej. Alquiler, internet, préstamo"
+    "mov-descripcion": [
+      "Ej. Salario, alimentación",
+      "E.g. Salary, food"
+    ],
+    "ahorro-nombre": [
+      "Ej. Fondo de emergencia",
+      "E.g. Emergency fund"
+    ],
+    "recurrente-descripcion": [
+      "Ej. Alquiler, internet, préstamo",
+      "E.g. Rent, internet, loan"
+    ]
   };
 
-  Object.entries(placeholders).forEach(([id, texto]) => {
-    const campo = document.getElementById(id);
-    if (campo) campo.placeholder = texto;
+  Object.entries(placeholders).forEach(([campoId, textos]) => {
+    const campo = document.getElementById(campoId);
+    if (campo) campo.placeholder = textos[configuracion.idioma === "en" ? 1 : 0];
   });
 
   llenarSelectoresMonedas();
+  traducirOpciones();
   renderizarTodo();
-  actualizarMenuMas();
 }
 
-/* =========================================================
+/* =====================================================
    NAVEGACIÓN
-   ========================================================= */
+   ===================================================== */
 
-function mostrarSeccion(id) {
-  const seccion = document.getElementById(id);
-  if (!seccion || !seccion.classList.contains("page-section")) return;
+function mostrarSeccion(nombre) {
+  const destino = document.getElementById(nombre);
+  if (!destino || !destino.classList.contains("page-section")) return;
 
-  document.querySelectorAll(".page-section").forEach(elemento => {
-    elemento.classList.remove("active");
+  document.querySelectorAll(".page-section").forEach(seccion => {
+    seccion.hidden = seccion.id !== nombre;
+    seccion.classList.toggle("active", seccion.id === nombre);
   });
 
-  seccion.classList.add("active");
-
   document.querySelectorAll(".nav-button").forEach(boton => {
-    boton.classList.toggle("active", boton.dataset.section === id);
+    boton.classList.toggle("active", boton.dataset.section === nombre);
   });
 
   const menu = document.getElementById("menu-mas");
   if (menu) menu.hidden = true;
 
+  actualizarMenuMas();
   window.scrollTo({ top: 0, behavior: "smooth" });
 
-  if (id === "estadisticas") renderizarEstadisticas();
+  if (nombre === "estadisticas") renderizarEstadisticas();
 }
 
 function actualizarMenuMas() {
-  const menu = document.getElementById("menu-mas");
   const boton = document.getElementById("boton-mas");
-  if (!menu || !boton) return;
+  const menu = document.getElementById("menu-mas");
 
-  const seccionesMas = ["recurrentes", "estadisticas", "consejos", "configuracion"];
-  const activa = seccionesMas.some(id =>
-    document.getElementById(id)?.classList.contains("active")
+  if (!boton || !menu) return;
+
+  const secciones = [
+    "recurrentes",
+    "estadisticas",
+    "consejos",
+    "configuracion"
+  ];
+
+  const activa = secciones.some(nombre =>
+    document.getElementById(nombre)?.classList.contains("active")
   );
 
   boton.classList.toggle("active", activa);
@@ -693,243 +580,200 @@ function configurarNavegacion() {
     });
   });
 
-  document.querySelectorAll("[data-go]").forEach(boton => {
-    boton.addEventListener("click", () => {
-      mostrarSeccion(boton.dataset.go);
-    });
-  });
-
   const botonMas = document.getElementById("boton-mas");
   const menu = document.getElementById("menu-mas");
 
   if (botonMas && menu) {
-    botonMas.addEventListener("click", () => {
+    botonMas.addEventListener("click", evento => {
+      evento.stopPropagation();
       menu.hidden = !menu.hidden;
-      actualizarMenuMas();
-    });
-  }
-
-  const ajustes = document.getElementById("btn-settings");
-  if (ajustes) {
-    ajustes.addEventListener("click", () => {
-      mostrarSeccion("configuracion");
     });
   }
 
   document.addEventListener("click", evento => {
     if (!menu || menu.hidden) return;
     if (menu.contains(evento.target)) return;
-    if (botonMas && botonMas.contains(evento.target)) return;
+    if (botonMas?.contains(evento.target)) return;
     menu.hidden = true;
   });
 }
 
-/* =========================================================
+/* =====================================================
    MOVIMIENTOS
-   ========================================================= */
+   ===================================================== */
 
 function registrarMovimiento(evento) {
   evento.preventDefault();
 
-  const tipo = document.getElementById("mov-tipo").value;
   const descripcion = document.getElementById("mov-descripcion").value.trim();
   const monto = numero(document.getElementById("mov-monto").value);
-  const moneda = document.getElementById("mov-moneda").value;
-  const categoria = document.getElementById("mov-categoria").value;
   const fecha = document.getElementById("mov-fecha").value;
 
   if (!descripcion || monto <= 0 || !fecha) {
-    alert(t("invalid_amount"));
+    alert(configuracion.idioma === "en"
+      ? "Enter a valid description, amount and date."
+      : "Introduce una descripción, monto y fecha válidos.");
     return;
   }
 
   movimientos.unshift({
-    id: generarId(),
-    tipo,
+    id: id(),
+    tipo: document.getElementById("mov-tipo").value,
     descripcion,
     monto,
-    moneda,
-    categoria,
-    fecha,
-    creado: new Date().toISOString()
+    moneda: document.getElementById("mov-moneda").value,
+    categoria: document.getElementById("mov-categoria").value,
+    fecha
   });
 
   guardarTodo();
   evento.target.reset();
 
-  document.getElementById("mov-fecha").value = fechaHoy();
+  document.getElementById("mov-fecha").value = hoy();
+
   llenarSelectoresMonedas();
+  traducirOpciones();
   renderizarTodo();
 
-  alert(t("saved"));
-}
-
-function nombreCategoria(categoria) {
-  const claves = {
-    salario: "cat_salary",
-    negocio: "cat_business",
-    alimentacion: "cat_food",
-    transporte: "cat_transport",
-    vivienda: "cat_housing",
-    servicios: "cat_services",
-    salud: "cat_health",
-    educacion: "cat_education",
-    entretenimiento: "cat_entertainment",
-    deudas: "cat_debts",
-    otros: "cat_other"
-  };
-
-  return t(claves[categoria] || "cat_other");
+  alert(configuracion.idioma === "en" ? "Transaction saved." : "Movimiento guardado.");
 }
 
 function renderizarMovimientos() {
   const contenedor = document.getElementById("lista-movimientos");
-  const recientes = document.getElementById("lista-movimientos-recientes");
+  const recientes = document.getElementById("lista-movimientos-inicio");
 
-  const dibujar = (lista, limite = Infinity) => {
+  function dibujar(lista) {
     if (!lista.length) {
-      return `<p class="empty-message">${t("no_movements")}</p>`;
+      return `<p>${configuracion.idioma === "en"
+        ? "No transactions recorded yet."
+        : "Todavía no tienes movimientos registrados."}</p>`;
     }
 
-    return lista.slice(0, limite).map(m => {
+    return lista.map(m => {
       const ingreso = m.tipo === "ingreso";
-      const monto = numero(m.monto);
-      const descripcion = escapar(m.descripcion);
       const moneda = m.moneda || configuracion.monedaPrincipal;
+      const valorPrincipal = convertirAMonedaPrincipal(m.monto, moneda);
 
       return `
-        <div class="movement-item">
-          <div>
-            <strong>${descripcion}</strong>
-            <small>${nombreCategoria(m.categoria)} · ${escapar(m.fecha || "")}</small>
-            <small>${formatoMoneda(monto, moneda)}</small>
+        <div class="movimiento ${ingreso ? "movimiento-ingreso" : "movimiento-gasto"}">
+          <div class="movimiento-header">
+            <span class="movimiento-descripcion">${escapar(m.descripcion)}</span>
+            <span class="movimiento-monto">
+              ${ingreso ? "+" : "−"}${formatoMoneda(valorPrincipal)}
+            </span>
           </div>
-          <div>
-            <strong class="${ingreso ? "amount-positive" : "amount-negative"}">
-              ${ingreso ? "+" : "−"}${formatoMoneda(
-                convertirAMonedaPrincipal(monto, moneda)
-              )}
-            </strong>
-            <button class="delete-button" data-delete-movement="${escapar(m.id)}">
-              ${t("delete")}
-            </button>
+          <div class="movimiento-info">
+            ${nombreCategoria(m.categoria)} · ${escapar(m.fecha || "")}
           </div>
+          <div class="movimiento-info">
+            ${formatoMoneda(m.monto, moneda)}
+          </div>
+          <button type="button" data-delete-movement="${escapar(m.id)}">
+            ${configuracion.idioma === "en" ? "Delete" : "Eliminar"}
+          </button>
         </div>`;
     }).join("");
-  };
+  }
 
   if (contenedor) contenedor.innerHTML = dibujar(movimientos);
-  if (recientes) recientes.innerHTML = dibujar(movimientos, 5);
+  if (recientes) recientes.innerHTML = dibujar(movimientos.slice(0, 5));
 }
 
-function eliminarMovimiento(id) {
-  if (!confirm(t("confirm_delete"))) return;
-  movimientos = movimientos.filter(m => String(m.id) !== String(id));
+function eliminarMovimiento(idMovimiento) {
+  if (!confirm(configuracion.idioma === "en"
+    ? "Delete this transaction?"
+    : "¿Deseas eliminar este movimiento?")) return;
+
+  movimientos = movimientos.filter(m => String(m.id) !== String(idMovimiento));
   guardarTodo();
   renderizarTodo();
 }
 
-/* =========================================================
+/* =====================================================
    AHORROS Y METAS
-   ========================================================= */
+   ===================================================== */
 
 function totalMeta(metaId) {
   return operacionesAhorro
     .filter(op => String(op.metaId) === String(metaId))
     .reduce((total, op) => {
-      const moneda = op.moneda || configuracion.monedaPrincipal;
-      const valor = convertirAMonedaPrincipal(op.monto, moneda);
+      const valor = convertirAMonedaPrincipal(
+        op.monto,
+        op.moneda || configuracion.monedaPrincipal
+      );
       return total + (op.tipo === "retiro" ? -valor : valor);
     }, 0);
 }
 
-function renderizarAhorros() {
-  const listaMetas = document.getElementById("lista-metas");
-  const selector = document.getElementById("ahorro-meta-seleccionada");
-  const listaOperaciones = document.getElementById("lista-operaciones-ahorro");
-  const totalElemento = document.getElementById("total-ahorrado");
-
-  const total = operacionesAhorro.reduce((suma, op) => {
+function totalAhorros() {
+  return operacionesAhorro.reduce((total, op) => {
     const valor = convertirAMonedaPrincipal(
       op.monto,
       op.moneda || configuracion.monedaPrincipal
     );
-    return suma + (op.tipo === "retiro" ? -valor : valor);
+    return total + (op.tipo === "retiro" ? -valor : valor);
   }, 0);
+}
 
-  if (totalElemento) totalElemento.textContent = formatoMoneda(total);
+function renderizarAhorros() {
+  const contenedor = document.getElementById("lista-metas-ahorro");
+  const selector = document.getElementById("ahorro-meta-seleccionada");
+  const totalElemento = document.getElementById("ahorro-total-general");
+
+  if (totalElemento) {
+    totalElemento.textContent = formatoMoneda(totalAhorros());
+  }
 
   if (selector) {
     const anterior = selector.value;
+
     selector.innerHTML = metas.map(meta =>
       `<option value="${escapar(meta.id)}">${escapar(meta.nombre)}</option>`
     ).join("");
 
-    if (metas.some(m => String(m.id) === anterior)) {
+    if (metas.some(meta => String(meta.id) === anterior)) {
       selector.value = anterior;
     }
+
+    selector.disabled = metas.length === 0;
   }
 
-  if (listaMetas) {
-    if (!metas.length) {
-      listaMetas.innerHTML = `<p class="empty-message">${t("no_goals")}</p>`;
-    } else {
-      listaMetas.innerHTML = metas.map(meta => {
-        const moneda = meta.moneda || configuracion.monedaPrincipal;
-        const ahorrado = totalMeta(meta.id);
-        const objetivoPrincipal = convertirAMonedaPrincipal(meta.objetivo, moneda);
-        const porcentaje = objetivoPrincipal > 0
-          ? Math.min(100, Math.max(0, ahorrado / objetivoPrincipal * 100))
-          : 0;
+  if (!contenedor) return;
 
-        const restante = Math.max(0, objetivoPrincipal - ahorrado);
-
-        return `
-          <div class="goal-item">
-            <div style="width:100%">
-              <strong>${escapar(meta.nombre)}</strong>
-              <small>${t("goal_progress")}: ${porcentaje.toFixed(1)}%</small>
-              <div class="progress-bar">
-                <div class="progress-bar-fill" style="width:${porcentaje}%"></div>
-              </div>
-              <small>${t("total")}: ${formatoMoneda(ahorrado)}</small>
-              <small>${t("remaining")}: ${formatoMoneda(restante)}</small>
-              <small>${t("goal_amount")}: ${formatoMoneda(meta.objetivo, moneda)}</small>
-              ${meta.fecha ? `<small>${t("target_date")}: ${escapar(meta.fecha)}</small>` : ""}
-              ${porcentaje >= 100 ? `<small class="amount-positive">${t("goal_completed")}</small>` : ""}
-            </div>
-            <button class="delete-button" data-delete-goal="${escapar(meta.id)}">
-              ${t("delete")}
-            </button>
-          </div>`;
-      }).join("");
-    }
+  if (!metas.length) {
+    contenedor.innerHTML = `<p>${configuracion.idioma === "en"
+      ? "You have no savings goals yet."
+      : "Todavía no tienes metas de ahorro."}</p>`;
+    return;
   }
 
-  if (listaOperaciones) {
-    if (!operacionesAhorro.length) {
-      listaOperaciones.innerHTML = `<p class="empty-message">${t("no_savings")}</p>`;
-    } else {
-      listaOperaciones.innerHTML = operacionesAhorro.map(op => {
-        const meta = metas.find(m => String(m.id) === String(op.metaId));
-        const retiro = op.tipo === "retiro";
+  contenedor.innerHTML = metas.map(meta => {
+    const moneda = meta.moneda || configuracion.monedaPrincipal;
+    const ahorrado = totalMeta(meta.id);
+    const objetivo = convertirAMonedaPrincipal(meta.objetivo, moneda);
+    const porcentaje = objetivo > 0
+      ? Math.max(0, Math.min(100, ahorrado / objetivo * 100))
+      : 0;
 
-        return `
-          <div class="saving-item">
-            <div>
-              <strong>${escapar(meta?.nombre || t("saving_goal"))}</strong>
-              <small>${retiro ? t("savings_withdrawal") : t("savings_deposit")} · ${escapar(op.fecha || "")}</small>
-            </div>
-            <strong class="${retiro ? "amount-negative" : "amount-positive"}">
-              ${retiro ? "−" : "+"}${formatoMoneda(op.monto, op.moneda || configuracion.monedaPrincipal)}
-            </strong>
-            <button class="delete-button" data-delete-saving="${escapar(op.id)}">
-              ${t("delete")}
-            </button>
-          </div>`;
-      }).join("");
-    }
-  }
+    const restante = Math.max(0, objetivo - ahorrado);
+
+    return `
+      <div class="savings-goal">
+        <strong>${escapar(meta.nombre)}</strong>
+        <p>${configuracion.idioma === "en" ? "Progress" : "Progreso"}: ${porcentaje.toFixed(1)}%</p>
+        <div class="savings-progress">
+          <div class="savings-progress-bar" style="width:${porcentaje}%"></div>
+        </div>
+        <p>${configuracion.idioma === "en" ? "Saved" : "Ahorrado"}: ${formatoMoneda(ahorrado)}</p>
+        <p>${configuracion.idioma === "en" ? "Target" : "Objetivo"}: ${formatoMoneda(meta.objetivo, moneda)}</p>
+        <p>${configuracion.idioma === "en" ? "Remaining" : "Restante"}: ${formatoMoneda(restante)}</p>
+        ${meta.fecha ? `<p>${configuracion.idioma === "en" ? "Target date" : "Fecha objetivo"}: ${escapar(meta.fecha)}</p>` : ""}
+        ${porcentaje >= 100 ? `<strong>${configuracion.idioma === "en" ? "Goal completed!" : "¡Meta completada!"}</strong>` : ""}
+        <button type="button" data-delete-goal="${escapar(meta.id)}">
+          ${configuracion.idioma === "en" ? "Delete goal" : "Eliminar meta"}
+        </button>
+      </div>`;
+  }).join("");
 }
 
 function crearMeta(evento) {
@@ -937,93 +781,104 @@ function crearMeta(evento) {
 
   const nombre = document.getElementById("ahorro-nombre").value.trim();
   const objetivo = numero(document.getElementById("ahorro-objetivo").value);
-  const moneda = document.getElementById("ahorro-moneda").value;
-  const fecha = document.getElementById("ahorro-fecha-meta").value;
 
   if (!nombre || objetivo <= 0) {
-    alert(t("invalid_amount"));
+    alert(configuracion.idioma === "en"
+      ? "Enter a valid goal and amount."
+      : "Introduce una meta y un monto válidos.");
     return;
   }
 
   metas.unshift({
-    id: generarId(),
+    id: id(),
     nombre,
     objetivo,
-    moneda,
-    fecha,
-    creado: new Date().toISOString()
+    moneda: document.getElementById("ahorro-moneda").value,
+    fecha: document.getElementById("ahorro-fecha-meta").value
   });
 
   guardarTodo();
   evento.target.reset();
+  llenarSelectoresMonedas();
   renderizarTodo();
-  alert(t("saved"));
+
+  alert(configuracion.idioma === "en" ? "Goal created." : "Meta creada.");
 }
 
 function registrarAhorro(evento) {
   evento.preventDefault();
 
-  if (!metas.length) {
-    alert(t("no_goal_selected"));
+  const metaId = document.getElementById("ahorro-meta-seleccionada").value;
+  const monto = numero(document.getElementById("ahorro-monto").value);
+  const fecha = document.getElementById("ahorro-fecha-movimiento").value;
+
+  if (!metas.length || !metaId) {
+    alert(configuracion.idioma === "en"
+      ? "Create a savings goal first."
+      : "Primero crea una meta de ahorro.");
     return;
   }
 
-  const metaId = document.getElementById("ahorro-meta-seleccionada").value;
-  const tipo = document.getElementById("ahorro-tipo").value;
-  const monto = numero(document.getElementById("ahorro-monto").value);
-  const moneda = document.getElementById("ahorro-moneda-movimiento").value;
-  const fecha = document.getElementById("ahorro-fecha-movimiento").value;
+  if (monto <= 0 || !fecha) {
+    alert(configuracion.idioma === "en"
+      ? "Enter a valid amount and date."
+      : "Introduce un monto y fecha válidos.");
+    return;
+  }
 
-  if (!metaId || monto <= 0 || !fecha) {
-    alert(t("invalid_amount"));
+  const tipo = document.getElementById("ahorro-tipo").value;
+
+  if (tipo === "retiro" && monto > totalMeta(metaId)) {
+    alert(configuracion.idioma === "en"
+      ? "The withdrawal exceeds the available savings in this goal."
+      : "El retiro supera el ahorro disponible en esta meta.");
     return;
   }
 
   operacionesAhorro.unshift({
-    id: generarId(),
+    id: id(),
     metaId,
     tipo,
     monto,
-    moneda,
+    moneda: document.getElementById("ahorro-moneda-movimiento").value,
     fecha
   });
 
   guardarTodo();
   evento.target.reset();
-  document.getElementById("ahorro-fecha-movimiento").value = fechaHoy();
+
+  document.getElementById("ahorro-fecha-movimiento").value = hoy();
+
   renderizarTodo();
-  alert(t("saved"));
+  alert(configuracion.idioma === "en" ? "Savings operation saved." : "Operación guardada.");
 }
 
-function eliminarMeta(id) {
-  if (!confirm(t("confirm_delete"))) return;
+function eliminarMeta(metaId) {
+  if (!confirm(configuracion.idioma === "en"
+    ? "Delete this goal and its operations?"
+    : "¿Eliminar esta meta y sus operaciones?")) return;
 
-  metas = metas.filter(m => String(m.id) !== String(id));
+  metas = metas.filter(meta => String(meta.id) !== String(metaId));
   operacionesAhorro = operacionesAhorro.filter(
-    op => String(op.metaId) !== String(id)
+    op => String(op.metaId) !== String(metaId)
   );
 
   guardarTodo();
   renderizarTodo();
 }
 
-function eliminarOperacionAhorro(id) {
-  if (!confirm(t("confirm_delete"))) return;
-  operacionesAhorro = operacionesAhorro.filter(op => String(op.id) !== String(id));
-  guardarTodo();
-  renderizarTodo();
-}
-
-/* =========================================================
+/* =====================================================
    PRESUPUESTOS
-   ========================================================= */
+   ===================================================== */
 
 function renderizarPresupuestos() {
   const contenedor = document.getElementById("lista-presupuestos");
   if (!contenedor) return;
 
   if (!presupuestos.length) {
-    contenedor.innerHTML = `<p class="empty-message">${t("no_budget")}</p>`;
+    contenedor.innerHTML = `<p>${configuracion.idioma === "en"
+      ? "No budgets recorded."
+      : "No hay presupuestos registrados."}</p>`;
     return;
   }
 
@@ -1037,8 +892,8 @@ function renderizarPresupuestos() {
         m.categoria === p.categoria &&
         String(m.fecha || "").slice(0, 7) === mesActual()
       )
-      .reduce((suma, m) =>
-        suma + convertirAMonedaPrincipal(
+      .reduce((total, m) =>
+        total + convertirAMonedaPrincipal(
           m.monto,
           m.moneda || configuracion.monedaPrincipal
         ), 0);
@@ -1047,20 +902,19 @@ function renderizarPresupuestos() {
     const restante = limite - gastado;
 
     return `
-      <div class="budget-item">
-        <div style="width:100%">
-          <strong>${nombreCategoria(p.categoria)}</strong>
-          <small>${t("spent")}: ${formatoMoneda(gastado)}</small>
-          <div class="progress-bar">
-            <div class="progress-bar-fill" style="width:${Math.min(100, porcentaje)}%;background:${porcentaje > 100 ? "#dc2626" : "#2563eb"}"></div>
-          </div>
-          <small>${t("budget_amount")}: ${formatoMoneda(p.monto, moneda)}</small>
-          <small class="${restante < 0 ? "amount-negative" : "amount-positive"}">
-            ${restante < 0 ? t("exceeded") : t("available")}: ${formatoMoneda(Math.abs(restante))}
-          </small>
+      <div class="card">
+        <strong>${nombreCategoria(p.categoria)}</strong>
+        <p>${configuracion.idioma === "en" ? "Spent" : "Gastado"}: ${formatoMoneda(gastado)}</p>
+        <div class="progress-container">
+          <div class="progress-bar" style="width:${Math.min(100, porcentaje)}%;background:${porcentaje > 100 ? "#dc2626" : "#22c55e"}"></div>
         </div>
-        <button class="delete-button" data-delete-budget="${escapar(p.id)}">
-          ${t("delete")}
+        <p>${configuracion.idioma === "en" ? "Limit" : "Límite"}: ${formatoMoneda(p.monto, moneda)}</p>
+        <p>${restante >= 0
+          ? (configuracion.idioma === "en" ? "Available" : "Disponible") + ": " + formatoMoneda(restante)
+          : (configuracion.idioma === "en" ? "Exceeded" : "Excedido") + ": " + formatoMoneda(Math.abs(restante))}
+        </p>
+        <button type="button" data-delete-budget="${escapar(p.id)}">
+          ${configuracion.idioma === "en" ? "Delete" : "Eliminar"}
         </button>
       </div>`;
   }).join("");
@@ -1069,71 +923,72 @@ function renderizarPresupuestos() {
 function crearPresupuesto(evento) {
   evento.preventDefault();
 
-  const categoria = document.getElementById("presupuesto-categoria").value;
   const monto = numero(document.getElementById("presupuesto-monto").value);
-  const moneda = document.getElementById("presupuesto-moneda").value;
 
   if (monto <= 0) {
-    alert(t("invalid_amount"));
+    alert(configuracion.idioma === "en"
+      ? "Enter a valid amount."
+      : "Introduce un monto válido.");
     return;
   }
 
   presupuestos.push({
-    id: generarId(),
-    categoria,
+    id: id(),
+    categoria: document.getElementById("presupuesto-categoria").value,
     monto,
-    moneda,
-    creado: new Date().toISOString()
+    moneda: document.getElementById("presupuesto-moneda").value
   });
 
   guardarTodo();
   evento.target.reset();
   llenarSelectoresMonedas();
+  traducirOpciones();
   renderizarTodo();
-  alert(t("saved"));
+
+  alert(configuracion.idioma === "en" ? "Budget saved." : "Presupuesto guardado.");
 }
 
-function eliminarPresupuesto(id) {
-  if (!confirm(t("confirm_delete"))) return;
-  presupuestos = presupuestos.filter(p => String(p.id) !== String(id));
+function eliminarPresupuesto(presupuestoId) {
+  if (!confirm(configuracion.idioma === "en"
+    ? "Delete this budget?"
+    : "¿Eliminar este presupuesto?")) return;
+
+  presupuestos = presupuestos.filter(p => String(p.id) !== String(presupuestoId));
   guardarTodo();
   renderizarTodo();
 }
 
-/* =========================================================
+/* =====================================================
    GASTOS RECURRENTES
-   ========================================================= */
+   ===================================================== */
 
 function renderizarRecurrentes() {
   const contenedor = document.getElementById("lista-recurrentes");
   if (!contenedor) return;
 
   if (!recurrentes.length) {
-    contenedor.innerHTML = `<p class="empty-message">${t("no_recurring")}</p>`;
+    contenedor.innerHTML = `<p>${configuracion.idioma === "en"
+      ? "No recurring expenses recorded."
+      : "No hay gastos recurrentes registrados."}</p>`;
     return;
   }
 
   const frecuencias = {
-    semanal: "weekly",
-    quincenal: "biweekly",
-    mensual: "monthly",
-    anual: "yearly"
+    mensual: configuracion.idioma === "en" ? "Monthly" : "Mensual",
+    semanal: configuracion.idioma === "en" ? "Weekly" : "Semanal",
+    quincenal: configuracion.idioma === "en" ? "Biweekly" : "Quincenal"
   };
 
   contenedor.innerHTML = recurrentes.map(r => `
-    <div class="recurring-item">
-      <div>
-        <strong>${escapar(r.descripcion)}</strong>
-        <small>${nombreCategoria(r.categoria)}</small>
-        <small>${t("frequency_label")}: ${t(frecuencias[r.frecuencia] || "monthly")}</small>
-        <small>${t("recurring_day")}: ${escapar(r.dia)}</small>
-      </div>
-      <div>
-        <strong>${formatoMoneda(r.monto, r.moneda || configuracion.monedaPrincipal)}</strong>
-        <button class="delete-button" data-delete-recurring="${escapar(r.id)}">
-          ${t("delete")}
-        </button>
-      </div>
+    <div class="recurrente">
+      <strong>${escapar(r.descripcion)}</strong>
+      <p>${nombreCategoria(r.categoria)}</p>
+      <p>${frecuencias[r.frecuencia] || escapar(r.frecuencia)}</p>
+      <p>${configuracion.idioma === "en" ? "Day" : "Día"}: ${escapar(r.dia)}</p>
+      <strong>${formatoMoneda(r.monto, r.moneda || configuracion.monedaPrincipal)}</strong>
+      <button type="button" data-delete-recurring="${escapar(r.id)}">
+        ${configuracion.idioma === "en" ? "Delete" : "Eliminar"}
+      </button>
     </div>
   `).join("");
 }
@@ -1143,63 +998,53 @@ function crearRecurrente(evento) {
 
   const descripcion = document.getElementById("recurrente-descripcion").value.trim();
   const monto = numero(document.getElementById("recurrente-monto").value);
-  const moneda = document.getElementById("recurrente-moneda").value;
-  const categoria = document.getElementById("recurrente-categoria").value;
-  const frecuencia = document.getElementById("recurrente-frecuencia").value;
   const dia = numero(document.getElementById("recurrente-dia").value);
 
   if (!descripcion || monto <= 0 || dia < 1 || dia > 31) {
-    alert(t("invalid_amount"));
+    alert(configuracion.idioma === "en"
+      ? "Check the description, amount and day."
+      : "Revisa la descripción, el monto y el día.");
     return;
   }
 
   recurrentes.push({
-    id: generarId(),
+    id: id(),
     descripcion,
     monto,
-    moneda,
-    categoria,
-    frecuencia,
+    moneda: document.getElementById("recurrente-moneda").value,
+    categoria: document.getElementById("recurrente-categoria").value,
+    frecuencia: document.getElementById("recurrente-frecuencia").value,
     dia
   });
 
   guardarTodo();
   evento.target.reset();
   llenarSelectoresMonedas();
+  traducirOpciones();
   renderizarTodo();
-  alert(t("saved"));
+
+  alert(configuracion.idioma === "en" ? "Recurring expense saved." : "Gasto recurrente guardado.");
 }
 
-function eliminarRecurrente(id) {
-  if (!confirm(t("confirm_delete"))) return;
-  recurrentes = recurrentes.filter(r => String(r.id) !== String(id));
+function eliminarRecurrente(recurrenteId) {
+  if (!confirm(configuracion.idioma === "en"
+    ? "Delete this recurring expense?"
+    : "¿Eliminar este gasto recurrente?")) return;
+
+  recurrentes = recurrentes.filter(r => String(r.id) !== String(recurrenteId));
   guardarTodo();
   renderizarTodo();
 }
 
-/* =========================================================
-   ESTADÍSTICAS Y GRÁFICOS
-   ========================================================= */
+/* =====================================================
+   ESTADÍSTICAS
+   ===================================================== */
 
-let graficos = {};
-
-function destruirGrafico(id) {
-  if (graficos[id]) {
-    graficos[id].destroy();
-    delete graficos[id];
-  }
-}
-
-function crearGrafico(id, configuracionGrafico) {
-  const canvas = document.getElementById(id);
-  if (!canvas || typeof Chart === "undefined") return;
-
-  destruirGrafico(id);
-  graficos[id] = new Chart(canvas, configuracionGrafico);
-}
+let graficoEstadisticas = null;
 
 function renderizarEstadisticas() {
-  const contenedor = document.getElementById("resumen-estadisticas");
+  const resumen = document.getElementById("resumen-estadisticas");
+  const canvas = document.getElementById("grafico-estadisticas");
 
   const ingresos = movimientos
     .filter(m => m.tipo === "ingreso")
@@ -1213,83 +1058,40 @@ function renderizarEstadisticas() {
       m.monto, m.moneda || configuracion.monedaPrincipal
     ), 0);
 
-  if (contenedor) {
-    contenedor.innerHTML = `
-      <div class="list-item">
-        <strong>${t("total_income")}</strong>
-        <strong class="amount-positive">${formatoMoneda(ingresos)}</strong>
-      </div>
-      <div class="list-item">
-        <strong>${t("total_expenses")}</strong>
-        <strong class="amount-negative">${formatoMoneda(gastos)}</strong>
-      </div>
-      <div class="list-item">
-        <strong>${t("total_balance")}</strong>
-        <strong>${formatoMoneda(ingresos - gastos)}</strong>
-      </div>`;
+  if (resumen) {
+    resumen.innerHTML = `
+      <p>${t("income")}: <strong>${formatoMoneda(ingresos)}</strong></p>
+      <p>${t("expenses")}: <strong>${formatoMoneda(gastos)}</strong></p>
+      <p>${configuracion.idioma === "en" ? "Net balance" : "Balance neto"}:
+        <strong>${formatoMoneda(ingresos - gastos)}</strong></p>
+      <p>${t("savings")}: <strong>${formatoMoneda(totalAhorros())}</strong></p>`;
   }
+
+  if (!canvas || typeof Chart === "undefined") return;
 
   const categorias = {};
 
-  movimientos
-    .filter(m => m.tipo === "gasto")
-    .forEach(m => {
-      const categoria = m.categoria || "otros";
-      categorias[categoria] = (categorias[categoria] || 0) +
-        convertirAMonedaPrincipal(
-          m.monto, m.moneda || configuracion.monedaPrincipal
-        );
-    });
+  movimientos.filter(m => m.tipo === "gasto").forEach(m => {
+    const categoria = m.categoria || "Otros";
+    categorias[categoria] = (categorias[categoria] || 0) +
+      convertirAMonedaPrincipal(
+        m.monto, m.moneda || configuracion.monedaPrincipal
+      );
+  });
+
+  if (graficoEstadisticas) graficoEstadisticas.destroy();
 
   const etiquetas = Object.keys(categorias).map(nombreCategoria);
   const valores = Object.values(categorias);
 
-  crearGrafico("grafico-categorias", {
+  graficoEstadisticas = new Chart(canvas, {
     type: "doughnut",
     data: {
-      labels: etiquetas,
+      labels: etiquetas.length ? etiquetas : [t("expenses")],
       datasets: [{
-        data: valores,
+        data: valores.length ? valores : [0],
         borderWidth: 2
       }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          position: "bottom"
-        }
-      }
-    }
-  });
-
-  const meses = [...new Set(
-    movimientos.map(m => String(m.fecha || "").slice(0, 7)).filter(Boolean)
-  )].sort().slice(-6);
-
-  const ingresosMes = meses.map(mes =>
-    movimientos.filter(m => m.tipo === "ingreso" && String(m.fecha).startsWith(mes))
-      .reduce((s, m) => s + convertirAMonedaPrincipal(
-        m.monto, m.moneda || configuracion.monedaPrincipal
-      ), 0)
-  );
-
-  const gastosMes = meses.map(mes =>
-    movimientos.filter(m => m.tipo === "gasto" && String(m.fecha).startsWith(mes))
-      .reduce((s, m) => s + convertirAMonedaPrincipal(
-        m.monto, m.moneda || configuracion.monedaPrincipal
-      ), 0)
-  );
-
-  crearGrafico("grafico-ingresos-gastos", {
-    type: "bar",
-    data: {
-      labels: meses,
-      datasets: [
-        { label: t("total_income"), data: ingresosMes },
-        { label: t("total_expenses"), data: gastosMes }
-      ]
     },
     options: {
       responsive: true,
@@ -1301,43 +1103,53 @@ function renderizarEstadisticas() {
   });
 }
 
-/* =========================================================
+/* =====================================================
    CONSEJOS FINANCIEROS
-   ========================================================= */
+   ===================================================== */
 
 function renderizarConsejos() {
-  const campos = [
-    ["consejos-ahorro", "saving_advice"],
-    ["consejos-presupuesto", "budget_advice"],
-    ["consejos-deudas", "debt_advice"],
-    ["consejos-emergencia", "emergency_advice"]
+  const contenedor = document.getElementById("lista-consejos");
+  if (!contenedor) return;
+
+  const consejos = CONSEJOS[configuracion.idioma];
+
+  const grupos = [
+    {
+      titulo: configuracion.idioma === "en" ? "Saving tips" : "Consejos para ahorrar",
+      lista: consejos.ahorro,
+      clase: "success"
+    },
+    {
+      titulo: configuracion.idioma === "en" ? "Budgeting tips" : "Consejos para presupuestar",
+      lista: consejos.presupuesto,
+      clase: "info"
+    },
+    {
+      titulo: configuracion.idioma === "en" ? "Debt management" : "Consejos para manejar deudas",
+      lista: consejos.deudas,
+      clase: "warning"
+    },
+    {
+      titulo: configuracion.idioma === "en" ? "Emergency fund" : "Fondo de emergencia",
+      lista: consejos.emergencia,
+      clase: "success"
+    }
   ];
 
-  campos.forEach(([id, clave]) => {
-    const elemento = document.getElementById(id);
-    if (!elemento) return;
-
-    const consejos = t(clave);
-    elemento.innerHTML = `<ul>${consejos.map(consejo =>
-      `<li>${escapar(consejo)}</li>`
-    ).join("")}</ul>`;
-  });
-
-  const inicio = document.getElementById("consejo-inicio");
-  if (inicio) {
-    const consejos = t("tips");
-    const dia = Math.floor(Date.now() / 86400000);
-    inicio.textContent = consejos[dia % consejos.length];
-  }
+  contenedor.innerHTML = grupos.map(grupo => `
+    <div class="consejo ${grupo.clase}">
+      <strong>${grupo.titulo}</strong>
+      <ul>${grupo.lista.map(item => `<li>${escapar(item)}</li>`).join("")}</ul>
+    </div>
+  `).join("");
 }
 
-/* =========================================================
-   INICIO Y RESUMEN
-   ========================================================= */
+/* =====================================================
+   INICIO Y RESUMEN PRINCIPAL
+   ===================================================== */
 
 function renderizarInicio() {
-  const filtro = document.getElementById("filtro-mes-inicio");
-  const mes = filtro?.value || mesActual();
+  const mes = mesActual();
 
   const delMes = movimientos.filter(m =>
     String(m.fecha || "").slice(0, 7) === mes
@@ -1355,56 +1167,193 @@ function renderizarInicio() {
       m.monto, m.moneda || configuracion.monedaPrincipal
     ), 0);
 
-  const ahorros = operacionesAhorro.reduce((s, op) => {
-    const valor = convertirAMonedaPrincipal(
-      op.monto, op.moneda || configuracion.monedaPrincipal
-    );
-    return s + (op.tipo === "retiro" ? -valor : valor);
-  }, 0);
-
+  const ahorros = totalAhorros();
   const balance = ingresos - gastos;
 
-  const asignaciones = {
-    "resumen-ingresos": ingresos,
-    "resumen-gastos": gastos,
-    "resumen-balance": balance,
-    "resumen-ahorros": ahorros
+  const totalPresupuesto = presupuestos.reduce((s, p) =>
+    s + convertirAMonedaPrincipal(
+      p.monto, p.moneda || configuracion.monedaPrincipal
+    ), 0);
+
+  const disponibles = {
+    "balance-total": balance,
+    "total-ingresos": ingresos,
+    "total-gastos": gastos,
+    "total-ahorros": ahorros,
+    "total-presupuesto": totalPresupuesto,
+    "total-disponible": balance - ahorros
   };
 
-  Object.entries(asignaciones).forEach(([id, valor]) => {
-    const elemento = document.getElementById(id);
-    if (elemento) {
-      elemento.textContent = formatoMoneda(valor);
-      elemento.classList.remove("positive", "negative");
-
-      if (id === "resumen-balance") {
-        elemento.classList.add(valor >= 0 ? "positive" : "negative");
-      }
-    }
+  Object.entries(disponibles).forEach(([elementoId, valor]) => {
+    const elemento = document.getElementById(elementoId);
+    if (elemento) elemento.textContent = formatoMoneda(valor);
   });
 
-  crearGrafico("grafico-resumen", {
-    type: "doughnut",
-    data: {
-      labels: [t("total_income"), t("total_expenses")],
-      datasets: [{
-        data: [ingresos, gastos],
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: { position: "bottom" }
+  const moneda = document.getElementById("moneda-principal-resumen");
+  if (moneda) moneda.textContent = configuracion.monedaPrincipal;
+
+  const canvas = document.getElementById("grafico-resumen");
+
+  if (canvas && typeof Chart !== "undefined") {
+    if (window.graficoInicio) window.graficoInicio.destroy();
+
+    window.graficoInicio = new Chart(canvas, {
+      type: "doughnut",
+      data: {
+        labels: [t("income"), t("expenses")],
+        datasets: [{
+          data: [ingresos, gastos],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { position: "bottom" }
+        }
       }
-    }
-  });
+    });
+  }
 }
 
-/* =========================================================
+/* =====================================================
    CONFIGURACIÓN Y TIPOS DE CAMBIO
-   ========================================================= */
+   ===================================================== */
+
+function renderizarTasas() {
+  const lista = document.getElementById("lista-tipos-cambio");
+  const estado = document.getElementById("estado-tipo-automatico");
+  const fecha = document.getElementById("fecha-actualizacion-tasas");
+
+  if (!lista) return;
+
+  lista.innerHTML = Object.keys(MONEDAS)
+    .filter(moneda => moneda !== configuracion.monedaPrincipal)
+    .map(moneda => `
+      <div class="card">
+        <label for="tasa-${moneda}">
+          ${moneda} - ${configuracion.idioma === "en"
+            ? "Main currency units per 1 unit"
+            : "Unidades de moneda principal por 1 unidad"}
+        </label>
+        <input
+          id="tasa-${moneda}"
+          type="number"
+          min="0.000001"
+          step="any"
+          value="${escapar(configuracion.tasasManuales[moneda] ?? "")}"
+          placeholder="0.00">
+      </div>
+    `).join("");
+
+  if (estado) {
+    estado.textContent = configuracion.fechaTasas
+      ? (configuracion.idioma === "en"
+          ? "Automatic rates available"
+          : "Tasas automáticas disponibles")
+      : (configuracion.idioma === "en"
+          ? "Using manual rates until automatic update"
+          : "Se utilizan tasas manuales hasta actualizar automáticamente");
+  }
+
+  if (fecha) {
+    fecha.textContent = configuracion.fechaTasas
+      ? (configuracion.idioma === "en" ? "Last update: " : "Última actualización: ") +
+        new Date(configuracion.fechaTasas).toLocaleString(
+          configuracion.idioma === "en" ? "en-US" : "es-CR"
+        )
+      : "";
+  }
+}
+
+function guardarTasasManuales() {
+  if (!configuracion.tasasManuales) configuracion.tasasManuales = {};
+
+  Object.keys(MONEDAS).forEach(moneda => {
+    if (moneda === configuracion.monedaPrincipal) return;
+
+    const campo = document.getElementById("tasa-" + moneda);
+    if (!campo) return;
+
+    const valor = numero(campo.value);
+
+    if (valor > 0) {
+      configuracion.tasasManuales[moneda] = valor;
+    }
+  });
+
+  configuracion.modoTasas = "manual";
+  guardarTodo();
+  renderizarTodo();
+
+  alert(configuracion.idioma === "en"
+    ? "Manual exchange rates saved."
+    : "Tipos de cambio manuales guardados.");
+}
+
+async function actualizarTasasAutomaticas() {
+  const boton = document.getElementById("actualizar-tasas");
+  const estado = document.getElementById("estado-tipo-automatico");
+
+  if (boton) boton.disabled = true;
+
+  if (estado) {
+    estado.textContent = configuracion.idioma === "en"
+      ? "Updating rates..."
+      : "Actualizando tasas...";
+  }
+
+  try {
+    const base = configuracion.monedaPrincipal;
+
+    const respuesta = await fetch(
+      "https://open.er-api.com/v6/latest/" + encodeURIComponent(base)
+    );
+
+    if (!respuesta.ok) throw new Error("Network error");
+
+    const datos = await respuesta.json();
+
+    if (datos.result !== "success" || !datos.rates) {
+      throw new Error("Invalid rate data");
+    }
+
+    const tasas = {};
+
+    Object.keys(MONEDAS).forEach(moneda => {
+      if (moneda === base) {
+        tasas[moneda] = 1;
+      } else {
+        const unidades = numero(datos.rates[moneda]);
+        if (unidades > 0) tasas[moneda] = 1 / unidades;
+      }
+    });
+
+    configuracion.tasasAutomaticas = tasas;
+    configuracion.fechaTasas = new Date().toISOString();
+    configuracion.modoTasas = "both";
+
+    guardarTodo();
+    renderizarTodo();
+
+    alert(configuracion.idioma === "en"
+      ? "Automatic exchange rates updated."
+      : "Tipos de cambio actualizados.");
+
+  } catch (error) {
+    console.error("Exchange rate error:", error);
+
+    alert(configuracion.idioma === "en"
+      ? "Could not update rates. You can enter them manually."
+      : "No fue posible actualizar las tasas. Puedes introducirlas manualmente.");
+
+    renderizarTasas();
+
+  } finally {
+    if (boton) boton.disabled = false;
+  }
+}
 
 function configurarConfiguracion() {
   const idioma = document.getElementById("idioma-aplicacion");
@@ -1416,183 +1365,65 @@ function configurarConfiguracion() {
       configuracion.idioma = idioma.value === "en" ? "en" : "es";
       guardarTodo();
       aplicarIdioma();
-      alert(t("language_saved"));
     });
   }
 
   const moneda = document.getElementById("moneda-principal");
+  const guardarMoneda = document.getElementById("guardar-moneda");
+
+  function cambiarMoneda() {
+    const nueva = moneda?.value;
+
+    if (!nueva || !MONEDAS[nueva]) return;
+
+    if (nueva !== configuracion.monedaPrincipal) {
+      configuracion.monedaPrincipal = nueva;
+      configuracion.tasasAutomaticas = {};
+      configuracion.fechaTasas = null;
+      configuracion.modoTasas = "both";
+
+      guardarTodo();
+      llenarSelectoresMonedas();
+      renderizarTodo();
+      renderizarTasas();
+
+      alert(configuracion.idioma === "en"
+        ? "Main currency changed. Update exchange rates before converting currencies."
+        : "Moneda principal cambiada. Actualiza las tasas antes de realizar conversiones.");
+    }
+  }
 
   if (moneda) {
     moneda.value = configuracion.monedaPrincipal;
-
-    moneda.addEventListener("change", () => {
-      configuracion.monedaPrincipal = moneda.value;
-      configuracion.tasasAutomaticas = {};
-      guardarTodo();
-      renderizarTodo();
-      renderizarTasas();
-      alert(t("confirm_currency"));
-    });
+    moneda.addEventListener("change", cambiarMoneda);
   }
-
-  const guardarMoneda = document.getElementById("guardar-moneda");
 
   if (guardarMoneda) {
     guardarMoneda.addEventListener("click", () => {
-      const selector = document.getElementById("moneda-principal");
-      if (!selector) return;
+      cambiarMoneda();
 
-      configuracion.monedaPrincipal = selector.value;
-      configuracion.tasasAutomaticas = {};
-      guardarTodo();
-      renderizarTodo();
-      renderizarTasas();
-      alert(t("currency_saved"));
+      alert(configuracion.idioma === "en"
+        ? "Main currency settings saved."
+        : "Configuración de moneda guardada.");
     });
   }
 
-  const actualizar = document.getElementById("actualizar-tasas");
+  document.getElementById("actualizar-tasas")
+    ?.addEventListener("click", actualizarTasasAutomaticas);
 
-  if (actualizar) {
-    actualizar.addEventListener("click", actualizarTasasAutomaticas);
-  }
+  document.getElementById("guardar-tasas")
+    ?.addEventListener("click", guardarTasasManuales);
 
-  const guardarTasas = document.getElementById("guardar-tasas");
+  document.getElementById("exportar-datos")
+    ?.addEventListener("click", exportarDatos);
 
-  if (guardarTasas) {
-    guardarTasas.addEventListener("click", guardarTasasManuales);
-  }
-
-  const exportar = document.getElementById("exportar-datos");
-
-  if (exportar) {
-    exportar.addEventListener("click", exportarDatos);
-  }
-
-  const importar = document.getElementById("importar-datos");
-
-  if (importar) {
-    importar.addEventListener("click", importarDatos);
-  }
+  document.getElementById("archivo-importar")
+    ?.addEventListener("change", importarDatos);
 }
 
-function renderizarTasas() {
-  const lista = document.getElementById("lista-tipos-cambio");
-  const estado = document.getElementById("estado-tipo-automatico");
-  const fecha = document.getElementById("fecha-actualizacion-tasas");
-
-  if (!lista) return;
-
-  const monedas = Object.keys(MONEDAS).filter(
-    moneda => moneda !== configuracion.monedaPrincipal
-  );
-
-  lista.innerHTML = monedas.map(moneda => {
-    const valor = configuracion.tasasManuales?.[moneda] ?? "";
-
-    return `
-      <div class="list-item">
-        <label for="tasa-${moneda}">${moneda}</label>
-        <input
-          id="tasa-${moneda}"
-          type="number"
-          min="0.000001"
-          step="any"
-          value="${escapar(valor)}"
-          placeholder="0.00">
-      </div>`;
-  }).join("");
-
-  if (estado) {
-    estado.textContent = configuracion.fechaTasas
-      ? t("automatic")
-      : t("pending");
-  }
-
-  if (fecha) {
-    fecha.textContent = configuracion.fechaTasas
-      ? new Date(configuracion.fechaTasas).toLocaleString(
-          configuracion.idioma === "en" ? "en-US" : "es-CR"
-        )
-      : "—";
-  }
-}
-
-function guardarTasasManuales() {
-  const monedas = Object.keys(MONEDAS).filter(
-    moneda => moneda !== configuracion.monedaPrincipal
-  );
-
-  monedas.forEach(moneda => {
-    const campo = document.getElementById("tasa-" + moneda);
-    if (!campo) return;
-
-    const valor = numero(campo.value);
-    if (valor > 0) {
-      configuracion.tasasManuales[moneda] = valor;
-    }
-  });
-
-  guardarTodo();
-  renderizarTodo();
-  alert(t("rate_saved"));
-}
-
-async function actualizarTasasAutomaticas() {
-  const boton = document.getElementById("actualizar-tasas");
-  const estado = document.getElementById("estado-tipo-automatico");
-
-  if (boton) boton.disabled = true;
-  if (estado) estado.textContent = "...";
-
-  try {
-    const base = configuracion.monedaPrincipal;
-    const respuesta = await fetch(
-      `https://open.er-api.com/v6/latest/${encodeURIComponent(base)}`
-    );
-
-    if (!respuesta.ok) throw new Error("HTTP " + respuesta.status);
-
-    const datos = await respuesta.json();
-
-    if (datos.result !== "success" || !datos.rates) {
-      throw new Error("Invalid exchange rate response");
-    }
-
-    const nuevasTasas = {};
-
-    Object.keys(MONEDAS).forEach(moneda => {
-      if (moneda === base) {
-        nuevasTasas[moneda] = 1;
-      } else {
-        const unidades = numero(datos.rates[moneda]);
-        if (unidades > 0) {
-          nuevasTasas[moneda] = 1 / unidades;
-        }
-      }
-    });
-
-    configuracion.tasasAutomaticas = nuevasTasas;
-    configuracion.fechaTasas = new Date().toISOString();
-    configuracion.modoTasas = "both";
-
-    guardarTodo();
-    renderizarTodo();
-    alert(t("rate_success"));
-
-  } catch (error) {
-    console.error("Error de tasas:", error);
-    if (estado) estado.textContent = t("manual");
-    alert(t("rate_error"));
-
-  } finally {
-    if (boton) boton.disabled = false;
-  }
-}
-
-/* =========================================================
+/* =====================================================
    EXPORTAR E IMPORTAR
-   ========================================================= */
+   ===================================================== */
 
 function exportarDatos() {
   const datos = {
@@ -1615,22 +1446,18 @@ function exportarDatos() {
   const enlace = document.createElement("a");
 
   enlace.href = url;
-  enlace.download = "mis-finanzas-respaldo-" + fechaHoy() + ".json";
+  enlace.download = "mis-finanzas-" + hoy() + ".json";
+
   document.body.appendChild(enlace);
   enlace.click();
   enlace.remove();
 
-  URL.revokeObjectURL(url);
-  alert(t("export_success"));
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function importarDatos() {
-  const archivo = document.getElementById("archivo-importar")?.files?.[0];
-
-  if (!archivo) {
-    alert(t("import_error"));
-    return;
-  }
+function importarDatos(evento) {
+  const archivo = evento.target.files?.[0];
+  if (!archivo) return;
 
   const lector = new FileReader();
 
@@ -1638,53 +1465,70 @@ function importarDatos() {
     try {
       const datos = JSON.parse(lector.result);
 
-      if (!Array.isArray(datos.movimientos) || !Array.isArray(datos.metas)) {
+      if (!Array.isArray(datos.movimientos) ||
+          !Array.isArray(datos.metas)) {
         throw new Error("Invalid backup");
       }
 
       movimientos = datos.movimientos;
       metas = datos.metas;
-      operacionesAhorro = Array.isArray(datos.operacionesAhorro)
-        ? datos.operacionesAhorro
-        : [];
-      presupuestos = Array.isArray(datos.presupuestos)
-        ? datos.presupuestos
-        : [];
-      recurrentes = Array.isArray(datos.recurrentes)
-        ? datos.recurrentes
-        : [];
 
-      if (datos.configuracion && typeof datos.configuracion === "object") {
+      operacionesAhorro = Array.isArray(datos.operacionesAhorro)
+        ? datos.operacionesAhorro : [];
+
+      presupuestos = Array.isArray(datos.presupuestos)
+        ? datos.presupuestos : [];
+
+      recurrentes = Array.isArray(datos.recurrentes)
+        ? datos.recurrentes : [];
+
+      if (datos.configuracion) {
         configuracion = {
-          ...configuracion,
-          ...datos.configuracion
+          ...CONFIG_DEFAULT,
+          ...datos.configuracion,
+          tasasManuales: {
+            ...CONFIG_DEFAULT.tasasManuales,
+            ...(datos.configuracion.tasasManuales || {})
+          },
+          tasasAutomaticas: datos.configuracion.tasasAutomaticas || {}
         };
       }
 
       guardarTodo();
       aplicarIdioma();
-      renderizarTodo();
-      alert(t("import_success"));
+
+      alert(configuracion.idioma === "en"
+        ? "Data imported successfully."
+        : "Datos importados correctamente.");
 
     } catch (error) {
       console.error(error);
-      alert(t("import_error"));
+
+      alert(configuracion.idioma === "en"
+        ? "Invalid backup file."
+        : "El archivo no es un respaldo válido.");
+
+    } finally {
+      evento.target.value = "";
     }
   };
 
-  lector.onerror = () => alert(t("import_error"));
+  lector.onerror = () => {
+    alert(configuracion.idioma === "en"
+      ? "Could not read the file."
+      : "No fue posible leer el archivo.");
+  };
+
   lector.readAsText(archivo);
 }
 
-/* =========================================================
-   FORMULARIOS Y EVENTOS
-   ========================================================= */
+/* =====================================================
+   EVENTOS
+   ===================================================== */
 
-function conectarFormulario(id, funcion) {
-  const formulario = document.getElementById(id);
-  if (formulario) {
-    formulario.addEventListener("submit", funcion);
-  }
+function conectarFormulario(idFormulario, funcion) {
+  document.getElementById(idFormulario)
+    ?.addEventListener("submit", funcion);
 }
 
 function configurarFormularios() {
@@ -1706,10 +1550,6 @@ function configurarFormularios() {
       eliminarMeta(boton.dataset.deleteGoal);
     }
 
-    if (boton.dataset.deleteSaving) {
-      eliminarOperacionAhorro(boton.dataset.deleteSaving);
-    }
-
     if (boton.dataset.deleteBudget) {
       eliminarPresupuesto(boton.dataset.deleteBudget);
     }
@@ -1718,21 +1558,16 @@ function configurarFormularios() {
       eliminarRecurrente(boton.dataset.deleteRecurring);
     }
   });
-
-  const filtro = document.getElementById("filtro-mes-inicio");
-
-  if (filtro) {
-    filtro.value = mesActual();
-    filtro.addEventListener("change", renderizarInicio);
-  }
 }
 
-/* =========================================================
+/* =====================================================
    RENDERIZADO GENERAL
-   ========================================================= */
+   ===================================================== */
 
 function renderizarTodo() {
   llenarSelectoresMonedas();
+  traducirOpciones();
+
   renderizarInicio();
   renderizarMovimientos();
   renderizarAhorros();
@@ -1740,47 +1575,45 @@ function renderizarTodo() {
   renderizarRecurrentes();
   renderizarConsejos();
   renderizarTasas();
+
   actualizarMenuMas();
 
-  const activo = document.querySelector(".page-section.active");
-
-  if (activo?.id === "estadisticas") {
+  if (document.getElementById("estadisticas")?.classList.contains("active")) {
     renderizarEstadisticas();
   }
 }
 
-/* =========================================================
-   INICIALIZACIÓN
-   ========================================================= */
+/* =====================================================
+   INICIO DE LA APLICACIÓN
+   ===================================================== */
 
 function iniciarAplicacion() {
   configurarNavegacion();
   configurarFormularios();
   configurarConfiguracion();
 
+  document.querySelectorAll(".page-section").forEach(seccion => {
+    seccion.hidden = seccion.id !== "inicio";
+    seccion.classList.toggle("active", seccion.id === "inicio");
+  });
+
   const fechaMovimiento = document.getElementById("mov-fecha");
   const fechaAhorro = document.getElementById("ahorro-fecha-movimiento");
 
   if (fechaMovimiento && !fechaMovimiento.value) {
-    fechaMovimiento.value = fechaHoy();
+    fechaMovimiento.value = hoy();
   }
 
   if (fechaAhorro && !fechaAhorro.value) {
-    fechaAhorro.value = fechaHoy();
+    fechaAhorro.value = hoy();
   }
 
   aplicarIdioma();
-
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./service-worker.js")
-        .catch(error => console.warn("Service Worker:", error));
-    });
-  }
+  guardarTodo();
 }
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", iniciarAplicacion);
 } else {
   iniciarAplicacion();
-     }
+}
