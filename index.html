@@ -11,7 +11,9 @@
 <body>
   <header class="app-header">
     <div>
-      <h1 data-i18n="appTitle">Mis Finanzas</h1>
+      <button class="header-title-button" id="home-title" type="button">
+        <h1 data-i18n="appTitle">Mis Finanzas</h1>
+      </button>
       <p data-i18n="appSubtitle">Tu dinero, bajo control</p>
     </div>
     <button class="icon-button" id="header-settings" aria-label="Configuración">⚙</button>
@@ -21,6 +23,7 @@
     <section class="page-section active" id="inicio">
       <div class="welcome-row">
         <div>
+          <p class="eyebrow" id="greeting-personalizado">¡Hola!</p>
           <p class="eyebrow" data-i18n="totalBalance">Balance total</p>
           <h2 id="balance-total">₡0,00</h2>
           <span class="muted" data-i18n="availableBalance">Disponible en tu moneda principal</span>
@@ -42,7 +45,7 @@
         <article class="summary-card savings-card">
           <span data-i18n="savings">Ahorros</span>
           <strong id="total-ahorros">₡0,00</strong>
-          <small>◎</small>
+          <small>🐷</small>
         </article>
         <article class="summary-card budget-card">
           <span data-i18n="budget">Presupuesto</span>
@@ -54,10 +57,22 @@
       <div class="quick-actions">
         <h3 data-i18n="quickActions">Acciones rápidas</h3>
         <div class="quick-grid">
-          <button class="quick-button" data-quick="income"><span>＋</span><span data-i18n="addIncome">Ingreso</span></button>
-          <button class="quick-button" data-quick="expense"><span>－</span><span data-i18n="addExpense">Gasto</span></button>
-          <button class="quick-button" data-quick="saving"><span>◎</span><span data-i18n="addSaving">Ahorrar</span></button>
-          <button class="quick-button" data-section="presupuesto"><span>▤</span><span data-i18n="setBudget">Presupuesto</span></button>
+          <button class="quick-button" data-quick="income">
+            <span>＋</span>
+            <span data-i18n="addIncome">Ingreso</span>
+          </button>
+          <button class="quick-button" data-quick="expense">
+            <span>－</span>
+            <span data-i18n="addExpense">Gasto</span>
+          </button>
+          <button class="quick-button" data-quick="saving">
+            <span>🐷</span>
+            <span data-i18n="addSaving">Ahorrar</span>
+          </button>
+          <button class="quick-button" data-section="presupuesto">
+            <span>▤</span>
+            <span data-i18n="setBudget">Presupuesto</span>
+          </button>
         </div>
       </div>
 
@@ -133,7 +148,7 @@
 
     <section class="page-section" id="ahorros">
       <div class="page-heading">
-        <h2 data-i18n="savings">Ahorros</h2>
+        <h2 data-i18n="savings">Ahorros 🐷</h2>
         <p data-i18n="savingsDescription">Construye tus metas financieras.</p>
       </div>
 
@@ -165,7 +180,9 @@
         </form>
       </article>
 
-      <div class="section-heading"><h3 data-i18n="savingHistory">Historial de ahorros</h3></div>
+      <div class="section-heading">
+        <h3 data-i18n="savingHistory">Historial de ahorros</h3>
+      </div>
       <div id="lista-ahorros" class="list-container"></div>
     </section>
 
@@ -214,8 +231,14 @@
             <option value="expense" data-i18n="expenses">Gasto</option>
           </select>
           <div class="form-row">
-            <div><label data-i18n="amount">Monto</label><input id="monto-recurrente" type="number" min="0.01" step="any" required></div>
-            <div><label data-i18n="currency">Moneda</label><select id="moneda-recurrente" class="currency-select"></select></div>
+            <div>
+              <label data-i18n="amount">Monto</label>
+              <input id="monto-recurrente" type="number" min="0.01" step="any" required>
+            </div>
+            <div>
+              <label data-i18n="currency">Moneda</label>
+              <select id="moneda-recurrente" class="currency-select"></select>
+            </div>
           </div>
           <label data-i18n="frequency">Frecuencia</label>
           <select id="frecuencia-recurrente">
@@ -235,10 +258,22 @@
         <p data-i18n="statisticsDescription">Un resumen de tus finanzas.</p>
       </div>
       <div class="summary-grid">
-        <article class="summary-card income-card"><span data-i18n="income">Ingresos</span><strong id="estadistica-ingresos">₡0</strong></article>
-        <article class="summary-card expense-card"><span data-i18n="expenses">Gastos</span><strong id="estadistica-gastos">₡0</strong></article>
-        <article class="summary-card savings-card"><span data-i18n="savings">Ahorros</span><strong id="estadistica-ahorros">₡0</strong></article>
-        <article class="summary-card budget-card"><span data-i18n="netBalance">Balance neto</span><strong id="estadistica-balance">₡0</strong></article>
+        <article class="summary-card income-card">
+          <span data-i18n="income">Ingresos</span>
+          <strong id="estadistica-ingresos">₡0</strong>
+        </article>
+        <article class="summary-card expense-card">
+          <span data-i18n="expenses">Gastos</span>
+          <strong id="estadistica-gastos">₡0</strong>
+        </article>
+        <article class="summary-card savings-card">
+          <span data-i18n="savings">Ahorros</span>
+          <strong id="estadistica-ahorros">₡0</strong>
+        </article>
+        <article class="summary-card budget-card">
+          <span data-i18n="netBalance">Balance neto</span>
+          <strong id="estadistica-balance">₡0</strong>
+        </article>
       </div>
       <article class="card">
         <h3 data-i18n="expenseDistribution">Distribución de gastos</h3>
@@ -252,12 +287,30 @@
         <p data-i18n="tipsDescription">Pequeños hábitos para mejorar tus finanzas.</p>
       </div>
       <div class="tip-list">
-        <article class="card tip-card"><span>💰</span><div><h3 data-i18n="tip1Title">Págate primero</h3><p data-i18n="tip1Text">Aparta una parte de tus ingresos para ahorrar antes de gastar.</p></div></article>
-        <article class="card tip-card"><span>🎯</span><div><h3 data-i18n="tip2Title">Define metas</h3><p data-i18n="tip2Text">Divide tus objetivos de ahorro en cantidades pequeñas y alcanzables.</p></div></article>
-        <article class="card tip-card"><span>📊</span><div><h3 data-i18n="tip3Title">Controla tu presupuesto</h3><p data-i18n="tip3Text">Revisa tus gastos cada semana y ajusta tus límites cuando sea necesario.</p></div></article>
-        <article class="card tip-card"><span>🧾</span><div><h3 data-i18n="tip4Title">Reduce gastos hormiga</h3><p data-i18n="tip4Text">Identifica compras pequeñas y frecuentes que afectan tu dinero.</p></div></article>
-        <article class="card tip-card"><span>🛟</span><div><h3 data-i18n="tip5Title">Crea un fondo de emergencia</h3><p data-i18n="tip5Text">Construye una reserva para imprevistos y evita depender del crédito.</p></div></article>
-        <article class="card tip-card"><span>💳</span><div><h3 data-i18n="tip6Title">Atiende tus deudas</h3><p data-i18n="tip6Text">Prioriza las deudas con intereses altos y evita nuevos compromisos innecesarios.</p></div></article>
+        <article class="card tip-card">
+          <span>💰</span>
+          <div><h3 data-i18n="tip1Title">Págate primero</h3><p data-i18n="tip1Text">Aparta una parte de tus ingresos para ahorrar antes de gastar.</p></div>
+        </article>
+        <article class="card tip-card">
+          <span>🎯</span>
+          <div><h3 data-i18n="tip2Title">Define metas</h3><p data-i18n="tip2Text">Divide tus objetivos de ahorro en cantidades pequeñas y alcanzables.</p></div>
+        </article>
+        <article class="card tip-card">
+          <span>📊</span>
+          <div><h3 data-i18n="tip3Title">Controla tu presupuesto</h3><p data-i18n="tip3Text">Revisa tus gastos cada semana y ajusta tus límites cuando sea necesario.</p></div>
+        </article>
+        <article class="card tip-card">
+          <span>🧾</span>
+          <div><h3 data-i18n="tip4Title">Reduce gastos hormiga</h3><p data-i18n="tip4Text">Identifica compras pequeñas y frecuentes que afectan tu dinero.</p></div>
+        </article>
+        <article class="card tip-card">
+          <span>🛟</span>
+          <div><h3 data-i18n="tip5Title">Crea un fondo de emergencia</h3><p data-i18n="tip5Text">Construye una reserva para imprevistos y evita depender del crédito.</p></div>
+        </article>
+        <article class="card tip-card">
+          <span>💳</span>
+          <div><h3 data-i18n="tip6Title">Atiende tus deudas</h3><p data-i18n="tip6Text">Prioriza las deudas con intereses altos y evita nuevos compromisos innecesarios.</p></div>
+        </article>
       </div>
     </section>
 
@@ -266,6 +319,14 @@
         <h2 data-i18n="settings">Configuración</h2>
         <p data-i18n="settingsDescription">Personaliza tu aplicación.</p>
       </div>
+
+      <article class="card">
+        <h3 data-i18n="personalization">Personalización</h3>
+        <label for="nombre-usuario" data-i18n="yourName">Tu nombre</label>
+        <input id="nombre-usuario" type="text" maxlength="40" placeholder="Escribe tu nombre">
+        <button class="secondary-button" id="guardar-nombre" type="button" data-i18n="saveName">Guardar nombre</button>
+      </article>
+
       <article class="card">
         <label data-i18n="language">Idioma</label>
         <select id="selector-idioma">
@@ -293,6 +354,7 @@
           <button id="guardar-tasas" type="button" class="secondary-button" data-i18n="saveRates">Guardar tasas manuales</button>
         </div>
       </article>
+
       <article class="card">
         <h3 data-i18n="dataManagement">Datos</h3>
         <p class="muted" data-i18n="dataDescription">Tus registros se guardan localmente en este dispositivo.</p>
@@ -301,25 +363,39 @@
     </section>
 
     <section class="page-section" id="mas">
-      <div class="page-heading"><h2 data-i18n="more">Más</h2><p data-i18n="moreDescription">Otras herramientas de Mis Finanzas.</p></div>
+      <div class="page-heading">
+        <h2 data-i18n="more">Más</h2>
+        <p data-i18n="moreDescription">Otras herramientas de Mis Finanzas.</p>
+      </div>
       <div class="more-menu">
         <button data-section="recurrentes"><span>🔁</span><span data-i18n="recurring">Recurrentes</span><span>›</span></button>
         <button data-section="estadisticas"><span>📊</span><span data-i18n="statistics">Estadísticas</span><span>›</span></button>
         <button data-section="consejos"><span>💡</span><span data-i18n="tips">Consejos financieros</span><span>›</span></button>
         <button data-section="configuracion"><span>⚙️</span><span data-i18n="settings">Configuración</span><span>›</span></button>
+        <button id="boton-salir" type="button"><span>🚪</span><span data-i18n="exit">Salir de la aplicación</span><span>›</span></button>
       </div>
     </section>
   </main>
 
   <nav class="bottom-nav">
-    <button class="nav-button active" data-section="inicio"><span>⌂</span><small data-i18n="home">Inicio</small></button>
-    <button class="nav-button" data-section="movimientos"><span>⇄</span><small data-i18n="movements">Movimientos</small></button>
-    <button class="nav-button" data-section="ahorros"><span>◎</span><small data-i18n="savings">Ahorros</small></button>
-    <button class="nav-button" data-section="presupuesto"><span>▤</span><small data-i18n="budget">Presupuesto</small></button>
-    <button class="nav-button" data-section="mas" id="boton-mas"><span>•••</span><small data-i18n="more">Más</small></button>
+    <button class="nav-button active" data-section="inicio">
+      <span>⌂</span><small data-i18n="home">Inicio</small>
+    </button>
+    <button class="nav-button" data-section="movimientos">
+      <span>⇄</span><small data-i18n="movements">Movimientos</small>
+    </button>
+    <button class="nav-button" data-section="ahorros">
+      <span>🐷</span><small data-i18n="savings">Ahorros</small>
+    </button>
+    <button class="nav-button" data-section="presupuesto">
+      <span>▤</span><small data-i18n="budget">Presupuesto</small>
+    </button>
+    <button class="nav-button" data-section="mas" id="boton-mas">
+      <span>•••</span><small data-i18n="more">Más</small>
+    </button>
   </nav>
 
   <div id="toast" class="toast" role="status"></div>
   <script src="./script.js"></script>
 </body>
-                   </html>
+  </html>
