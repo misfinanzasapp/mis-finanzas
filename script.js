@@ -87,8 +87,18 @@ const TEXT = {
     monthlyShort: "Mensual", today: "Hoy",
     rateStatus: "Última actualización: ", loading: "Consultando tipos de cambio...",
     rateSource: "Tasas de referencia consultadas en línea.",
-    baseCurrency: "Moneda base"
+    baseCurrency: "Moneda base",
+    hello: "¡Hola!",
+    helloName: "¡Hola, {name}!",
+    personalization: "Personalización",
+    yourName: "Tu nombre",
+    saveName: "Guardar nombre",
+    nameSaved: "Nombre guardado correctamente.",
+    exit: "Salir de la aplicación",
+    confirmExit: "¿Deseas salir de Mis Finanzas?",
+    exitHelp: "Para cerrar la aplicación, utiliza el botón de inicio o las aplicaciones recientes de Android."
   },
+
   en: {
     appTitle: "My Finances", appSubtitle: "Your money, under control",
     totalBalance: "Total balance", availableBalance: "Available in your main currency",
@@ -154,7 +164,16 @@ const TEXT = {
     monthlyShort: "Monthly", today: "Today",
     rateStatus: "Last updated: ", loading: "Retrieving exchange rates...",
     rateSource: "Reference rates retrieved online.",
-    baseCurrency: "Base currency"
+    baseCurrency: "Base currency",
+    hello: "Hello!",
+    helloName: "Hello, {name}!",
+    personalization: "Personalization",
+    yourName: "Your name",
+    saveName: "Save name",
+    nameSaved: "Name saved successfully.",
+    exit: "Exit application",
+    confirmExit: "Do you want to exit My Finances?",
+    exitHelp: "To close the app, use the Android Home button or the Recent Apps screen."
   }
 };
 
@@ -162,6 +181,7 @@ const DEFAULT_STATE = {
   language: "es",
   baseCurrency: "CRC",
   exchangeMode: "both",
+  userName: "",
   movements: [],
   savings: [],
   recurring: [],
@@ -175,6 +195,8 @@ const DEFAULT_STATE = {
 };
 
 let state = loadState();
+let currentSection = "inicio";
+let handlingPopState = false;
 
 function loadState() {
   try {
@@ -184,7 +206,7 @@ function loadState() {
       ...stored,
       budget: { ...DEFAULT_STATE.budget, ...(stored.budget || {}) },
       manualRates: { ...DEFAULT_STATE.manualRates, ...(stored.manualRates || {}) }
-    } : structuredClone(DEFAULT_STATE);
+    } : JSON.parse(JSON.stringify(DEFAULT_STATE));
   } catch (error) {
     return JSON.parse(JSON.stringify(DEFAULT_STATE));
   }
@@ -210,6 +232,7 @@ function translatePage() {
 
   $("selector-idioma").value = state.language;
   $("moneda-principal").value = state.baseCurrency;
+  $("nombre-usuario").value = state.userName || "";
 
   document.title = t("appTitle");
   renderAll();
@@ -234,7 +257,6 @@ function setupCurrencies() {
 
   $("moneda-presupuesto").value = state.budget.currency;
   $("moneda-principal").value = state.baseCurrency;
-
   $("fecha-movimiento").value = todayISO();
   $("fecha-ahorro").value = todayISO();
 }
@@ -265,12 +287,11 @@ function formatMoney(amount, currency = state.baseCurrency) {
 function exchangeRate(currency) {
   if (currency === "CRC") return 1;
 
-  const mode = state.exchangeMode;
   const automatic = state.onlineRates?.[currency];
   const manual = Number(state.manualRates[currency]);
 
-  if (mode === "automatic") return automatic || null;
-  if (mode === "manual") return manual > 0 ? manual : null;
+  if (state.exchangeMode === "automatic") return automatic || null;
+  if (state.exchangeMode === "manual") return manual > 0 ? manual : null;
 
   return manual > 0 ? manual : automatic || null;
 }
@@ -319,9 +340,12 @@ function showToast(message) {
   showToast.timer = setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
-function showSection(sectionId) {
+/* Navegación entre secciones y botón Atrás de Android */
+function showSection(sectionId, options = {}) {
   const target = $(sectionId);
   if (!target || !target.classList.contains("page-section")) return;
+
+  const previousSection = currentSection;
 
   document.querySelectorAll(".page-section").forEach(section => {
     section.classList.toggle("active", section.id === sectionId);
@@ -331,19 +355,29 @@ function showSection(sectionId) {
     button.classList.toggle("active", button.dataset.section === sectionId);
   });
 
+  currentSection = sectionId;
+
+  if (!options.skipHistory && previousSection !== sectionId) {
+    history.pushState({ mfSection: sectionId }, "", location.href);
+  }
+
   window.scrollTo({ top: 0, behavior: "smooth" });
   renderAll();
 }
 
 function setupNavigation() {
+  history.replaceState({ mfSection: "inicio" }, "", location.href);
+
   document.addEventListener("click", event => {
     const sectionButton = event.target.closest("[data-section]");
+
     if (sectionButton) {
       showSection(sectionButton.dataset.section);
       return;
     }
 
     const quickButton = event.target.closest("[data-quick]");
+
     if (quickButton) {
       const type = quickButton.dataset.quick;
       showSection(type === "saving" ? "ahorros" : "movimientos");
@@ -357,8 +391,32 @@ function setupNavigation() {
     }
   });
 
-  $("header-settings").addEventListener("click", () => showSection("configuracion"));
-  $("boton-mas").addEventListener("click", () => showSection("mas"));
+  $("header-settings").addEventListener("click", () => {
+    showSection("configuracion");
+  });
+
+  $("home-title").addEventListener("click", () => {
+    showSection("inicio");
+  });
+
+  $("boton-mas").addEventListener("click", () => {
+    showSection("mas");
+  });
+
+  window.addEventListener("popstate", event => {
+    handlingPopState = true;
+
+    const previous = event.state?.mfSection;
+
+    if (previous && $(previous)?.classList.contains("page-section")) {
+      showSection(previous, { skipHistory: true });
+    } else {
+      showSection("inicio", { skipHistory: true });
+      history.pushState({ mfSection: "inicio" }, "", location.href);
+    }
+
+    handlingPopState = false;
+  });
 }
 
 function addMovement(event) {
@@ -486,6 +544,7 @@ function categoryName(category) {
 
 function dateText(date) {
   if (!date) return "";
+
   return new Intl.DateTimeFormat(
     state.language === "en" ? "en-US" : "es-CR"
   ).format(new Date(date + "T12:00:00"));
@@ -510,7 +569,7 @@ function renderMovement(item, isSaving = false) {
 
   return `
     <article class="movement-item">
-      <div class="movement-icon">${type === "income" ? "↗" : type === "expense" ? "↘" : "◎"}</div>
+      <div class="movement-icon">${type === "income" ? "↗" : type === "expense" ? "↘" : "🐷"}</div>
       <div class="movement-info">
         <strong>${safeText(title)}</strong>
         <small>${safeText(subtitle)}</small>
@@ -569,15 +628,20 @@ function renderDashboard() {
   const budget = convertToBase(state.budget.amount, state.budget.currency) ?? 0;
 
   const balance = totalIncome - totalExpense - totalSavings;
-  const available = balance;
 
   $("balance-total").textContent = formatMoney(balance);
   $("total-ingresos").textContent = formatMoney(totalIncome);
   $("total-gastos").textContent = formatMoney(totalExpense);
   $("total-ahorros").textContent = formatMoney(totalSavings);
   $("total-presupuesto").textContent = formatMoney(budget);
-  $("total-disponible").textContent = formatMoney(available);
+  $("total-disponible").textContent = formatMoney(balance);
   $("ahorros-total-pagina").textContent = formatMoney(totalSavings);
+
+  const greeting = state.userName
+    ? t("helloName").replace("{name}", state.userName)
+    : t("hello");
+
+  $("greeting-personalizado").textContent = greeting;
 
   $("estadistica-ingresos").textContent = formatMoney(totalIncome);
   $("estadistica-gastos").textContent = formatMoney(totalExpense);
@@ -588,7 +652,10 @@ function renderDashboard() {
     sum + (convertToBase(item.amount, item.currency) ?? 0), 0);
 
   const percentage = budget > 0 ? Math.min(100, spent / budget * 100) : 0;
-  $("porcentaje-presupuesto").textContent = `${Math.round(budget > 0 ? spent / budget * 100 : 0)}%`;
+
+  $("porcentaje-presupuesto").textContent =
+    `${Math.round(budget > 0 ? spent / budget * 100 : 0)}%`;
+
   $("barra-presupuesto").style.width = `${percentage}%`;
   $("presupuesto-gastado").textContent = formatMoney(spent);
   $("presupuesto-restante").textContent = formatMoney(budget - spent);
@@ -597,8 +664,7 @@ function renderDashboard() {
     $("presupuesto-restante").textContent = t("emptyBudget");
   }
 
-  renderList("lista-movimientos-inicio", state.movements.slice(0, 5),
-    t("noMovements"));
+  renderList("lista-movimientos-inicio", state.movements.slice(0, 5), t("noMovements"));
   renderList("lista-movimientos", state.movements, t("noMovements"));
   renderList("lista-ahorros", state.savings, t("noSavings"), true);
 }
@@ -608,6 +674,7 @@ function renderChart() {
 
   state.movements.filter(item => item.type === "expense").forEach(item => {
     const value = convertToBase(item.amount, item.currency);
+
     if (value !== null) {
       totals[item.category] = (totals[item.category] || 0) + value;
     }
@@ -645,6 +712,7 @@ function renderAll() {
   renderRecurring();
   renderChart();
   renderManualRates();
+
   $("monto-presupuesto").value = state.budget.amount || "";
   $("moneda-presupuesto").value = state.budget.currency || state.baseCurrency;
 }
@@ -695,6 +763,13 @@ function setupSettings() {
     renderAll();
   });
 
+  $("guardar-nombre").addEventListener("click", () => {
+    state.userName = $("nombre-usuario").value.trim().slice(0, 40);
+    saveState();
+    renderAll();
+    showToast(t("nameSaved"));
+  });
+
   document.querySelectorAll('input[name="modo-cambio"]').forEach(radio => {
     radio.addEventListener("change", event => {
       state.exchangeMode = event.target.value;
@@ -715,8 +790,14 @@ function setupSettings() {
   });
 
   $("actualizar-cambios").addEventListener("click", updateExchangeRates);
-
   $("exportar-datos").addEventListener("click", exportData);
+
+  $("boton-salir").addEventListener("click", () => {
+    if (!confirm(t("confirmExit"))) return;
+
+    window.close();
+    showToast(t("exitHelp"));
+  });
 }
 
 async function updateExchangeRates() {
@@ -730,7 +811,9 @@ async function updateExchangeRates() {
     if (!response.ok) throw new Error("Network error");
 
     const data = await response.json();
-    if (data.result !== "success" || !data.rates) throw new Error("Invalid rates");
+    if (data.result !== "success" || !data.rates) {
+      throw new Error("Invalid rates");
+    }
 
     const usdToCRC = Number(data.rates.CRC);
     if (!usdToCRC) throw new Error("CRC rate missing");
@@ -739,6 +822,7 @@ async function updateExchangeRates() {
 
     CURRENCIES.filter(code => code !== "CRC").forEach(code => {
       const usdToCurrency = Number(data.rates[code]);
+
       if (usdToCurrency > 0) {
         rates[code] = usdToCRC / usdToCurrency;
       }
@@ -788,6 +872,7 @@ function initialize() {
 
   $("selector-idioma").value = state.language;
   $("moneda-principal").value = state.baseCurrency;
+  $("nombre-usuario").value = state.userName || "";
 
   document.querySelectorAll(".currency-select").forEach(select => {
     select.value = state.baseCurrency;
