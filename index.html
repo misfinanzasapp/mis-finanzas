@@ -1,629 +1,562 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#111827">
-  <meta name="description" content="Administra tus ingresos, gastos, ahorros y presupuestos con Mis Finanzas.">
+  <meta name="description" content="Mis Finanzas: controla tus ingresos, gastos, ahorros y presupuestos.">
   <title>Mis Finanzas</title>
+
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="./icon-192.png">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-  <header class="app-header">
-    <div>
-      <p class="eyebrow" data-i18n="headerEyebrow">TU CONTROL FINANCIERO</p>
-      <h1>Mis Finanzas</h1>
+  <div class="app-container">
+
+    <!-- ENCABEZADO -->
+    <header class="app-header">
+      <div>
+        <h1 data-i18n="app_title">Mis Finanzas</h1>
+        <p data-i18n="app_subtitle">Controla tu dinero, construye tu futuro</p>
+      </div>
+
+      <button id="btn-settings" class="icon-button" aria-label="Configuración">
+        ⚙️
+      </button>
+    </header>
+
+    <main class="app-main">
+
+      <!-- INICIO -->
+      <section id="inicio" class="page-section active">
+        <div class="section-heading">
+          <div>
+            <h2 data-i18n="home_title">Resumen financiero</h2>
+            <p data-i18n="home_subtitle">Tu situación financiera</p>
+          </div>
+          <input type="month" id="filtro-mes-inicio">
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span data-i18n="total_income">Ingresos</span>
+            <strong id="resumen-ingresos">₡0</strong>
+          </article>
+
+          <article class="summary-card">
+            <span data-i18n="total_expenses">Gastos</span>
+            <strong id="resumen-gastos">₡0</strong>
+          </article>
+
+          <article class="summary-card">
+            <span data-i18n="total_balance">Balance</span>
+            <strong id="resumen-balance">₡0</strong>
+          </article>
+
+          <article class="summary-card">
+            <span data-i18n="total_savings">Ahorros</span>
+            <strong id="resumen-ahorros">₡0</strong>
+          </article>
+        </div>
+
+        <div class="chart-card">
+          <h3 data-i18n="financial_overview">Panorama financiero</h3>
+          <canvas id="grafico-resumen"></canvas>
+        </div>
+
+        <div class="content-card">
+          <div class="card-heading">
+            <h3 data-i18n="recent_movements">Movimientos recientes</h3>
+            <button class="text-button" data-go="movimientos" data-i18n="view_all">
+              Ver todos
+            </button>
+          </div>
+          <div id="lista-movimientos-recientes">
+            <p class="empty-message" data-i18n="no_movements">
+              Todavía no tienes movimientos registrados.
+            </p>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <h3 data-i18n="daily_tip">Consejo financiero</h3>
+          <p id="consejo-inicio">
+            Registra tus gastos para conocer mejor tus hábitos financieros.
+          </p>
+          <button class="text-button" data-go="consejos" data-i18n="more_tips">
+            Más consejos
+          </button>
+        </div>
+      </section>
+
+      <!-- MOVIMIENTOS -->
+      <section id="movimientos" class="page-section">
+        <div class="section-heading">
+          <div>
+            <h2 data-i18n="movements_title">Movimientos</h2>
+            <p data-i18n="movements_subtitle">Registra tus ingresos y gastos</p>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 data-i18n="new_movement">Nuevo movimiento</h3>
+
+          <form id="form-movimiento">
+            <label for="mov-tipo" data-i18n="movement_type">Tipo</label>
+            <select id="mov-tipo" required>
+              <option value="ingreso" data-i18n="income">Ingreso</option>
+              <option value="gasto" data-i18n="expense">Gasto</option>
+            </select>
+
+            <label for="mov-descripcion" data-i18n="description">Descripción</label>
+            <input id="mov-descripcion" type="text" required
+              placeholder="Ej. Salario, alimentación">
+
+            <label for="mov-monto" data-i18n="amount">Monto</label>
+            <input id="mov-monto" type="number" min="0.01" step="0.01" required>
+
+            <label for="mov-moneda" data-i18n="currency">Moneda</label>
+            <select id="mov-moneda" required></select>
+
+            <label for="mov-categoria" data-i18n="category">Categoría</label>
+            <select id="mov-categoria" required>
+              <option value="salario" data-i18n="cat_salary">Salario</option>
+              <option value="negocio" data-i18n="cat_business">Negocio</option>
+              <option value="alimentacion" data-i18n="cat_food">Alimentación</option>
+              <option value="transporte" data-i18n="cat_transport">Transporte</option>
+              <option value="vivienda" data-i18n="cat_housing">Vivienda</option>
+              <option value="servicios" data-i18n="cat_services">Servicios</option>
+              <option value="salud" data-i18n="cat_health">Salud</option>
+              <option value="educacion" data-i18n="cat_education">Educación</option>
+              <option value="entretenimiento" data-i18n="cat_entertainment">Entretenimiento</option>
+              <option value="deudas" data-i18n="cat_debts">Deudas</option>
+              <option value="otros" data-i18n="cat_other">Otros</option>
+            </select>
+
+            <label for="mov-fecha" data-i18n="date">Fecha</label>
+            <input id="mov-fecha" type="date" required>
+
+            <button type="submit" class="primary-button" data-i18n="save_movement">
+              Guardar movimiento
+            </button>
+          </form>
+        </div>
+
+        <div class="content-card">
+          <h3 data-i18n="movement_history">Historial de movimientos</h3>
+          <div id="lista-movimientos">
+            <p class="empty-message" data-i18n="no_movements">
+              Todavía no tienes movimientos registrados.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- AHORROS -->
+      <section id="ahorros" class="page-section">
+        <div class="section-heading">
+          <div>
+            <h2 data-i18n="savings_title">Ahorros</h2>
+            <p data-i18n="savings_subtitle">Construye tus metas financieras</p>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <span data-i18n="saved_total">Total ahorrado</span>
+          <strong id="total-ahorrado">₡0</strong>
+        </div>
+
+        <div class="form-card">
+          <h3 data-i18n="create_goal">Crear meta de ahorro</h3>
+
+          <form id="form-meta-ahorro">
+            <label for="ahorro-nombre" data-i18n="goal_name">Nombre de la meta</label>
+            <input id="ahorro-nombre" type="text" required
+              placeholder="Ej. Fondo de emergencia">
+
+            <label for="ahorro-objetivo" data-i18n="goal_amount">Monto objetivo</label>
+            <input id="ahorro-objetivo" type="number" min="0.01" step="0.01" required>
+
+            <label for="ahorro-moneda" data-i18n="currency">Moneda</label>
+            <select id="ahorro-moneda" required></select>
+
+            <label for="ahorro-fecha-meta" data-i18n="target_date">Fecha objetivo</label>
+            <input id="ahorro-fecha-meta" type="date">
+
+            <button type="submit" class="primary-button" data-i18n="save_goal">
+              Crear meta
+            </button>
+          </form>
+        </div>
+
+        <div class="content-card">
+          <h3 data-i18n="my_goals">Mis metas</h3>
+          <div id="lista-metas">
+            <p class="empty-message" data-i18n="no_goals">
+              Todavía no tienes metas de ahorro.
+            </p>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 data-i18n="register_saving">Registrar ahorro o retiro</h3>
+
+          <form id="form-movimiento-ahorro">
+            <label for="ahorro-meta-seleccionada" data-i18n="select_goal">Meta</label>
+            <select id="ahorro-meta-seleccionada" required></select>
+
+            <label for="ahorro-tipo" data-i18n="operation_type">Operación</label>
+            <select id="ahorro-tipo" required>
+              <option value="deposito" data-i18n="deposit">Depósito</option>
+              <option value="retiro" data-i18n="withdrawal">Retiro</option>
+            </select>
+
+            <label for="ahorro-monto" data-i18n="amount">Monto</label>
+            <input id="ahorro-monto" type="number" min="0.01" step="0.01" required>
+
+            <label for="ahorro-moneda-movimiento" data-i18n="currency">Moneda</label>
+            <select id="ahorro-moneda-movimiento" required></select>
+
+            <label for="ahorro-fecha-movimiento" data-i18n="date">Fecha</label>
+            <input id="ahorro-fecha-movimiento" type="date" required>
+
+            <button type="submit" class="primary-button" data-i18n="save_operation">
+              Guardar operación
+            </button>
+          </form>
+        </div>
+
+        <div class="content-card">
+          <h3 data-i18n="savings_history">Historial de ahorros</h3>
+          <div id="lista-operaciones-ahorro"></div>
+        </div>
+      </section>
+
+      <!-- PRESUPUESTO -->
+      <section id="presupuesto" class="page-section">
+        <div class="section-heading">
+          <div>
+            <h2 data-i18n="budget_title">Presupuestos</h2>
+            <p data-i18n="budget_subtitle">Planifica cuánto puedes gastar</p>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 data-i18n="create_budget">Crear presupuesto</h3>
+
+          <form id="form-presupuesto">
+            <label for="presupuesto-categoria" data-i18n="category">Categoría</label>
+            <select id="presupuesto-categoria" required>
+              <option value="alimentacion" data-i18n="cat_food">Alimentación</option>
+              <option value="transporte" data-i18n="cat_transport">Transporte</option>
+              <option value="vivienda" data-i18n="cat_housing">Vivienda</option>
+              <option value="servicios" data-i18n="cat_services">Servicios</option>
+              <option value="salud" data-i18n="cat_health">Salud</option>
+              <option value="educacion" data-i18n="cat_education">Educación</option>
+              <option value="entretenimiento" data-i18n="cat_entertainment">Entretenimiento</option>
+              <option value="deudas" data-i18n="cat_debts">Deudas</option>
+              <option value="otros" data-i18n="cat_other">Otros</option>
+            </select>
+
+            <label for="presupuesto-monto" data-i18n="budget_amount">Monto del presupuesto</label>
+            <input id="presupuesto-monto" type="number" min="0.01" step="0.01" required>
+
+            <label for="presupuesto-moneda" data-i18n="currency">Moneda</label>
+            <select id="presupuesto-moneda" required></select>
+
+            <button type="submit" class="primary-button" data-i18n="save_budget">
+              Guardar presupuesto
+            </button>
+          </form>
+        </div>
+
+        <div class="content-card">
+          <h3 data-i18n="my_budgets">Mis presupuestos</h3>
+          <div id="lista-presupuestos"></div>
+        </div>
+      </section>
+
+      <!-- RECURRENTES -->
+      <section id="recurrentes" class="page-section">
+        <div class="section-heading">
+          <div>
+            <h2 data-i18n="recurring_title">Gastos recurrentes</h2>
+            <p data-i18n="recurring_subtitle">Controla tus pagos habituales</p>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 data-i18n="add_recurring">Agregar gasto recurrente</h3>
+
+          <form id="form-recurrente">
+            <label for="recurrente-descripcion" data-i18n="description">Descripción</label>
+            <input id="recurrente-descripcion" type="text" required
+              placeholder="Ej. Alquiler, internet, préstamo">
+
+            <label for="recurrente-monto" data-i18n="amount">Monto</label>
+            <input id="recurrente-monto" type="number" min="0.01" step="0.01" required>
+
+            <label for="recurrente-moneda" data-i18n="currency">Moneda</label>
+            <select id="recurrente-moneda" required></select>
+
+            <label for="recurrente-categoria" data-i18n="category">Categoría</label>
+            <select id="recurrente-categoria" required>
+              <option value="vivienda" data-i18n="cat_housing">Vivienda</option>
+              <option value="servicios" data-i18n="cat_services">Servicios</option>
+              <option value="transporte" data-i18n="cat_transport">Transporte</option>
+              <option value="deudas" data-i18n="cat_debts">Deudas</option>
+              <option value="otros" data-i18n="cat_other">Otros</option>
+            </select>
+
+            <label for="recurrente-frecuencia" data-i18n="frequency">Frecuencia</label>
+            <select id="recurrente-frecuencia" required>
+              <option value="semanal" data-i18n="weekly">Semanal</option>
+              <option value="quincenal" data-i18n="biweekly">Quincenal</option>
+              <option value="mensual" data-i18n="monthly">Mensual</option>
+              <option value="anual" data-i18n="yearly">Anual</option>
+            </select>
+
+            <label for="recurrente-dia" data-i18n="payment_day">Día de pago</label>
+            <input id="recurrente-dia" type="number" min="1" max="31" value="1" required>
+
+            <button type="submit" class="primary-button" data-i18n="save_recurring">
+              Guardar gasto recurrente
+            </button>
+          </form>
+        </div>
+
+        <div class="content-card">
+          <h3 data-i18n="my_recurring">Mis gastos recurrentes</h3>
+          <div id="lista-recurrentes"></div>
+        </div>
+      </section>
+
+      <!-- ESTADÍSTICAS -->
+      <section id="estadisticas" class="page-section">
+        <div class="section-heading">
+          <div>
+            <h2 data-i18n="statistics_title">Estadísticas</h2>
+            <p data-i18n="statistics_subtitle">Comprende tus hábitos financieros</p>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h3 data-i18n="expenses_by_category">Gastos por categoría</h3>
+          <canvas id="grafico-categorias"></canvas>
+        </div>
+
+        <div class="chart-card">
+          <h3 data-i18n="income_vs_expenses">Ingresos frente a gastos</h3>
+          <canvas id="grafico-ingresos-gastos"></canvas>
+        </div>
+
+        <div class="content-card">
+          <h3 data-i18n="financial_summary">Resumen financiero</h3>
+          <div id="resumen-estadisticas"></div>
+        </div>
+      </section>
+
+      <!-- CONSEJOS -->
+      <section id="consejos" class="page-section">
+        <div class="section-heading">
+          <div>
+            <h2 data-i18n="tips_title">Consejos financieros</h2>
+            <p data-i18n="tips_subtitle">Pequeños hábitos para mejorar tus finanzas</p>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <h3 data-i18n="saving_tips">Consejos para ahorrar</h3>
+          <div id="consejos-ahorro"></div>
+        </div>
+
+        <div class="tip-card">
+          <h3 data-i18n="budget_tips">Consejos para presupuestar</h3>
+          <div id="consejos-presupuesto"></div>
+        </div>
+
+        <div class="tip-card">
+          <h3 data-i18n="debt_tips">Consejos para manejar deudas</h3>
+          <div id="consejos-deudas"></div>
+        </div>
+
+        <div class="tip-card">
+          <h3 data-i18n="emergency_fund">Fondo de emergencia</h3>
+          <div id="consejos-emergencia"></div>
+        </div>
+      </section>
+
+      <!-- CONFIGURACIÓN -->
+      <section id="configuracion" class="page-section">
+        <div class="section-heading">
+          <div>
+            <h2 data-i18n="settings_title">Configuración</h2>
+            <p data-i18n="settings_subtitle">Personaliza tu aplicación</p>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 data-i18n="language_settings">Idioma</h3>
+
+          <label for="idioma-aplicacion" data-i18n="app_language">
+            Idioma de la aplicación
+          </label>
+          <select id="idioma-aplicacion">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+
+        <div class="form-card">
+          <h3 data-i18n="currency_settings">Moneda principal</h3>
+
+          <label for="moneda-principal" data-i18n="main_currency">
+            Selecciona tu moneda principal
+          </label>
+          <select id="moneda-principal">
+            <option value="CRC">CRC - Colón costarricense</option>
+            <option value="USD">USD - Dólar estadounidense</option>
+            <option value="EUR">EUR - Euro</option>
+            <option value="MXN">MXN - Peso mexicano</option>
+            <option value="GBP">GBP - Libra esterlina</option>
+            <option value="BRL">BRL - Real brasileño</option>
+            <option value="COP">COP - Peso colombiano</option>
+            <option value="CAD">CAD - Dólar canadiense</option>
+          </select>
+
+          <button id="guardar-moneda" class="primary-button" type="button"
+            data-i18n="save_currency">
+            Guardar moneda
+          </button>
+        </div>
+
+        <div class="form-card">
+          <h3 data-i18n="exchange_rates">Tipos de cambio</h3>
+
+          <p data-i18n="exchange_description">
+            Actualiza las tasas automáticamente o introduce tus propios valores.
+          </p>
+
+          <div class="setting-status">
+            <span data-i18n="rate_status">Estado de actualización:</span>
+            <strong id="estado-tipo-automatico">Pendiente</strong>
+          </div>
+
+          <p>
+            <span data-i18n="last_update">Última actualización:</span>
+            <strong id="fecha-actualizacion-tasas">—</strong>
+          </p>
+
+          <button id="actualizar-tasas" class="secondary-button" type="button"
+            data-i18n="update_rates">
+            Actualizar automáticamente
+          </button>
+
+          <h4 data-i18n="manual_rates">Tipos de cambio manuales</h4>
+          <p data-i18n="manual_rates_help">
+            Indica cuántas unidades de tu moneda principal equivale una unidad de cada moneda.
+          </p>
+
+          <div id="lista-tipos-cambio"></div>
+
+          <button id="guardar-tasas" class="primary-button" type="button"
+            data-i18n="save_rates">
+            Guardar tipos de cambio
+          </button>
+        </div>
+
+        <div class="form-card">
+          <h3 data-i18n="data_management">Gestión de datos</h3>
+
+          <p data-i18n="backup_description">
+            Puedes exportar tus datos para conservar una copia o importarlos posteriormente.
+          </p>
+
+          <button id="exportar-datos" class="secondary-button" type="button"
+            data-i18n="export_data">
+            Exportar datos
+          </button>
+
+          <label for="archivo-importar" data-i18n="import_data">
+            Importar datos
+          </label>
+          <input id="archivo-importar" type="file" accept=".json,application/json">
+
+          <button id="importar-datos" class="secondary-button" type="button"
+            data-i18n="import_button">
+            Importar copia
+          </button>
+        </div>
+
+        <div class="content-card">
+          <p class="setting-status">
+            <span data-i18n="app_version">Versión</span>
+            <strong>2.0</strong>
+          </p>
+          <p data-i18n="app_footer">Mis Finanzas · Tu dinero bajo control</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MENÚ MÁS -->
+    <div id="menu-mas" class="more-menu" hidden>
+      <button type="button" data-section="recurrentes">
+        <span>🔁</span>
+        <span data-i18n="recurring_title">Gastos recurrentes</span>
+      </button>
+
+      <button type="button" data-section="estadisticas">
+        <span>📊</span>
+        <span data-i18n="statistics_title">Estadísticas</span>
+      </button>
+
+      <button type="button" data-section="consejos">
+        <span>💡</span>
+        <span data-i18n="tips_title">Consejos financieros</span>
+      </button>
+
+      <button type="button" data-section="configuracion">
+        <span>⚙️</span>
+        <span data-i18n="settings_title">Configuración</span>
+      </button>
     </div>
-    <button id="btn-settings" class="icon-button" aria-label="Configuración">
-      ⚙️
-    </button>
-  </header>
 
-  <main class="app-main">
+    <!-- NAVEGACIÓN INFERIOR -->
+    <nav class="bottom-nav">
+      <button class="nav-button active" type="button" data-section="inicio">
+        <span class="nav-icon">🏠</span>
+        <span data-i18n="nav_home">Inicio</span>
+      </button>
+
+      <button class="nav-button" type="button" data-section="movimientos">
+        <span class="nav-icon">💳</span>
+        <span data-i18n="nav_movements">Movimientos</span>
+      </button>
+
+      <button class="nav-button" type="button" data-section="ahorros">
+        <span class="nav-icon">🐷</span>
+        <span data-i18n="nav_savings">Ahorros</span>
+      </button>
+
+      <button class="nav-button" type="button" data-section="presupuesto">
+        <span class="nav-icon">📋</span>
+        <span data-i18n="nav_budget">Presupuesto</span>
+      </button>
+
+      <button class="nav-button" type="button" id="boton-mas">
+        <span class="nav-icon">☰</span>
+        <span data-i18n="nav_more">Más</span>
+      </button>
+    </nav>
 
-    <!-- INICIO -->
-    <section id="inicio" class="page-section active">
-      <div class="welcome">
-        <div>
-          <p class="muted" data-i18n="welcomeSubtitle">Resumen de tus finanzas</p>
-          <h2 data-i18n="hello">¡Hola! 👋</h2>
-        </div>
-        <span id="fecha-actual" class="muted"></span>
-      </div>
-
-      <article class="balance-card">
-        <p data-i18n="availableBalance">Balance disponible</p>
-        <h2 id="balance-total">₡0,00</h2>
-        <div class="balance-details">
-          <div>
-            <span data-i18n="income">Ingresos</span>
-            <strong id="inicio-ingresos">₡0,00</strong>
-          </div>
-          <div>
-            <span data-i18n="expenses">Gastos</span>
-            <strong id="inicio-gastos">₡0,00</strong>
-          </div>
-        </div>
-      </article>
-
-      <div class="section-heading">
-        <h3 data-i18n="monthSummary">Resumen del mes</h3>
-        <input type="month" id="filtro-mes-inicio">
-      </div>
-
-      <div class="summary-grid">
-        <article class="summary-card">
-          <span data-i18n="income">💰 Ingresos</span>
-          <strong id="resumen-ingresos">₡0,00</strong>
-        </article>
-        <article class="summary-card">
-          <span data-i18n="expenses">💸 Gastos</span>
-          <strong id="resumen-gastos">₡0,00</strong>
-        </article>
-        <article class="summary-card">
-          <span data-i18n="savings">🐷 Ahorros</span>
-          <strong id="resumen-ahorros">₡0,00</strong>
-        </article>
-        <article class="summary-card">
-          <span data-i18n="available">📊 Disponible</span>
-          <strong id="resumen-disponible">₡0,00</strong>
-        </article>
-      </div>
-
-      <div class="section-heading">
-        <h3 data-i18n="recentMovements">Movimientos recientes</h3>
-        <button class="text-button" data-go="movimientos" data-i18n="seeAll">Ver todos</button>
-      </div>
-      <div id="movimientos-recientes" class="list-container">
-        <p class="empty-state" data-i18n="noMovements">Todavía no tienes movimientos.</p>
-      </div>
-
-      <article class="quick-actions">
-        <h3 data-i18n="quickActions">Acciones rápidas</h3>
-        <div class="quick-actions-grid">
-          <button class="action-button" data-go="movimientos" data-action="ingreso">
-            <span>＋</span> <span data-i18n="income">Ingreso</span>
-          </button>
-          <button class="action-button" data-go="movimientos" data-action="gasto">
-            <span>－</span> <span data-i18n="expenses">Gasto</span>
-          </button>
-          <button class="action-button" data-go="ahorros">
-            <span>🐷</span> <span data-i18n="save">Ahorrar</span>
-          </button>
-        </div>
-      </article>
-    </section>
-
-    <!-- MOVIMIENTOS -->
-    <section id="movimientos" class="page-section">
-      <div class="page-heading">
-        <p class="eyebrow" data-i18n="entriesAndExits">ENTRADAS Y SALIDAS</p>
-        <h2 data-i18n="movements">Movimientos</h2>
-        <p class="muted" data-i18n="recordMoney">Registra y consulta tu dinero.</p>
-      </div>
-
-      <div class="form-card">
-        <h3 data-i18n="newMovement">Nuevo movimiento</h3>
-
-        <form id="form-movimiento">
-          <label for="mov-tipo" data-i18n="movementType">Tipo de movimiento</label>
-          <select id="mov-tipo" required>
-            <option value="ingreso" data-i18n="income">Ingreso</option>
-            <option value="gasto" data-i18n="expenses">Gasto</option>
-          </select>
-
-          <label for="mov-descripcion" data-i18n="description">Descripción</label>
-          <input id="mov-descripcion" type="text" placeholder="Ej. Salario, supermercado..." required maxlength="80">
-
-          <label for="mov-monto" data-i18n="amount">Monto</label>
-          <input id="mov-monto" type="number" min="0.01" step="0.01" placeholder="0.00" required>
-
-          <label for="mov-moneda" data-i18n="movementCurrency">Moneda del movimiento</label>
-          <select id="mov-moneda" required>
-            <option value="CRC">CRC - Colón costarricense</option>
-            <option value="USD">USD - Dólar estadounidense</option>
-            <option value="EUR">EUR - Euro</option>
-            <option value="MXN">MXN - Peso mexicano</option>
-            <option value="GBP">GBP - Libra esterlina</option>
-            <option value="BRL">BRL - Real brasileño</option>
-            <option value="COP">COP - Peso colombiano</option>
-            <option value="CAD">CAD - Dólar canadiense</option>
-          </select>
-
-          <label for="mov-categoria" data-i18n="category">Categoría</label>
-          <select id="mov-categoria" required>
-            <option value="Salario">Salario</option>
-            <option value="Trabajo extra">Trabajo extra</option>
-            <option value="Negocio">Negocio</option>
-            <option value="Alimentación">Alimentación</option>
-            <option value="Vivienda">Vivienda</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Servicios">Servicios</option>
-            <option value="Deudas">Deudas</option>
-            <option value="Salud">Salud</option>
-            <option value="Educación">Educación</option>
-            <option value="Entretenimiento">Entretenimiento</option>
-            <option value="Compras">Compras</option>
-            <option value="Otros">Otros</option>
-          </select>
-
-          <label for="mov-fecha" data-i18n="date">Fecha</label>
-          <input id="mov-fecha" type="date" required>
-
-          <button type="submit" class="primary-button" data-i18n="saveMovement">Guardar movimiento</button>
-        </form>
-      </div>
-
-      <div class="section-heading">
-        <h3 data-i18n="history">Historial</h3>
-        <select id="filtro-tipo-movimiento">
-          <option value="todos" data-i18n="all">Todos</option>
-          <option value="ingreso" data-i18n="incomes">Ingresos</option>
-          <option value="gasto" data-i18n="expenses">Gastos</option>
-        </select>
-      </div>
-
-      <div class="filter-row">
-        <input type="month" id="filtro-mes-movimientos">
-        <select id="filtro-moneda-movimientos">
-          <option value="todas" data-i18n="allCurrencies">Todas las monedas</option>
-          <option value="CRC">CRC</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="MXN">MXN</option>
-          <option value="GBP">GBP</option>
-          <option value="BRL">BRL</option>
-          <option value="COP">COP</option>
-          <option value="CAD">CAD</option>
-        </select>
-      </div>
-
-      <div id="lista-movimientos" class="list-container">
-        <p class="empty-state" data-i18n="movementsWillAppear">Aquí aparecerán tus movimientos.</p>
-      </div>
-    </section>
-
-    <!-- AHORROS -->
-    <section id="ahorros" class="page-section">
-      <div class="page-heading">
-        <p class="eyebrow" data-i18n="buildFuture">CONSTRUYE TU FUTURO</p>
-        <h2 data-i18n="mySavings">Mis ahorros 🐷</h2>
-        <p class="muted" data-i18n="savingsSubtitle">Define objetivos y observa tu progreso.</p>
-      </div>
-
-      <article class="balance-card savings-card">
-        <p data-i18n="totalSavings">Total acumulado en ahorros</p>
-        <h2 id="total-ahorros">₡0,00</h2>
-        <p class="small-note" data-i18n="convertedMainCurrency">Total convertido a tu moneda principal.</p>
-      </article>
-
-      <div class="form-card">
-        <h3 data-i18n="createSavingsGoal">Crear una meta de ahorro</h3>
-        <form id="form-meta-ahorro">
-          <label for="ahorro-nombre" data-i18n="goalName">Nombre de la meta</label>
-          <input id="ahorro-nombre" type="text" placeholder="Ej. Fondo de emergencia" required maxlength="80">
-
-          <label for="ahorro-objetivo" data-i18n="targetAmount">Monto que deseas ahorrar</label>
-          <input id="ahorro-objetivo" type="number" min="0.01" step="0.01" placeholder="0.00" required>
-
-          <label for="ahorro-moneda" data-i18n="goalCurrency">Moneda de la meta</label>
-          <select id="ahorro-moneda">
-            <option value="CRC">CRC - Colón costarricense</option>
-            <option value="USD">USD - Dólar estadounidense</option>
-            <option value="EUR">EUR - Euro</option>
-            <option value="MXN">MXN - Peso mexicano</option>
-            <option value="GBP">GBP - Libra esterlina</option>
-            <option value="BRL">BRL - Real brasileño</option>
-            <option value="COP">COP - Peso colombiano</option>
-            <option value="CAD">CAD - Dólar canadiense</option>
-          </select>
-
-          <label for="ahorro-fecha-meta" data-i18n="targetDate">Fecha objetivo (opcional)</label>
-          <input id="ahorro-fecha-meta" type="date">
-
-          <button type="submit" class="primary-button" data-i18n="createGoal">Crear meta</button>
-        </form>
-      </div>
-
-      <div class="form-card">
-        <h3 data-i18n="recordSavings">Registrar ahorro o retiro</h3>
-        <form id="form-movimiento-ahorro">
-          <label for="ahorro-meta-seleccionada" data-i18n="savingsGoal">Meta de ahorro</label>
-          <select id="ahorro-meta-seleccionada" required>
-            <option value="" data-i18n="selectGoal">Selecciona una meta</option>
-          </select>
-
-          <label for="ahorro-tipo" data-i18n="operation">Operación</label>
-          <select id="ahorro-tipo">
-            <option value="deposito" data-i18n="addMoney">Agregar dinero</option>
-            <option value="retiro" data-i18n="withdrawMoney">Retirar dinero</option>
-          </select>
-
-          <label for="ahorro-monto" data-i18n="amount">Monto</label>
-          <input id="ahorro-monto" type="number" min="0.01" step="0.01" placeholder="0.00" required>
-
-          <label for="ahorro-moneda-movimiento" data-i18n="movementCurrency">Moneda del movimiento</label>
-          <select id="ahorro-moneda-movimiento">
-            <option value="CRC">CRC - Colón costarricense</option>
-            <option value="USD">USD - Dólar estadounidense</option>
-            <option value="EUR">EUR - Euro</option>
-            <option value="MXN">MXN - Peso mexicano</option>
-            <option value="GBP">GBP - Libra esterlina</option>
-            <option value="BRL">BRL - Real brasileño</option>
-            <option value="COP">COP - Peso colombiano</option>
-            <option value="CAD">CAD - Dólar canadiense</option>
-          </select>
-
-          <label for="ahorro-fecha-movimiento" data-i18n="date">Fecha</label>
-          <input id="ahorro-fecha-movimiento" type="date" required>
-
-          <button type="submit" class="primary-button" data-i18n="saveOperation">Guardar operación</button>
-        </form>
-      </div>
-
-      <h3 data-i18n="myGoals">Mis metas</h3>
-      <div id="lista-metas-ahorro" class="list-container">
-        <p class="empty-state" data-i18n="noGoals">Todavía no has creado metas.</p>
-      </div>
-    </section>
-
-    <!-- PRESUPUESTOS -->
-    <section id="presupuestos" class="page-section">
-      <div class="page-heading">
-        <p class="eyebrow" data-i18n="planExpenses">PLANIFICA TUS GASTOS</p>
-        <h2 data-i18n="budgets">Presupuestos</h2>
-        <p class="muted" data-i18n="budgetsSubtitle">Establece límites para cuidar tu dinero.</p>
-      </div>
-
-      <div class="form-card">
-        <h3 data-i18n="createBudget">Crear presupuesto</h3>
-        <form id="form-presupuesto">
-          <label for="presupuesto-categoria" data-i18n="category">Categoría</label>
-          <select id="presupuesto-categoria">
-            <option value="Alimentación">Alimentación</option>
-            <option value="Vivienda">Vivienda</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Servicios">Servicios</option>
-            <option value="Deudas">Deudas</option>
-            <option value="Salud">Salud</option>
-            <option value="Educación">Educación</option>
-            <option value="Entretenimiento">Entretenimiento</option>
-            <option value="Compras">Compras</option>
-            <option value="Otros">Otros</option>
-          </select>
-
-          <label for="presupuesto-monto" data-i18n="monthlyLimit">Límite mensual</label>
-          <input id="presupuesto-monto" type="number" min="0.01" step="0.01" required placeholder="0.00">
-
-          <label for="presupuesto-moneda" data-i18n="currency">Moneda</label>
-          <select id="presupuesto-moneda">
-            <option value="CRC">CRC</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="MXN">MXN</option>
-            <option value="GBP">GBP</option>
-            <option value="BRL">BRL</option>
-            <option value="COP">COP</option>
-            <option value="CAD">CAD</option>
-          </select>
-
-          <button type="submit" class="primary-button" data-i18n="saveBudget">Guardar presupuesto</button>
-        </form>
-      </div>
-
-      <div id="lista-presupuestos" class="list-container">
-        <p class="empty-state" data-i18n="noBudgets">Todavía no has creado presupuestos.</p>
-      </div>
-    </section>
-
-    <!-- RECURRENTES -->
-    <section id="recurrentes" class="page-section">
-      <div class="page-heading">
-        <p class="eyebrow" data-i18n="scheduledPayments">PAGOS PROGRAMADOS</p>
-        <h2 data-i18n="recurringExpenses">Gastos recurrentes</h2>
-        <p class="muted" data-i18n="recurringSubtitle">Organiza tus pagos habituales.</p>
-      </div>
-
-      <div class="form-card">
-        <h3 data-i18n="addRecurring">Agregar gasto recurrente</h3>
-        <form id="form-recurrente">
-          <label for="recurrente-descripcion" data-i18n="description">Descripción</label>
-          <input id="recurrente-descripcion" type="text" placeholder="Ej. Alquiler, internet, préstamo..." required>
-
-          <label for="recurrente-monto" data-i18n="amount">Monto</label>
-          <input id="recurrente-monto" type="number" min="0.01" step="0.01" required>
-
-          <label for="recurrente-moneda" data-i18n="currency">Moneda</label>
-          <select id="recurrente-moneda">
-            <option value="CRC">CRC</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="MXN">MXN</option>
-            <option value="GBP">GBP</option>
-            <option value="BRL">BRL</option>
-            <option value="COP">COP</option>
-            <option value="CAD">CAD</option>
-          </select>
-
-          <label for="recurrente-categoria" data-i18n="category">Categoría</label>
-          <select id="recurrente-categoria">
-            <option value="Vivienda">Vivienda</option>
-            <option value="Servicios">Servicios</option>
-            <option value="Deudas">Deudas</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Otros">Otros</option>
-          </select>
-
-          <label for="recurrente-frecuencia" data-i18n="frequency">Frecuencia</label>
-          <select id="recurrente-frecuencia">
-            <option value="semanal" data-i18n="weekly">Semanal</option>
-            <option value="quincenal" data-i18n="biweekly">Quincenal</option>
-            <option value="mensual" selected data-i18n="monthly">Mensual</option>
-            <option value="anual" data-i18n="yearly">Anual</option>
-          </select>
-
-          <label for="recurrente-dia" data-i18n="paymentDay">Día de pago</label>
-          <input id="recurrente-dia" type="number" min="1" max="31" value="1" required>
-
-          <button type="submit" class="primary-button" data-i18n="saveRecurring">Guardar gasto recurrente</button>
-        </form>
-      </div>
-
-      <div id="lista-recurrentes" class="list-container">
-        <p class="empty-state" data-i18n="noRecurring">No tienes gastos recurrentes registrados.</p>
-      </div>
-    </section>
-
-    <!-- ESTADÍSTICAS -->
-    <section id="estadisticas" class="page-section">
-      <div class="page-heading">
-        <p class="eyebrow" data-i18n="knowNumbers">CONOCE TUS NÚMEROS</p>
-        <h2 data-i18n="statistics">Estadísticas</h2>
-        <p class="muted" data-i18n="statisticsSubtitle">Analiza cómo utilizas tu dinero.</p>
-      </div>
-
-      <div class="form-card">
-        <label for="estadisticas-mes" data-i18n="monthToView">Mes para consultar</label>
-        <input type="month" id="estadisticas-mes">
-      </div>
-
-      <div class="summary-grid">
-        <article class="summary-card">
-          <span data-i18n="income">Ingresos</span>
-          <strong id="estadistica-ingresos">₡0,00</strong>
-        </article>
-        <article class="summary-card">
-          <span data-i18n="expenses">Gastos</span>
-          <strong id="estadistica-gastos">₡0,00</strong>
-        </article>
-        <article class="summary-card">
-          <span data-i18n="savings">Ahorros</span>
-          <strong id="estadistica-ahorros">₡0,00</strong>
-        </article>
-        <article class="summary-card">
-          <span data-i18n="balance">Balance</span>
-          <strong id="estadistica-balance">₡0,00</strong>
-        </article>
-      </div>
-
-      <div class="chart-card">
-        <h3 data-i18n="expenseDistribution">Distribución de gastos</h3>
-        <canvas id="grafico-gastos"></canvas>
-        <p id="sin-datos-grafico" class="empty-state" data-i18n="registerExpenses">Registra gastos para ver tus estadísticas.</p>
-      </div>
-
-      <div class="chart-card">
-        <h3 data-i18n="incomeVsExpenses">Ingresos y gastos</h3>
-        <canvas id="grafico-comparacion"></canvas>
-      </div>
-
-      <div class="chart-card">
-        <h3 data-i18n="financialDistribution">Distribución de tus finanzas</h3>
-        <div id="distribucion-financiera"></div>
-      </div>
-    </section>
-
-    <!-- CONSEJOS -->
-    <section id="consejos" class="page-section">
-      <div class="page-heading">
-        <p class="eyebrow" data-i18n="learnToManage">APRENDE A ADMINISTRARTE</p>
-        <h2 data-i18n="financialTips">Consejos financieros 💡</h2>
-        <p class="muted" data-i18n="tipsSubtitle">Pequeños cambios pueden mejorar tus finanzas.</p>
-      </div>
-
-      <article class="tip-card">
-        <span>🐷</span>
-        <h3 data-i18n="tip1Title">Empieza a ahorrar, aunque sea poco</h3>
-        <p data-i18n="tip1Text">No necesitas grandes cantidades. Ahorrar ₡1.000 regularmente es mejor que esperar a tener mucho dinero para comenzar.</p>
-      </article>
-
-      <article class="tip-card">
-        <span>🛟</span>
-        <h3 data-i18n="tip2Title">Construye un fondo de emergencia</h3>
-        <p data-i18n="tip2Text">Intenta reunir primero el equivalente a un mes de gastos básicos. Después puedes avanzar hacia tres o seis meses, según tus posibilidades.</p>
-      </article>
-
-      <article class="tip-card">
-        <span>🔍</span>
-        <h3 data-i18n="tip3Title">Identifica gastos innecesarios</h3>
-        <p data-i18n="tip3Text">Revisa tus compras pequeñas y suscripciones. Algunas parecen insignificantes, pero al sumarlas pueden representar una cantidad importante.</p>
-      </article>
-
-      <article class="tip-card">
-        <span>🎯</span>
-        <h3 data-i18n="tip4Title">Establece metas concretas</h3>
-        <p data-i18n="tip4Text">Define cuánto necesitas, para qué lo necesitas y en cuánto tiempo quieres conseguirlo. Divide la meta en aportes semanales o mensuales.</p>
-      </article>
-
-      <article class="tip-card">
-        <span>💵</span>
-        <h3 data-i18n="tip5Title">¿Cómo ahorrar con ingresos limitados?</h3>
-        <p data-i18n="tip5Text">Prioriza vivienda, alimentación, servicios y transporte. Aparta una cantidad pequeña para ahorrar y evita comprometer dinero que necesitas para vivir.</p>
-      </article>
-
-      <article class="tip-card">
-        <span>⚖️</span>
-        <h3 data-i18n="tip6Title">Distribuye tus ingresos</h3>
-        <p data-i18n="tip6Text">Una referencia inicial puede ser 50% para necesidades, 30% para deseos y 20% para ahorro y deudas. Ajusta los porcentajes a tu realidad.</p>
-      </article>
-
-      <article class="tip-card">
-        <span>💳</span>
-        <h3 data-i18n="tip7Title">Controla tus deudas</h3>
-        <p data-i18n="tip7Text">Conoce las tasas de interés, los pagos mínimos y las fechas de vencimiento. Evita asumir nuevas cuotas sin revisar tu capacidad de pago.</p>
-      </article>
-
-      <article class="tip-card">
-        <span>🌎</span>
-        <h3 data-i18n="tip8Title">Ten cuidado con los tipos de cambio</h3>
-        <p data-i18n="tip8Text">Si recibes o gastas dinero en diferentes monedas, revisa el tipo de cambio y las comisiones antes de hacer una conversión.</p>
-      </article>
-    </section>
-
-    <!-- CONFIGURACIÓN -->
-    <section id="configuracion" class="page-section">
-      <div class="page-heading">
-        <p class="eyebrow" data-i18n="customizeApp">PERSONALIZA TU APLICACIÓN</p>
-        <h2 data-i18n="settings">Configuración ⚙️</h2>
-      </div>
-
-      <!-- IDIOMA -->
-      <div class="form-card">
-        <h3 data-i18n="language">Idioma / Language</h3>
-        <p class="muted" data-i18n="languageDescription">Selecciona el idioma de la aplicación.</p>
-
-        <label for="idioma-aplicacion" data-i18n="appLanguage">Idioma de la aplicación</label>
-        <select id="idioma-aplicacion">
-          <option value="es">Español</option>
-          <option value="en">English</option>
-        </select>
-      </div>
-
-      <!-- MONEDA PRINCIPAL -->
-      <div class="form-card">
-        <h3 data-i18n="mainCurrency">Moneda principal</h3>
-        <p class="muted" data-i18n="mainCurrencyDescription">Los totales generales se mostrarán en esta moneda.</p>
-
-        <label for="moneda-principal" data-i18n="selectCurrency">Seleccionar moneda</label>
-        <select id="moneda-principal">
-          <option value="CRC" selected>CRC - Colón costarricense</option>
-          <option value="USD">USD - Dólar estadounidense</option>
-          <option value="EUR">EUR - Euro</option>
-          <option value="MXN">MXN - Peso mexicano</option>
-          <option value="GBP">GBP - Libra esterlina</option>
-          <option value="BRL">BRL - Real brasileño</option>
-          <option value="COP">COP - Peso colombiano</option>
-          <option value="CAD">CAD - Dólar canadiense</option>
-        </select>
-
-        <button type="button" id="guardar-moneda" class="primary-button" data-i18n="saveMainCurrency">Guardar moneda principal</button>
-      </div>
-
-      <!-- TIPOS DE CAMBIO -->
-      <div class="form-card">
-        <h3 data-i18n="exchangeRates">Tipos de cambio</h3>
-        <p class="muted" data-i18n="exchangeDescription">Consulta tipos de cambio automáticamente o utiliza tus propios valores.</p>
-
-        <div class="setting-status">
-          <span data-i18n="automaticQuery">Consulta automática</span>
-          <strong id="estado-tipo-automatico">Pendiente de configurar</strong>
-        </div>
-
-        <button type="button" id="actualizar-tasas" class="secondary-button" data-i18n="updateRates">Actualizar tipos de cambio</button>
-
-        <p id="fecha-actualizacion-tasas" class="small-note" data-i18n="ratesNotUpdated">Todavía no se han consultado los tipos de cambio.</p>
-
-        <div class="setting-status">
-          <span data-i18n="rateSource">Origen de las tasas</span>
-          <strong id="estado-fuente-tasas">Automático / Manual</strong>
-        </div>
-
-        <details id="configuracion-avanzada">
-          <summary data-i18n="advancedSettings">Configuración avanzada: tipos de cambio manuales</summary>
-
-          <div class="advanced-settings-content">
-            <p class="small-note" data-i18n="manualRatesHelp">Ingresa cuántas unidades de tu moneda principal equivalen a una unidad de la otra moneda.</p>
-
-            <div id="lista-tipos-cambio">
-              <p class="muted" data-i18n="ratesWillAppear">Los tipos de cambio aparecerán aquí.</p>
-            </div>
-
-            <button type="button" id="guardar-tasas" class="primary-button" data-i18n="saveRates">Guardar tipos de cambio</button>
-          </div>
-        </details>
-      </div>
-
-      <!-- DATOS -->
-      <div class="form-card">
-        <h3 data-i18n="appData">Datos de la aplicación</h3>
-        <p class="muted" data-i18n="localDataDescription">Tus movimientos y metas se guardan en este dispositivo.</p>
-        <button type="button" id="exportar-datos" class="secondary-button" data-i18n="exportData">Exportar mis datos</button>
-        <button type="button" id="importar-datos" class="secondary-button" data-i18n="importData">Importar copia de datos</button>
-        <input type="file" id="archivo-importar" accept=".json,application/json" hidden>
-      </div>
-
-      <div class="app-information">
-        <strong>Mis Finanzas</strong>
-        <p data-i18n="appDescription">Tu herramienta personal para organizar ingresos, gastos y ahorros.</p>
-        <small data-i18n="version">Versión 2.0</small>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- NAVEGACIÓN INFERIOR -->
-  <nav class="bottom-nav" aria-label="Navegación principal">
-    <button class="nav-button active" data-section="inicio">
-      <span>⌂</span>
-      <small data-i18n="home">Inicio</small>
-    </button>
-
-    <button class="nav-button" data-section="movimientos">
-      <span>⇄</span>
-      <small data-i18n="movements">Movimientos</small>
-    </button>
-
-    <button class="nav-button" data-section="ahorros">
-      <span>🐷</span>
-      <small data-i18n="savings">Ahorros</small>
-    </button>
-
-    <button class="nav-button" data-section="presupuestos">
-      <span>▤</span>
-      <small data-i18n="budget">Presupuesto</small>
-    </button>
-
-    <button class="nav-button" data-section="mas">
-      <span>☰</span>
-      <small data-i18n="more">Más</small>
-    </button>
-  </nav>
-
-  <!-- MENÚ MÁS -->
-  <div id="menu-mas" class="more-menu" hidden>
-    <button data-section="recurrentes">🔁 <span data-i18n="recurringExpenses">Gastos recurrentes</span></button>
-    <button data-section="estadisticas">📊 <span data-i18n="statistics">Estadísticas</span></button>
-    <button data-section="consejos">💡 <span data-i18n="financialTips">Consejos financieros</span></button>
-    <button data-section="configuracion">⚙️ <span data-i18n="settings">Configuración</span></button>
   </div>
 
   <script src="./script.js"></script>
 
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js")
-          .then(registration => console.log("PWA registrada:", registration.scope))
-          .catch(error => console.error("Error al registrar PWA:", error));
-      });
-    }
-  </script>
-
 </body>
-</html>
+                </html>
