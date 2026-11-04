@@ -1,9 +1,11 @@
+
 "use strict";
 
 /* =====================================================
    MIS FINANZAS - MOTOR PRINCIPAL
    Moneda base: CRC
    Datos locales + conversión automática/manual
+   Guía interactiva de bienvenida ES/EN
    ===================================================== */
 
 const $ = (id) => document.getElementById(id);
@@ -96,7 +98,30 @@ const TEXT = {
     nameSaved: "Nombre guardado correctamente.",
     exit: "Salir de la aplicación",
     confirmExit: "¿Deseas salir de Mis Finanzas?",
-    exitHelp: "Para cerrar la aplicación, utiliza el botón de inicio o las aplicaciones recientes de Android."
+    exitHelp: "Para cerrar la aplicación, utiliza el botón de inicio o las aplicaciones recientes de Android.",
+
+    guide: "Guía de uso",
+    guideWelcomeTitle: "¡Bienvenido a Mis Finanzas!",
+    guideWelcomeText: "Aprende a organizar tu dinero paso a paso. Esta guía rápida te ayudará a conocer las principales herramientas.",
+    guideIncomeTitle: "1. Registra tus ingresos",
+    guideIncomeText: "Anota tu salario, ingresos de negocios u otras entradas de dinero. Así sabrás cuánto dinero recibes.",
+    guideExpensesTitle: "2. Controla tus gastos",
+    guideExpensesText: "Registra tus compras, pagos y gastos diarios. Utiliza las categorías para identificar dónde gastas más.",
+    guideSavingsTitle: "3. Construye tus ahorros 🐷",
+    guideSavingsText: "Registra el dinero que apartas para tus metas. Puedes crear diferentes ahorros y consultar cuánto has acumulado.",
+    guideBudgetTitle: "4. Organiza tu presupuesto",
+    guideBudgetText: "Define cuánto puedes gastar al mes. La aplicación te ayudará a comparar tu presupuesto con tus gastos registrados.",
+    guideCurrencyTitle: "5. Utiliza diferentes monedas",
+    guideCurrencyText: "Puedes registrar ingresos, gastos y ahorros en CRC, USD, EUR y otras monedas. Configura tu moneda principal y los tipos de cambio.",
+    guideTipsTitle: "6. Aprende a mejorar tus finanzas",
+    guideTipsText: "Consulta los consejos financieros para desarrollar hábitos de ahorro, controlar tus gastos y administrar mejor tus deudas.",
+    guideFinishTitle: "¡Todo listo!",
+    guideFinishText: "Ya conoces las herramientas principales. Empieza a registrar tus movimientos y construye mejores hábitos financieros.",
+    guideNext: "Siguiente",
+    guidePrevious: "Anterior",
+    guideSkip: "Omitir guía",
+    guideStart: "Comenzar a usar Mis Finanzas",
+    guideStep: "Paso"
   },
 
   en: {
@@ -173,7 +198,30 @@ const TEXT = {
     nameSaved: "Name saved successfully.",
     exit: "Exit application",
     confirmExit: "Do you want to exit My Finances?",
-    exitHelp: "To close the app, use the Android Home button or the Recent Apps screen."
+    exitHelp: "To close the app, use the Android Home button or the Recent Apps screen.",
+
+    guide: "User guide",
+    guideWelcomeTitle: "Welcome to My Finances!",
+    guideWelcomeText: "Learn to organize your money step by step. This quick guide will help you discover the main features.",
+    guideIncomeTitle: "1. Record your income",
+    guideIncomeText: "Record your salary, business income, or other money received. This helps you understand how much you earn.",
+    guideExpensesTitle: "2. Track your expenses",
+    guideExpensesText: "Record your purchases, bills, and daily expenses. Use categories to identify where your money goes.",
+    guideSavingsTitle: "3. Build your savings 🐷",
+    guideSavingsText: "Record the money you set aside for your goals. You can create different savings goals and track your progress.",
+    guideBudgetTitle: "4. Organize your budget",
+    guideBudgetText: "Set how much you can spend each month. The app helps you compare your budget with your recorded expenses.",
+    guideCurrencyTitle: "5. Use different currencies",
+    guideCurrencyText: "You can record income, expenses, and savings in CRC, USD, EUR, and other currencies. Set your main currency and exchange rates.",
+    guideTipsTitle: "6. Improve your financial habits",
+    guideTipsText: "Explore financial tips to develop saving habits, control expenses, and manage your debts.",
+    guideFinishTitle: "You're all set!",
+    guideFinishText: "You now know the main features. Start recording your transactions and building better financial habits.",
+    guideNext: "Next",
+    guidePrevious: "Previous",
+    guideSkip: "Skip guide",
+    guideStart: "Start using My Finances",
+    guideStep: "Step"
   }
 };
 
@@ -196,11 +244,11 @@ const DEFAULT_STATE = {
 
 let state = loadState();
 let currentSection = "inicio";
-let handlingPopState = false;
 
 function loadState() {
   try {
     const stored = JSON.parse(localStorage.getItem("misFinanzasData"));
+
     return stored ? {
       ...DEFAULT_STATE,
       ...stored,
@@ -235,6 +283,16 @@ function translatePage() {
   $("nombre-usuario").value = state.userName || "";
 
   document.title = t("appTitle");
+
+  const guideButton = $("boton-guia-uso");
+  if (guideButton) {
+    guideButton.textContent = "📖 " + t("guide");
+  }
+
+  if ($("mf-guide-overlay") && !$("mf-guide-overlay").hidden) {
+    renderGuideStep();
+  }
+
   renderAll();
 }
 
@@ -340,7 +398,293 @@ function showToast(message) {
   showToast.timer = setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
-/* Navegación entre secciones y botón Atrás de Android */
+/* =====================================================
+   GUÍA INTERACTIVA DE BIENVENIDA
+   ===================================================== */
+
+const GUIDE_STORAGE_KEY = "misFinanzasGuideSeen";
+
+let guideStep = 0;
+
+const GUIDE_STEPS = [
+  { icon: "👋", title: "guideWelcomeTitle", text: "guideWelcomeText" },
+  { icon: "💰", title: "guideIncomeTitle", text: "guideIncomeText" },
+  { icon: "🧾", title: "guideExpensesTitle", text: "guideExpensesText" },
+  { icon: "🐷", title: "guideSavingsTitle", text: "guideSavingsText" },
+  { icon: "📊", title: "guideBudgetTitle", text: "guideBudgetText" },
+  { icon: "💱", title: "guideCurrencyTitle", text: "guideCurrencyText" },
+  { icon: "🌱", title: "guideTipsTitle", text: "guideTipsText" },
+  { icon: "🎉", title: "guideFinishTitle", text: "guideFinishText" }
+];
+
+function setupGuide() {
+  if (!$("mf-guide-overlay")) {
+    const style = document.createElement("style");
+
+    style.textContent = `
+      .mf-guide-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: rgba(17, 24, 39, .72);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+      }
+
+      .mf-guide-overlay[hidden] {
+        display: none !important;
+      }
+
+      .mf-guide-card {
+        width: 100%;
+        max-width: 430px;
+        background: #fff;
+        color: #202938;
+        border-radius: 22px;
+        padding: 28px 22px 22px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,.22);
+        animation: mfGuideIn .25s ease;
+      }
+
+      .mf-guide-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+
+      .mf-guide-card h2 {
+        font-size: 22px;
+        margin: 0 0 12px;
+        color: #111827;
+      }
+
+      .mf-guide-card p {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #657080;
+        margin: 0 0 22px;
+      }
+
+      .mf-guide-progress {
+        height: 6px;
+        background: #e7ebf0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+
+      .mf-guide-progress span {
+        display: block;
+        height: 100%;
+        background: #159b70;
+        transition: width .2s ease;
+      }
+
+      .mf-guide-step {
+        display: block;
+        color: #7b8493;
+        font-size: 12px;
+        margin-bottom: 20px;
+      }
+
+      .mf-guide-actions {
+        display: flex;
+        gap: 9px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .mf-guide-actions button {
+        border: 0;
+        border-radius: 12px;
+        padding: 12px 15px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .mf-guide-primary {
+        background: #111827;
+        color: white;
+        flex: 1;
+      }
+
+      .mf-guide-secondary {
+        background: #f0f2f5;
+        color: #374151;
+      }
+
+      .mf-guide-skip {
+        display: block;
+        margin: 17px auto 0;
+        border: 0;
+        background: none;
+        color: #7b8493;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .mf-guide-open-button {
+        display: block;
+        width: 100%;
+        margin-top: 14px;
+        padding: 14px;
+        border: 1px solid #e7ebf0;
+        border-radius: 12px;
+        background: white;
+        color: #202938;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      @keyframes mfGuideIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+
+    const overlay = document.createElement("div");
+    overlay.id = "mf-guide-overlay";
+    overlay.className = "mf-guide-overlay";
+    overlay.hidden = true;
+
+    overlay.innerHTML = `
+      <div class="mf-guide-card" role="dialog"
+           aria-modal="true" aria-labelledby="mf-guide-title">
+
+        <div class="mf-guide-icon" id="mf-guide-icon"></div>
+
+        <h2 id="mf-guide-title"></h2>
+
+        <p id="mf-guide-text"></p>
+
+        <div class="mf-guide-progress">
+          <span id="mf-guide-progress"></span>
+        </div>
+
+        <small class="mf-guide-step" id="mf-guide-step"></small>
+
+        <div class="mf-guide-actions">
+          <button type="button" class="mf-guide-secondary"
+                  id="mf-guide-previous"></button>
+
+          <button type="button" class="mf-guide-primary"
+                  id="mf-guide-next"></button>
+        </div>
+
+        <button type="button" class="mf-guide-skip"
+                id="mf-guide-skip"></button>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    $("mf-guide-next").addEventListener("click", nextGuideStep);
+    $("mf-guide-previous").addEventListener("click", previousGuideStep);
+    $("mf-guide-skip").addEventListener("click", finishGuide);
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !$("mf-guide-overlay").hidden) {
+        finishGuide();
+      }
+    });
+  }
+
+  // Acceso permanente desde la sección Más.
+  const moreSection = $("mas");
+
+  if (moreSection && !$("boton-guia-uso")) {
+    const guideButton = document.createElement("button");
+
+    guideButton.id = "boton-guia-uso";
+    guideButton.type = "button";
+    guideButton.className = "mf-guide-open-button";
+    guideButton.textContent = "📖 " + t("guide");
+
+    guideButton.addEventListener("click", openGuide);
+
+    moreSection.appendChild(guideButton);
+  }
+
+  // Mostrar automáticamente en la primera visita.
+  if (!localStorage.getItem(GUIDE_STORAGE_KEY)) {
+    setTimeout(() => openGuide(), 500);
+  }
+}
+
+function openGuide() {
+  guideStep = 0;
+
+  const overlay = $("mf-guide-overlay");
+  if (!overlay) return;
+
+  overlay.hidden = false;
+  renderGuideStep();
+}
+
+function renderGuideStep() {
+  const step = GUIDE_STEPS[guideStep];
+  const isLast = guideStep === GUIDE_STEPS.length - 1;
+
+  $("mf-guide-icon").textContent = step.icon;
+  $("mf-guide-title").textContent = t(step.title);
+  $("mf-guide-text").textContent = t(step.text);
+
+  $("mf-guide-progress").style.width =
+    `${((guideStep + 1) / GUIDE_STEPS.length) * 100}%`;
+
+  $("mf-guide-step").textContent =
+    `${t("guideStep")} ${guideStep + 1} / ${GUIDE_STEPS.length}`;
+
+  $("mf-guide-previous").textContent = t("guidePrevious");
+  $("mf-guide-previous").hidden = guideStep === 0;
+
+  $("mf-guide-next").textContent = isLast
+    ? t("guideStart")
+    : t("guideNext");
+
+  $("mf-guide-skip").textContent = t("guideSkip");
+}
+
+function nextGuideStep() {
+  if (guideStep < GUIDE_STEPS.length - 1) {
+    guideStep++;
+    renderGuideStep();
+  } else {
+    finishGuide();
+  }
+}
+
+function previousGuideStep() {
+  if (guideStep > 0) {
+    guideStep--;
+    renderGuideStep();
+  }
+}
+
+function finishGuide() {
+  localStorage.setItem(GUIDE_STORAGE_KEY, "true");
+
+  const overlay = $("mf-guide-overlay");
+  if (overlay) overlay.hidden = true;
+}
+
+/* =====================================================
+   NAVEGACIÓN ENTRE SECCIONES
+   ===================================================== */
+
 function showSection(sectionId, options = {}) {
   const target = $(sectionId);
   if (!target || !target.classList.contains("page-section")) return;
@@ -404,8 +748,6 @@ function setupNavigation() {
   });
 
   window.addEventListener("popstate", event => {
-    handlingPopState = true;
-
     const previous = event.state?.mfSection;
 
     if (previous && $(previous)?.classList.contains("page-section")) {
@@ -414,15 +756,18 @@ function setupNavigation() {
       showSection("inicio", { skipHistory: true });
       history.pushState({ mfSection: "inicio" }, "", location.href);
     }
-
-    handlingPopState = false;
   });
 }
+
+/* =====================================================
+   INGRESOS Y GASTOS
+   ===================================================== */
 
 function addMovement(event) {
   event.preventDefault();
 
   const amount = Number($("monto-movimiento").value);
+
   if (!Number.isFinite(amount) || amount <= 0) {
     showToast(t("conversionUnavailable"));
     return;
@@ -454,6 +799,10 @@ function addMovement(event) {
   showToast(t("saved"));
 }
 
+/* =====================================================
+   AHORROS
+   ===================================================== */
+
 function addSaving(event) {
   event.preventDefault();
 
@@ -484,10 +833,15 @@ function addSaving(event) {
   showToast(t("saved"));
 }
 
+/* =====================================================
+   PRESUPUESTO
+   ===================================================== */
+
 function saveBudget(event) {
   event.preventDefault();
 
   const amount = Number($("monto-presupuesto").value);
+
   if (!Number.isFinite(amount) || amount < 0) return;
 
   const currency = $("moneda-presupuesto").value;
@@ -498,10 +852,15 @@ function saveBudget(event) {
   }
 
   state.budget = { amount, currency };
+
   saveState();
   renderAll();
   showToast(t("budgetSaved"));
 }
+
+/* =====================================================
+   MOVIMIENTOS RECURRENTES
+   ===================================================== */
 
 function addRecurring(event) {
   event.preventDefault();
@@ -532,11 +891,21 @@ function addRecurring(event) {
   showToast(t("recurringSaved"));
 }
 
+/* =====================================================
+   CATEGORÍAS Y FORMATO
+   ===================================================== */
+
 function categoryName(category) {
   const key = {
-    salary: "catSalary", business: "catBusiness", food: "catFood",
-    housing: "catHousing", transport: "catTransport", health: "catHealth",
-    entertainment: "catEntertainment", debt: "catDebt", other: "catOther"
+    salary: "catSalary",
+    business: "catBusiness",
+    food: "catFood",
+    housing: "catHousing",
+    transport: "catTransport",
+    health: "catHealth",
+    entertainment: "catEntertainment",
+    debt: "catDebt",
+    other: "catOther"
   }[category];
 
   return key ? t(key) : category;
@@ -552,33 +921,50 @@ function dateText(date) {
 
 function safeText(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;",
-    '"': "&quot;", "'": "&#039;"
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
   })[char]);
 }
 
+/* =====================================================
+   VISUALIZACIÓN DE MOVIMIENTOS
+   ===================================================== */
+
 function renderMovement(item, isSaving = false) {
   const type = isSaving ? "saving" : item.type;
-  const sign = type === "income" ? "+" : type === "expense" ? "−" : "";
+
+  const sign = type === "income" ? "+" :
+    type === "expense" ? "−" : "";
+
   const amountClass = type === "income" ? "amount-income" :
     type === "expense" ? "amount-expense" : "";
 
   const title = isSaving ? item.name : item.description;
+
   const subtitle = isSaving ? dateText(item.date) :
     `${categoryName(item.category)} · ${dateText(item.date)}`;
 
   return `
     <article class="movement-item">
       <div class="movement-icon">${type === "income" ? "↗" : type === "expense" ? "↘" : "🐷"}</div>
+
       <div class="movement-info">
         <strong>${safeText(title)}</strong>
         <small>${safeText(subtitle)}</small>
       </div>
+
       <div class="movement-amount">
         <strong class="${amountClass}">${sign}${formatMoney(Number(item.amount), item.currency)}</strong>
         <small>${formatMoney(convertToBase(Number(item.amount), item.currency) ?? 0)}</small>
       </div>
-      <button class="delete-button" type="button" data-delete="${isSaving ? "saving" : "movement"}" data-id="${safeText(item.id)}" aria-label="${t("delete")}">×</button>
+
+      <button class="delete-button" type="button"
+        data-delete="${isSaving ? "saving" : "movement"}"
+        data-id="${safeText(item.id)}"
+        aria-label="${t("delete")}">×</button>
     </article>
   `;
 }
@@ -605,18 +991,26 @@ function renderRecurring() {
   element.innerHTML = state.recurring.map(item => `
     <article class="movement-item">
       <div class="movement-icon">🔁</div>
+
       <div class="movement-info">
         <strong>${safeText(item.description)}</strong>
         <small>${t(item.frequency)} · ${t(item.type === "income" ? "income" : "expenses")}</small>
       </div>
+
       <div class="movement-amount">
         <strong>${formatMoney(item.amount, item.currency)}</strong>
         <small>${formatMoney(convertToBase(item.amount, item.currency) ?? 0)}</small>
       </div>
-      <button class="delete-button" type="button" data-delete="recurring" data-id="${safeText(item.id)}">×</button>
+
+      <button class="delete-button" type="button"
+        data-delete="recurring" data-id="${safeText(item.id)}">×</button>
     </article>
   `).join("");
 }
+
+/* =====================================================
+   PANEL PRINCIPAL
+   ===================================================== */
 
 function renderDashboard() {
   const incomes = state.movements.filter(item => item.type === "income");
@@ -664,41 +1058,77 @@ function renderDashboard() {
     $("presupuesto-restante").textContent = t("emptyBudget");
   }
 
-  renderList("lista-movimientos-inicio", state.movements.slice(0, 5), t("noMovements"));
-  renderList("lista-movimientos", state.movements, t("noMovements"));
-  renderList("lista-ahorros", state.savings, t("noSavings"), true);
+  renderList(
+    "lista-movimientos-inicio",
+    state.movements.slice(0, 5),
+    t("noMovements")
+  );
+
+  renderList(
+    "lista-movimientos",
+    state.movements,
+    t("noMovements")
+  );
+
+  renderList(
+    "lista-ahorros",
+    state.savings,
+    t("noSavings"),
+    true
+  );
 }
+
+/* =====================================================
+   ESTADÍSTICAS
+   ===================================================== */
 
 function renderChart() {
   const totals = {};
 
-  state.movements.filter(item => item.type === "expense").forEach(item => {
-    const value = convertToBase(item.amount, item.currency);
+  state.movements
+    .filter(item => item.type === "expense")
+    .forEach(item => {
+      const value = convertToBase(item.amount, item.currency);
 
-    if (value !== null) {
-      totals[item.category] = (totals[item.category] || 0) + value;
-    }
-  });
+      if (value !== null) {
+        totals[item.category] = (totals[item.category] || 0) + value;
+      }
+    });
 
-  const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+  const entries = Object.entries(totals)
+    .sort((a, b) => b[1] - a[1]);
+
   const maximum = Math.max(1, ...entries.map(entry => entry[1]));
 
-  $("grafico-resumen").innerHTML = entries.length ? entries.map(([category, amount]) => `
-    <div class="chart-row">
-      <span>${safeText(categoryName(category))}</span>
-      <div class="chart-track"><div class="chart-bar" style="width:${amount / maximum * 100}%"></div></div>
-      <strong>${formatMoney(amount)}</strong>
-    </div>
-  `).join("") : `<div class="empty-state">${t("noMovements")}</div>`;
+  $("grafico-resumen").innerHTML = entries.length
+    ? entries.map(([category, amount]) => `
+      <div class="chart-row">
+        <span>${safeText(categoryName(category))}</span>
+        <div class="chart-track">
+          <div class="chart-bar" style="width:${amount / maximum * 100}%"></div>
+        </div>
+        <strong>${formatMoney(amount)}</strong>
+      </div>
+    `).join("")
+    : `<div class="empty-state">${t("noMovements")}</div>`;
 }
 
+/* =====================================================
+   TIPOS DE CAMBIO
+   ===================================================== */
+
 function renderManualRates() {
-  $("campos-tasas").innerHTML = CURRENCIES.filter(code => code !== "CRC").map(code => `
-    <div class="manual-rate-row">
-      <span>${code}</span>
-      <input type="number" min="0.000001" step="any" data-rate="${code}" value="${Number(state.manualRates[code]) || ""}" aria-label="${code}">
-    </div>
-  `).join("");
+  $("campos-tasas").innerHTML = CURRENCIES
+    .filter(code => code !== "CRC")
+    .map(code => `
+      <div class="manual-rate-row">
+        <span>${code}</span>
+        <input type="number" min="0.000001" step="any"
+          data-rate="${code}"
+          value="${Number(state.manualRates[code]) || ""}"
+          aria-label="${code}">
+      </div>
+    `).join("");
 
   document.querySelectorAll('input[name="modo-cambio"]').forEach(radio => {
     radio.checked = radio.value === state.exchangeMode;
@@ -706,6 +1136,10 @@ function renderManualRates() {
 
   $("tasas-manuales").hidden = state.exchangeMode === "automatic";
 }
+
+/* =====================================================
+   ACTUALIZACIÓN GENERAL
+   ===================================================== */
 
 function renderAll() {
   renderDashboard();
@@ -716,6 +1150,10 @@ function renderAll() {
   $("monto-presupuesto").value = state.budget.amount || "";
   $("moneda-presupuesto").value = state.budget.currency || state.baseCurrency;
 }
+
+/* =====================================================
+   ELIMINACIÓN DE REGISTROS
+   ===================================================== */
 
 function deleteRecord(type, id) {
   if (!confirm(t("confirmDelete"))) return;
@@ -750,6 +1188,10 @@ function setupDeleteButtons() {
   });
 }
 
+/* =====================================================
+   CONFIGURACIÓN
+   ===================================================== */
+
 function setupSettings() {
   $("selector-idioma").addEventListener("change", event => {
     state.language = event.target.value;
@@ -781,7 +1223,10 @@ function setupSettings() {
   $("guardar-tasas").addEventListener("click", () => {
     document.querySelectorAll("[data-rate]").forEach(input => {
       const value = Number(input.value);
-      if (value > 0) state.manualRates[input.dataset.rate] = value;
+
+      if (value > 0) {
+        state.manualRates[input.dataset.rate] = value;
+      }
     });
 
     saveState();
@@ -800,47 +1245,63 @@ function setupSettings() {
   });
 }
 
+/* =====================================================
+   ACTUALIZACIÓN AUTOMÁTICA DE DIVISAS
+   ===================================================== */
+
 async function updateExchangeRates() {
   $("estado-cambios").textContent = t("loading");
 
   try {
-    const response = await fetch("https://open.er-api.com/v6/latest/USD", {
-      cache: "no-store"
-    });
+    const response = await fetch(
+      "https://open.er-api.com/v6/latest/USD",
+      { cache: "no-store" }
+    );
 
     if (!response.ok) throw new Error("Network error");
 
     const data = await response.json();
+
     if (data.result !== "success" || !data.rates) {
       throw new Error("Invalid rates");
     }
 
     const usdToCRC = Number(data.rates.CRC);
+
     if (!usdToCRC) throw new Error("CRC rate missing");
 
     const rates = { CRC: 1 };
 
-    CURRENCIES.filter(code => code !== "CRC").forEach(code => {
-      const usdToCurrency = Number(data.rates[code]);
+    CURRENCIES
+      .filter(code => code !== "CRC")
+      .forEach(code => {
+        const usdToCurrency = Number(data.rates[code]);
 
-      if (usdToCurrency > 0) {
-        rates[code] = usdToCRC / usdToCurrency;
-      }
-    });
+        if (usdToCurrency > 0) {
+          rates[code] = usdToCRC / usdToCurrency;
+        }
+      });
 
     state.onlineRates = rates;
-    state.ratesUpdatedAt = data.time_last_update_utc || new Date().toISOString();
+    state.ratesUpdatedAt =
+      data.time_last_update_utc || new Date().toISOString();
 
     saveState();
     renderAll();
 
-    $("estado-cambios").textContent = t("rateSource") + " " + state.ratesUpdatedAt;
+    $("estado-cambios").textContent =
+      t("rateSource") + " " + state.ratesUpdatedAt;
+
     showToast(t("ratesUpdated"));
   } catch (error) {
     $("estado-cambios").textContent = t("ratesError");
     showToast(t("ratesError"));
   }
 }
+
+/* =====================================================
+   EXPORTACIÓN DE DATOS
+   ===================================================== */
 
 function exportData() {
   const content = JSON.stringify(state, null, 2);
@@ -856,6 +1317,10 @@ function exportData() {
   showToast(t("exported"));
 }
 
+/* =====================================================
+   FORMULARIOS
+   ===================================================== */
+
 function setupForms() {
   $("form-movimiento").addEventListener("submit", addMovement);
   $("form-ahorro").addEventListener("submit", addSaving);
@@ -863,12 +1328,17 @@ function setupForms() {
   $("form-recurrente").addEventListener("submit", addRecurring);
 }
 
+/* =====================================================
+   INICIALIZACIÓN
+   ===================================================== */
+
 function initialize() {
   setupCurrencies();
   setupNavigation();
   setupForms();
   setupDeleteButtons();
   setupSettings();
+  setupGuide();
 
   $("selector-idioma").value = state.language;
   $("moneda-principal").value = state.baseCurrency;
