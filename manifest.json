@@ -1,8 +1,9 @@
+
 {
   "name": "Mis Finanzas",
   "short_name": "Finanzas",
   "id": "/mis-finanzas/",
-  "description": "Control personal de ingresos, gastos y presupuestos.",
+  "description": "Control personal de ingresos, gastos, ahorros y presupuestos.",
   "start_url": "/mis-finanzas/",
   "scope": "/mis-finanzas/",
   "display": "standalone",
@@ -19,13 +20,25 @@
       "src": "/mis-finanzas/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/mis-finanzas/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/mis-finanzas/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/mis-finanzas/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
