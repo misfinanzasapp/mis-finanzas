@@ -2,17 +2,15 @@
 "use strict";
 
 /* =========================================================
-   MIS FINANZAS - MOTOR PRINCIPAL
-   Versión ampliada:
+   MIS FINANZAS - MOTOR PRINCIPAL REPARADO
    - Ingresos, gastos, ahorros y presupuesto
    - Movimientos recurrentes
    - Deudas por cobrar y pagar
    - Abonos e historial
    - Metas financieras
-   - Alertas financieras
-   - Asistente financiero
+   - Alertas y asistente financiero
    - Filtros y comparación mensual
-   - Importación y exportación de respaldos
+   - Importación y exportación
    - Monedas e idiomas ES/EN
    - Guía interactiva
    ========================================================= */
@@ -261,7 +259,26 @@ const TEXT = {
     guidePrevious: "Anterior",
     guideSkip: "Omitir guía",
     guideStart: "Comenzar a usar Mis Finanzas",
-    guideStep: "Paso"
+    guideStep: "Paso",
+
+    budgetExceeded: "Has superado tu presupuesto mensual por",
+    budgetWarning: "Has utilizado más del 80% de tu presupuesto mensual.",
+    overdueDebtsAlert: "Tienes deudas vencidas. Revisa sus fechas y saldos.",
+    dueSoonAlert: "Tienes deudas con vencimiento en los próximos 7 días.",
+    overdueGoalsAlert: "Tienes metas cuya fecha objetivo ya pasó.",
+    completedGoalsAlert: "¡Has completado metas financieras!",
+    expenseRatioHigh: "Tus gastos representan más del 90% de tus ingresos registrados. Revisa los gastos que puedes reducir.",
+    expenseRatioMedium: "Tus gastos representan más del 70% de tus ingresos. Intenta reservar una parte mayor para ahorro.",
+    expenseRatioGood: "Tus gastos están por debajo del 70% de tus ingresos registrados. Mantén el seguimiento.",
+    expensesExceedIncome: "Tus gastos superan tus ingresos registrados. Conviene revisar tu presupuesto.",
+    savingsAssistant: "Has registrado ahorros. ¡Sigue construyendo tu reserva!",
+    payableAssistant: "Tienes deudas pendientes de pago. Revisa vencimientos y condiciones.",
+    receivableAssistant: "Tienes dinero pendiente por cobrar. Da seguimiento a esos pagos.",
+    goalsAssistant: "Tienes metas financieras registradas.",
+    debtPaymentsAssistant: "Los abonos de deudas están incluidos en el dinero disponible, no en los ingresos o gastos normales.",
+    expensesIncreased: "Tus gastos aumentaron",
+    expensesDecreased: "Tus gastos disminuyeron",
+    expensesEqual: "Tus gastos son iguales a los del mes anterior."
   },
 
   en: {
@@ -492,9 +509,32 @@ const TEXT = {
     guidePrevious: "Previous",
     guideSkip: "Skip guide",
     guideStart: "Start using My Finances",
-    guideStep: "Step"
+    guideStep: "Step",
+
+    budgetExceeded: "You have exceeded your monthly budget by",
+    budgetWarning: "You have used more than 80% of your monthly budget.",
+    overdueDebtsAlert: "You have overdue debts. Review their dates and balances.",
+    dueSoonAlert: "You have debts due within the next 7 days.",
+    overdueGoalsAlert: "You have goals whose target dates have passed.",
+    completedGoalsAlert: "You have completed financial goals!",
+    expenseRatioHigh: "Your expenses represent more than 90% of your recorded income. Review expenses you can reduce.",
+    expenseRatioMedium: "Your expenses represent more than 70% of your income. Try to save more.",
+    expenseRatioGood: "Your expenses are below 70% of your recorded income. Keep tracking.",
+    expensesExceedIncome: "Your expenses exceed your recorded income. Review your budget.",
+    savingsAssistant: "You have recorded savings. Keep building your reserve!",
+    payableAssistant: "You have outstanding payments. Review due dates and conditions.",
+    receivableAssistant: "You have money pending collection. Follow up on those payments.",
+    goalsAssistant: "You have financial goals recorded.",
+    debtPaymentsAssistant: "Debt payments are included in available money, not regular income or expenses.",
+    expensesIncreased: "Your expenses increased by",
+    expensesDecreased: "Your expenses decreased by",
+    expensesEqual: "Your expenses are the same as last month."
   }
 };
+
+/* =========================================================
+   ESTADO Y ALMACENAMIENTO
+   ========================================================= */
 
 const DEFAULT_STATE = {
   language: "es",
@@ -508,15 +548,18 @@ const DEFAULT_STATE = {
   goals: [],
   budget: { amount: 0, currency: "CRC" },
   manualRates: {
-    CRC: 1, USD: 500, EUR: 540, MXN: 29,
-    GBP: 630, BRL: 95, COP: 0.12, CAD: 360
+    CRC: 1,
+    USD: 500,
+    EUR: 540,
+    MXN: 29,
+    GBP: 630,
+    BRL: 95,
+    COP: 0.12,
+    CAD: 360
   },
   onlineRates: null,
   ratesUpdatedAt: null
 };
-
-let state = loadState();
-let currentSection = "inicio";
 
 function cloneDefault() {
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -526,7 +569,9 @@ function loadState() {
   try {
     const stored = JSON.parse(localStorage.getItem("misFinanzasData"));
 
-    if (!stored || typeof stored !== "object") return cloneDefault();
+    if (!stored || typeof stored !== "object" || Array.isArray(stored)) {
+      return cloneDefault();
+    }
 
     return {
       ...cloneDefault(),
@@ -536,18 +581,29 @@ function loadState() {
       recurring: Array.isArray(stored.recurring) ? stored.recurring : [],
       debts: Array.isArray(stored.debts) ? stored.debts : [],
       goals: Array.isArray(stored.goals) ? stored.goals : [],
-      budget: { ...DEFAULT_STATE.budget, ...(stored.budget || {}) },
-      manualRates: { ...DEFAULT_STATE.manualRates, ...(stored.manualRates || {}) }
+      budget: {
+        ...DEFAULT_STATE.budget,
+        ...(stored.budget && typeof stored.budget === "object" ? stored.budget : {})
+      },
+      manualRates: {
+        ...DEFAULT_STATE.manualRates,
+        ...(stored.manualRates && typeof stored.manualRates === "object" ? stored.manualRates : {})
+      }
     };
   } catch (error) {
+    console.error("Error cargando los datos:", error);
     return cloneDefault();
   }
 }
+
+let state = loadState();
+let currentSection = "inicio";
 
 function saveState() {
   try {
     localStorage.setItem("misFinanzasData", JSON.stringify(state));
   } catch (error) {
+    console.error("Error guardando los datos:", error);
     showToast("No se pudieron guardar los datos. Comprueba el espacio disponible.");
   }
 }
@@ -556,24 +612,42 @@ function t(key) {
   return TEXT[state.language]?.[key] || TEXT.es[key] || key;
 }
 
+function makeId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 function todayISO() {
   const date = new Date();
   date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
   return date.toISOString().slice(0, 10);
 }
 
+function monthKey(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function safeText(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;",
-    '"': "&quot;", "'": "&#039;"
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
   })[char]);
 }
 
 function dateText(date) {
   if (!date) return "";
+
+  const parsed = new Date(`${date}T12:00:00`);
+  if (Number.isNaN(parsed.getTime())) return String(date);
+
   return new Intl.DateTimeFormat(
     state.language === "en" ? "en-US" : "es-CR"
-  ).format(new Date(date + "T12:00:00"));
+  ).format(parsed);
 }
 
 function formatMoney(amount, currency = state.baseCurrency) {
@@ -600,6 +674,7 @@ function showToast(message) {
 
   toast.textContent = message;
   toast.classList.add("show");
+
   clearTimeout(showToast.timer);
 
   showToast.timer = setTimeout(() => {
@@ -619,8 +694,12 @@ function currencyOptions() {
 
 function setupCurrencies() {
   document.querySelectorAll(".currency-select").forEach(select => {
+    const previousValue = select.value;
     select.innerHTML = currencyOptions();
-    select.value = state.baseCurrency;
+
+    select.value = CURRENCIES.includes(previousValue)
+      ? previousValue
+      : state.baseCurrency;
   });
 
   if ($("moneda-principal")) {
@@ -629,12 +708,20 @@ function setupCurrencies() {
   }
 
   if ($("moneda-presupuesto")) {
-    $("moneda-presupuesto").value = state.budget.currency;
+    $("moneda-presupuesto").value = state.budget.currency || state.baseCurrency;
   }
 
-  ["fecha-movimiento", "fecha-ahorro", "fecha-creacion-deuda"].forEach(id => {
-    if ($(id)) $(id).value = todayISO();
-  });
+  if ($("fecha-movimiento") && !$("fecha-movimiento").value) {
+    $("fecha-movimiento").value = todayISO();
+  }
+
+  if ($("fecha-ahorro") && !$("fecha-ahorro").value) {
+    $("fecha-ahorro").value = todayISO();
+  }
+
+  if ($("fecha-creacion-deuda") && !$("fecha-creacion-deuda").value) {
+    $("fecha-creacion-deuda").value = todayISO();
+  }
 }
 
 function exchangeRate(currency) {
@@ -655,12 +742,15 @@ function exchangeRate(currency) {
 }
 
 function convertToCRC(amount, currency) {
-  if (currency === "CRC") return Number(amount);
+  amount = Number(amount);
+
+  if (!Number.isFinite(amount)) return null;
+  if (currency === "CRC") return amount;
 
   const rate = exchangeRate(currency);
   if (!rate || !Number.isFinite(rate)) return null;
 
-  return Number(amount) * rate;
+  return amount * rate;
 }
 
 function convertToBase(amount, currency) {
@@ -670,7 +760,7 @@ function convertToBase(amount, currency) {
   if (state.baseCurrency === "CRC") return crc;
 
   const baseRate = exchangeRate(state.baseCurrency);
-  if (!baseRate) return null;
+  if (!baseRate || !Number.isFinite(baseRate)) return null;
 
   return crc / baseRate;
 }
@@ -681,6 +771,7 @@ function sumConverted(items, currencyField = "currency", amountField = "amount")
       Number(item[amountField]),
       item[currencyField] || state.baseCurrency
     );
+
     return total + (value === null ? 0 : value);
   }, 0);
 }
@@ -694,17 +785,35 @@ function translatePage() {
 
   document.querySelectorAll("[data-i18n]").forEach(element => {
     const key = element.dataset.i18n;
-    if (TEXT[state.language][key]) element.textContent = t(key);
+    const translated = t(key);
+
+    /*
+      No reemplazamos el contenido de elementos que contienen
+      otros elementos. Así evitamos borrar iconos, botones o spans.
+    */
+    if (!element.children.length) {
+      element.textContent = translated;
+    }
   });
 
-  if ($("selector-idioma")) $("selector-idioma").value = state.language;
-  if ($("moneda-principal")) $("moneda-principal").value = state.baseCurrency;
-  if ($("nombre-usuario")) $("nombre-usuario").value = state.userName || "";
+  if ($("selector-idioma")) {
+    $("selector-idioma").value = state.language;
+  }
+
+  if ($("moneda-principal")) {
+    $("moneda-principal").value = state.baseCurrency;
+  }
+
+  if ($("nombre-usuario")) {
+    $("nombre-usuario").value = state.userName || "";
+  }
 
   document.title = t("appTitle");
 
   const guideButton = $("boton-guia-uso");
-  if (guideButton) guideButton.textContent = "📖 " + t("guide");
+  if (guideButton) {
+    guideButton.textContent = "📖 " + t("guide");
+  }
 
   if ($("mf-guide-overlay") && !$("mf-guide-overlay").hidden) {
     renderGuideStep();
@@ -737,6 +846,7 @@ const GUIDE_STEPS = [
 function setupGuide() {
   if (!$("mf-guide-overlay")) {
     const style = document.createElement("style");
+
     style.textContent = `
       .mf-guide-overlay{position:fixed;inset:0;z-index:99999;background:rgba(17,24,39,.72);display:flex;align-items:center;justify-content:center;padding:18px}
       .mf-guide-overlay[hidden]{display:none!important}
@@ -754,12 +864,14 @@ function setupGuide() {
       .mf-guide-skip{display:block;margin:17px auto 0;border:0;background:none;color:#7b8493;font-size:13px;cursor:pointer}
       .mf-guide-open-button{display:block;width:100%;margin-top:14px;padding:14px;border:1px solid #e7ebf0;border-radius:12px;background:white;color:#202938;font-size:15px;font-weight:600;text-align:left;cursor:pointer}
     `;
+
     document.head.appendChild(style);
 
     const overlay = document.createElement("div");
     overlay.id = "mf-guide-overlay";
     overlay.className = "mf-guide-overlay";
     overlay.hidden = true;
+
     overlay.innerHTML = `
       <div class="mf-guide-card" role="dialog" aria-modal="true">
         <div class="mf-guide-icon" id="mf-guide-icon"></div>
@@ -774,6 +886,7 @@ function setupGuide() {
         <button type="button" class="mf-guide-skip" id="mf-guide-skip"></button>
       </div>
     `;
+
     document.body.appendChild(overlay);
 
     $("mf-guide-next").addEventListener("click", nextGuideStep);
@@ -781,7 +894,9 @@ function setupGuide() {
     $("mf-guide-skip").addEventListener("click", finishGuide);
 
     document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && !$("mf-guide-overlay").hidden) finishGuide();
+      if (event.key === "Escape" && !$("mf-guide-overlay").hidden) {
+        finishGuide();
+      }
     });
   }
 
@@ -802,24 +917,32 @@ function setupGuide() {
 
 function openGuide() {
   guideStep = 0;
+
   if (!$("mf-guide-overlay")) return;
+
   $("mf-guide-overlay").hidden = false;
   renderGuideStep();
 }
 
 function renderGuideStep() {
   const step = GUIDE_STEPS[guideStep];
+  if (!step) return;
+
   const last = guideStep === GUIDE_STEPS.length - 1;
 
   $("mf-guide-icon").textContent = step[0];
   $("mf-guide-title").textContent = t(step[1]);
   $("mf-guide-text").textContent = t(step[2]);
+
   $("mf-guide-progress").style.width =
     `${((guideStep + 1) / GUIDE_STEPS.length) * 100}%`;
+
   $("mf-guide-step").textContent =
     `${t("guideStep")} ${guideStep + 1} / ${GUIDE_STEPS.length}`;
+
   $("mf-guide-previous").textContent = t("guidePrevious");
   $("mf-guide-previous").hidden = guideStep === 0;
+
   $("mf-guide-next").textContent = last ? t("guideStart") : t("guideNext");
   $("mf-guide-skip").textContent = t("guideSkip");
 }
@@ -842,7 +965,10 @@ function previousGuideStep() {
 
 function finishGuide() {
   localStorage.setItem(GUIDE_STORAGE_KEY, "true");
-  if ($("mf-guide-overlay")) $("mf-guide-overlay").hidden = true;
+
+  if ($("mf-guide-overlay")) {
+    $("mf-guide-overlay").hidden = true;
+  }
 }
 
 /* =========================================================
@@ -851,6 +977,7 @@ function finishGuide() {
 
 function showSection(sectionId, options = {}) {
   const target = $(sectionId);
+
   if (!target || !target.classList.contains("page-section")) return;
 
   const previous = currentSection;
@@ -878,19 +1005,22 @@ function setupNavigation() {
 
   document.addEventListener("click", event => {
     const sectionButton = event.target.closest("[data-section]");
+
     if (sectionButton) {
       showSection(sectionButton.dataset.section);
       return;
     }
 
     const quickButton = event.target.closest("[data-quick]");
+
     if (quickButton) {
       const type = quickButton.dataset.quick;
+
       showSection(type === "saving" ? "ahorros" : "movimientos");
 
       if (type !== "saving" && $("tipo-movimiento")) {
         $("tipo-movimiento").value = type;
-        $("descripcion-movimiento").focus();
+        $("descripcion-movimiento")?.focus();
       } else if ($("nombre-ahorro")) {
         $("nombre-ahorro").focus();
       }
@@ -898,19 +1028,26 @@ function setupNavigation() {
   });
 
   if ($("header-settings")) {
-    $("header-settings").addEventListener("click", () => showSection("configuracion"));
+    $("header-settings").addEventListener("click", () => {
+      showSection("configuracion");
+    });
   }
 
   if ($("home-title")) {
-    $("home-title").addEventListener("click", () => showSection("inicio"));
+    $("home-title").addEventListener("click", () => {
+      showSection("inicio");
+    });
   }
 
   if ($("boton-mas")) {
-    $("boton-mas").addEventListener("click", () => showSection("mas"));
+    $("boton-mas").addEventListener("click", () => {
+      showSection("mas");
+    });
   }
 
   window.addEventListener("popstate", event => {
     const previous = event.state?.mfSection;
+
     if (previous && $(previous)?.classList.contains("page-section")) {
       showSection(previous, { skipHistory: true });
     } else {
@@ -941,7 +1078,7 @@ function addMovement(event) {
   }
 
   state.movements.unshift({
-    id: crypto.randomUUID(),
+    id: makeId(),
     type: $("tipo-movimiento").value,
     description: $("descripcion-movimiento").value.trim(),
     amount,
@@ -953,8 +1090,10 @@ function addMovement(event) {
 
   saveState();
   $("form-movimiento").reset();
-  $("fecha-movimiento").value = todayISO();
-  $("moneda-movimiento").value = state.baseCurrency;
+
+  if ($("fecha-movimiento")) $("fecha-movimiento").value = todayISO();
+  if ($("moneda-movimiento")) $("moneda-movimiento").value = state.baseCurrency;
+
   renderAll();
   showToast(t("saved"));
 }
@@ -969,7 +1108,10 @@ function addSaving(event) {
   const amount = Number($("monto-ahorro").value);
   const currency = $("moneda-ahorro").value;
 
-  if (!Number.isFinite(amount) || amount <= 0) return;
+  if (!Number.isFinite(amount) || amount <= 0) {
+    showToast(t("conversionUnavailable"));
+    return;
+  }
 
   if (convertToBase(amount, currency) === null) {
     showToast(t("manualRateMissing") + currency);
@@ -977,7 +1119,7 @@ function addSaving(event) {
   }
 
   state.savings.unshift({
-    id: crypto.randomUUID(),
+    id: makeId(),
     name: $("nombre-ahorro").value.trim(),
     amount,
     currency,
@@ -987,8 +1129,10 @@ function addSaving(event) {
 
   saveState();
   $("form-ahorro").reset();
-  $("fecha-ahorro").value = todayISO();
-  $("moneda-ahorro").value = state.baseCurrency;
+
+  if ($("fecha-ahorro")) $("fecha-ahorro").value = todayISO();
+  if ($("moneda-ahorro")) $("moneda-ahorro").value = state.baseCurrency;
+
   renderAll();
   showToast(t("saved"));
 }
@@ -1003,7 +1147,10 @@ function saveBudget(event) {
   const amount = Number($("monto-presupuesto").value);
   const currency = $("moneda-presupuesto").value;
 
-  if (!Number.isFinite(amount) || amount < 0) return;
+  if (!Number.isFinite(amount) || amount < 0) {
+    showToast(t("conversionUnavailable"));
+    return;
+  }
 
   if (convertToBase(amount, currency) === null) {
     showToast(t("manualRateMissing") + currency);
@@ -1011,6 +1158,7 @@ function saveBudget(event) {
   }
 
   state.budget = { amount, currency };
+
   saveState();
   renderAll();
   showToast(t("budgetSaved"));
@@ -1026,7 +1174,10 @@ function addRecurring(event) {
   const amount = Number($("monto-recurrente").value);
   const currency = $("moneda-recurrente").value;
 
-  if (!Number.isFinite(amount) || amount <= 0) return;
+  if (!Number.isFinite(amount) || amount <= 0) {
+    showToast(t("conversionUnavailable"));
+    return;
+  }
 
   if (convertToBase(amount, currency) === null) {
     showToast(t("manualRateMissing") + currency);
@@ -1034,7 +1185,7 @@ function addRecurring(event) {
   }
 
   state.recurring.unshift({
-    id: crypto.randomUUID(),
+    id: makeId(),
     description: $("descripcion-recurrente").value.trim(),
     type: $("tipo-recurrente").value,
     amount,
@@ -1044,7 +1195,11 @@ function addRecurring(event) {
 
   saveState();
   $("form-recurrente").reset();
-  $("moneda-recurrente").value = state.baseCurrency;
+
+  if ($("moneda-recurrente")) {
+    $("moneda-recurrente").value = state.baseCurrency;
+  }
+
   renderAll();
   showToast(t("recurringSaved"));
 }
@@ -1055,13 +1210,18 @@ function addRecurring(event) {
 
 function debtStatus(debt) {
   if (Number(debt.remaining) <= 0.000001) return "paid";
-  if (debt.dueDate && debt.dueDate < todayISO()) return "overdue";
+
+  if (debt.dueDate && debt.dueDate < todayISO()) {
+    return "overdue";
+  }
+
   return "pending";
 }
 
 function debtTotalPaid(debt) {
-  return (debt.payments || []).reduce(
-    (total, payment) => total + Number(payment.amount || 0), 0
+  return (Array.isArray(debt.payments) ? debt.payments : []).reduce(
+    (total, payment) => total + Number(payment.amount || 0),
+    0
   );
 }
 
@@ -1090,7 +1250,7 @@ function addDebt(event) {
   }
 
   state.debts.unshift({
-    id: crypto.randomUUID(),
+    id: makeId(),
     type,
     person,
     description: $("descripcion-deuda").value.trim(),
@@ -1106,14 +1266,22 @@ function addDebt(event) {
 
   saveState();
   $("form-deuda").reset();
-  $("fecha-creacion-deuda").value = todayISO();
-  $("moneda-deuda").value = state.baseCurrency;
+
+  if ($("fecha-creacion-deuda")) {
+    $("fecha-creacion-deuda").value = todayISO();
+  }
+
+  if ($("moneda-deuda")) {
+    $("moneda-deuda").value = state.baseCurrency;
+  }
+
   renderAll();
   showToast(t("debtSaved"));
 }
 
 function addDebtPayment(debtId) {
   const debt = state.debts.find(item => item.id === debtId);
+
   if (!debt || debtStatus(debt) === "paid") return;
 
   const amountText = prompt(
@@ -1140,8 +1308,9 @@ function addDebtPayment(debtId) {
   const notes = prompt(t("paymentNotes"), "") || "";
 
   debt.payments = Array.isArray(debt.payments) ? debt.payments : [];
+
   debt.payments.unshift({
-    id: crypto.randomUUID(),
+    id: makeId(),
     amount,
     currency: debt.currency,
     date: date || todayISO(),
@@ -1150,7 +1319,10 @@ function addDebtPayment(debtId) {
   });
 
   debt.remaining = Math.max(0, Number(debt.remaining) - amount);
-  if (debt.remaining < 0.000001) debt.remaining = 0;
+
+  if (debt.remaining < 0.000001) {
+    debt.remaining = 0;
+  }
 
   saveState();
   renderAll();
@@ -1159,7 +1331,9 @@ function addDebtPayment(debtId) {
 
 function deleteDebt(debtId) {
   if (!confirm(t("confirmDeleteDebt"))) return;
+
   state.debts = state.debts.filter(item => item.id !== debtId);
+
   saveState();
   renderAll();
   showToast(t("debtDeleted"));
@@ -1168,12 +1342,15 @@ function deleteDebt(debtId) {
 function renderDebt(debt) {
   const status = debtStatus(debt);
   const paid = debtTotalPaid(debt);
-  const percentage = debt.amount > 0
-    ? Math.min(100, paid / debt.amount * 100)
+
+  const percentage = Number(debt.amount) > 0
+    ? Math.min(100, paid / Number(debt.amount) * 100)
     : 0;
 
-  const historyHTML = (debt.payments || []).length
-    ? (debt.payments || []).map(payment => `
+  const payments = Array.isArray(debt.payments) ? debt.payments : [];
+
+  const historyHTML = payments.length
+    ? payments.map(payment => `
         <div class="debt-payment-item">
           <span>${safeText(dateText(payment.date))}</span>
           <strong>${formatMoney(Number(payment.amount), payment.currency || debt.currency)}</strong>
@@ -1193,28 +1370,54 @@ function renderDebt(debt) {
       </div>
 
       <div class="debt-details">
-        <div class="debt-detail"><small>${t("debtOriginal")}</small><strong>${formatMoney(debt.amount, debt.currency)}</strong></div>
-        <div class="debt-detail"><small>${t("debtPaid")}</small><strong>${formatMoney(paid, debt.currency)}</strong></div>
-        <div class="debt-detail"><small>${t("debtBalance")}</small><strong class="debt-amount">${formatMoney(debt.remaining, debt.currency)}</strong></div>
-        <div class="debt-detail"><small>${t("creationDate")}</small><span>${safeText(dateText(debt.createdDate))}</span></div>
-        <div class="debt-detail"><small>${t("dueDate")}</small><span>${debt.dueDate ? safeText(dateText(debt.dueDate)) : t("debtNoDueDate")}</span></div>
+        <div class="debt-detail">
+          <small>${t("debtOriginal")}</small>
+          <strong>${formatMoney(debt.amount, debt.currency)}</strong>
+        </div>
+        <div class="debt-detail">
+          <small>${t("debtPaid")}</small>
+          <strong>${formatMoney(paid, debt.currency)}</strong>
+        </div>
+        <div class="debt-detail">
+          <small>${t("debtBalance")}</small>
+          <strong class="debt-amount">${formatMoney(debt.remaining, debt.currency)}</strong>
+        </div>
+        <div class="debt-detail">
+          <small>${t("creationDate")}</small>
+          <span>${safeText(dateText(debt.createdDate))}</span>
+        </div>
+        <div class="debt-detail">
+          <small>${t("dueDate")}</small>
+          <span>${debt.dueDate ? safeText(dateText(debt.dueDate)) : t("debtNoDueDate")}</span>
+        </div>
       </div>
 
       <div class="debt-progress-track">
         <div class="debt-progress-fill" style="width:${percentage}%"></div>
       </div>
+
       <small>${t("debtProgress")}: ${Math.round(percentage)}%</small>
 
       ${debt.notes ? `<p class="debt-notes">${safeText(debt.notes)}</p>` : ""}
 
       <div class="debt-actions">
-        ${status !== "paid" ? `<button type="button" class="debt-payment-button" data-debt-payment="${safeText(debt.id)}">${t("addPayment")}</button>` : ""}
-        <button type="button" class="debt-history-button" data-debt-history="${safeText(debt.id)}">${t("paymentHistory")}</button>
-        <button type="button" class="debt-delete-button" data-debt-delete="${safeText(debt.id)}">${t("delete")}</button>
+        ${status !== "paid" ? `
+          <button type="button" class="debt-payment-button"
+            data-debt-payment="${safeText(debt.id)}">${t("addPayment")}</button>
+        ` : ""}
+
+        <button type="button" class="debt-history-button"
+          data-debt-history="${safeText(debt.id)}">${t("paymentHistory")}</button>
+
+        <button type="button" class="debt-delete-button"
+          data-debt-delete="${safeText(debt.id)}">${t("delete")}</button>
       </div>
 
       <div class="debt-history-container" id="debt-history-${safeText(debt.id)}" hidden>
-        <div class="debt-history"><strong>${t("paymentHistory")}</strong>${historyHTML}</div>
+        <div class="debt-history">
+          <strong>${t("paymentHistory")}</strong>
+          ${historyHTML}
+        </div>
       </div>
     </article>
   `;
@@ -1222,7 +1425,7 @@ function renderDebt(debt) {
 
 function renderDebts() {
   const statusFilter = $("filtro-deudas-estado")?.value || "all";
-  const search = ($("filtro-deudas-busqueda")?.value || "").toLowerCase();
+  const search = ($("filtro-deudas-busqueda")?.value || "").toLowerCase().trim();
 
   const receivable = state.debts.filter(debt => debt.type === "receivable");
   const payable = state.debts.filter(debt => debt.type === "payable");
@@ -1230,13 +1433,23 @@ function renderDebts() {
   const totalReceivable = sumConverted(receivable, "currency", "remaining");
   const totalPayable = sumConverted(payable, "currency", "remaining");
 
-  if ($("total-deudas-cobrar")) $("total-deudas-cobrar").textContent = formatMoney(totalReceivable);
-  if ($("total-deudas-pagar")) $("total-deudas-pagar").textContent = formatMoney(totalPayable);
+  if ($("total-deudas-cobrar")) {
+    $("total-deudas-cobrar").textContent = formatMoney(totalReceivable);
+  }
+
+  if ($("total-deudas-pagar")) {
+    $("total-deudas-pagar").textContent = formatMoney(totalPayable);
+  }
 
   const filterList = list => list.filter(debt => {
     const status = debtStatus(debt);
-    const matchesStatus = statusFilter === "all" || status === statusFilter;
-    const matchesSearch = `${debt.person} ${debt.description || ""}`.toLowerCase().includes(search);
+
+    const matchesStatus =
+      statusFilter === "all" || status === statusFilter;
+
+    const matchesSearch =
+      `${debt.person} ${debt.description || ""}`.toLowerCase().includes(search);
+
     return matchesStatus && matchesSearch;
   });
 
@@ -1245,6 +1458,7 @@ function renderDebts() {
 
   if (receivableList) {
     const filtered = filterList(receivable);
+
     receivableList.innerHTML = filtered.length
       ? filtered.map(renderDebt).join("")
       : `<div class="debt-empty">${t("noFilterResults")}</div>`;
@@ -1252,27 +1466,45 @@ function renderDebts() {
 
   if (payableList) {
     const filtered = filterList(payable);
+
     payableList.innerHTML = filtered.length
       ? filtered.map(renderDebt).join("")
       : `<div class="debt-empty">${t("noFilterResults")}</div>`;
   }
 
-  if ($("resumen-deudas-cobrar")) $("resumen-deudas-cobrar").textContent = formatMoney(totalReceivable);
-  if ($("resumen-deudas-pagar")) $("resumen-deudas-pagar").textContent = formatMoney(totalPayable);
+  if ($("resumen-deudas-cobrar")) {
+    $("resumen-deudas-cobrar").textContent = formatMoney(totalReceivable);
+  }
+
+  if ($("resumen-deudas-pagar")) {
+    $("resumen-deudas-pagar").textContent = formatMoney(totalPayable);
+  }
 }
 
 function setupDebtButtons() {
   document.addEventListener("click", event => {
     const payment = event.target.closest("[data-debt-payment]");
-    if (payment) return addDebtPayment(payment.dataset.debtPayment);
+
+    if (payment) {
+      addDebtPayment(payment.dataset.debtPayment);
+      return;
+    }
 
     const deletion = event.target.closest("[data-debt-delete]");
-    if (deletion) return deleteDebt(deletion.dataset.debtDelete);
+
+    if (deletion) {
+      deleteDebt(deletion.dataset.debtDelete);
+      return;
+    }
 
     const historyButton = event.target.closest("[data-debt-history]");
+
     if (historyButton) {
       const container = $(`debt-history-${historyButton.dataset.debtHistory}`);
-      if (container) container.hidden = !container.hidden;
+
+      if (container) {
+        container.hidden = !container.hidden;
+      }
     }
   });
 
@@ -1308,7 +1540,7 @@ function addGoal(event) {
   }
 
   state.goals.unshift({
-    id: crypto.randomUUID(),
+    id: makeId(),
     name,
     description,
     amount,
@@ -1321,7 +1553,11 @@ function addGoal(event) {
 
   saveState();
   $("form-meta").reset();
-  if ($("moneda-meta")) $("moneda-meta").value = state.baseCurrency;
+
+  if ($("moneda-meta")) {
+    $("moneda-meta").value = state.baseCurrency;
+  }
+
   renderAll();
   showToast(t("goalSaved"));
 }
@@ -1330,7 +1566,11 @@ function addGoalContribution(goalId) {
   const goal = state.goals.find(item => item.id === goalId);
   if (!goal) return;
 
-  const remaining = Math.max(0, Number(goal.amount) - Number(goal.current));
+  const remaining = Math.max(
+    0,
+    Number(goal.amount) - Number(goal.current)
+  );
+
   if (remaining <= 0) return;
 
   const input = prompt(
@@ -1346,20 +1586,31 @@ function addGoalContribution(goalId) {
     return;
   }
 
+  if (amount > remaining + 0.000001) {
+    showToast(t("paymentTooHigh"));
+    return;
+  }
+
   if (convertToBase(amount, goal.currency) === null) {
     showToast(t("manualRateMissing") + goal.currency);
     return;
   }
 
-  goal.contributions = Array.isArray(goal.contributions) ? goal.contributions : [];
+  goal.contributions = Array.isArray(goal.contributions)
+    ? goal.contributions
+    : [];
+
   goal.contributions.unshift({
-    id: crypto.randomUUID(),
+    id: makeId(),
     amount,
     date: todayISO(),
     createdAt: Date.now()
   });
 
-  goal.current = Math.min(Number(goal.amount), Number(goal.current) + amount);
+  goal.current = Math.min(
+    Number(goal.amount),
+    Number(goal.current) + amount
+  );
 
   saveState();
   renderAll();
@@ -1368,7 +1619,9 @@ function addGoalContribution(goalId) {
 
 function deleteGoal(goalId) {
   if (!confirm(t("confirmDeleteGoal"))) return;
+
   state.goals = state.goals.filter(goal => goal.id !== goalId);
+
   saveState();
   renderAll();
   showToast(t("goalDeleted"));
@@ -1386,10 +1639,18 @@ function renderGoals() {
   container.innerHTML = state.goals.map(goal => {
     const current = Number(goal.current) || 0;
     const amount = Number(goal.amount) || 0;
-    const percentage = amount > 0 ? Math.min(100, current / amount * 100) : 0;
+
+    const percentage = amount > 0
+      ? Math.min(100, current / amount * 100)
+      : 0;
+
     const remaining = Math.max(0, amount - current);
     const completed = remaining <= 0.000001;
-    const overdue = goal.targetDate && goal.targetDate < todayISO() && !completed;
+
+    const overdue =
+      goal.targetDate &&
+      goal.targetDate < todayISO() &&
+      !completed;
 
     return `
       <article class="debt-item goal-item">
@@ -1398,26 +1659,48 @@ function renderGoals() {
             <strong>${safeText(goal.name)}</strong>
             <small>${safeText(goal.description || "")}</small>
           </div>
+
           <span class="debt-status ${completed ? "paid" : overdue ? "overdue" : "pending"}">
             ${completed ? t("goalCompleted") : overdue ? t("goalOverdue") : t("pending")}
           </span>
         </div>
 
         <div class="debt-details">
-          <div class="debt-detail"><small>${t("goalCurrent")}</small><strong>${formatMoney(current, goal.currency)}</strong></div>
-          <div class="debt-detail"><small>${t("goalAmount")}</small><strong>${formatMoney(amount, goal.currency)}</strong></div>
-          <div class="debt-detail"><small>${t("goalRemaining")}</small><strong>${formatMoney(remaining, goal.currency)}</strong></div>
-          <div class="debt-detail"><small>${t("goalDate")}</small><span>${goal.targetDate ? safeText(dateText(goal.targetDate)) : t("debtNoDueDate")}</span></div>
+          <div class="debt-detail">
+            <small>${t("goalCurrent")}</small>
+            <strong>${formatMoney(current, goal.currency)}</strong>
+          </div>
+
+          <div class="debt-detail">
+            <small>${t("goalAmount")}</small>
+            <strong>${formatMoney(amount, goal.currency)}</strong>
+          </div>
+
+          <div class="debt-detail">
+            <small>${t("goalRemaining")}</small>
+            <strong>${formatMoney(remaining, goal.currency)}</strong>
+          </div>
+
+          <div class="debt-detail">
+            <small>${t("goalDate")}</small>
+            <span>${goal.targetDate ? safeText(dateText(goal.targetDate)) : t("debtNoDueDate")}</span>
+          </div>
         </div>
 
         <div class="debt-progress-track">
           <div class="debt-progress-fill" style="width:${percentage}%"></div>
         </div>
+
         <small>${t("goalProgress")}: ${Math.round(percentage)}%</small>
 
         <div class="debt-actions">
-          ${!completed ? `<button type="button" class="debt-payment-button" data-goal-add="${safeText(goal.id)}">${t("addGoalContribution")}</button>` : ""}
-          <button type="button" class="debt-delete-button" data-goal-delete="${safeText(goal.id)}">${t("delete")}</button>
+          ${!completed ? `
+            <button type="button" class="debt-payment-button"
+              data-goal-add="${safeText(goal.id)}">${t("addGoalContribution")}</button>
+          ` : ""}
+
+          <button type="button" class="debt-delete-button"
+            data-goal-delete="${safeText(goal.id)}">${t("delete")}</button>
         </div>
       </article>
     `;
@@ -1427,10 +1710,17 @@ function renderGoals() {
 function setupGoalButtons() {
   document.addEventListener("click", event => {
     const add = event.target.closest("[data-goal-add]");
-    if (add) return addGoalContribution(add.dataset.goalAdd);
+
+    if (add) {
+      addGoalContribution(add.dataset.goalAdd);
+      return;
+    }
 
     const remove = event.target.closest("[data-goal-delete]");
-    if (remove) deleteGoal(remove.dataset.goalDelete);
+
+    if (remove) {
+      deleteGoal(remove.dataset.goalDelete);
+    }
   });
 }
 
@@ -1450,29 +1740,47 @@ function categoryName(category) {
     debt: "catDebt",
     other: "catOther"
   };
+
   return keys[category] ? t(keys[category]) : category;
 }
 
 function renderMovement(item, isSaving = false) {
   const type = isSaving ? "saving" : item.type;
-  const sign = type === "income" ? "+" : type === "expense" ? "−" : "";
-  const amountClass = type === "income" ? "amount-income" : type === "expense" ? "amount-expense" : "";
+
+  const sign =
+    type === "income" ? "+" :
+    type === "expense" ? "−" : "";
+
+  const amountClass =
+    type === "income" ? "amount-income" :
+    type === "expense" ? "amount-expense" : "";
+
   const title = isSaving ? item.name : item.description;
+
   const subtitle = isSaving
     ? dateText(item.date)
     : `${categoryName(item.category)} · ${dateText(item.date)}`;
 
   return `
     <article class="movement-item">
-      <div class="movement-icon">${type === "income" ? "↗" : type === "expense" ? "↘" : "🐷"}</div>
+      <div class="movement-icon">
+        ${type === "income" ? "↗" : type === "expense" ? "↘" : "🐷"}
+      </div>
+
       <div class="movement-info">
         <strong>${safeText(title)}</strong>
         <small>${safeText(subtitle)}</small>
       </div>
+
       <div class="movement-amount">
-        <strong class="${amountClass}">${sign}${formatMoney(Number(item.amount), item.currency)}</strong>
-        <small>${formatMoney(convertToBase(Number(item.amount), item.currency) ?? 0)}</small>
+        <strong class="${amountClass}">
+          ${sign}${formatMoney(Number(item.amount), item.currency)}
+        </strong>
+        <small>
+          ${formatMoney(convertToBase(Number(item.amount), item.currency) ?? 0)}
+        </small>
       </div>
+
       <button class="delete-button" type="button"
         data-delete="${isSaving ? "saving" : "movement"}"
         data-id="${safeText(item.id)}"
@@ -1498,15 +1806,22 @@ function renderRecurring() {
     ? state.recurring.map(item => `
       <article class="movement-item">
         <div class="movement-icon">🔁</div>
+
         <div class="movement-info">
           <strong>${safeText(item.description)}</strong>
-          <small>${t(item.frequency)} · ${t(item.type === "income" ? "income" : "expenses")}</small>
+          <small>
+            ${t(item.frequency)} ·
+            ${t(item.type === "income" ? "income" : "expenses")}
+          </small>
         </div>
+
         <div class="movement-amount">
           <strong>${formatMoney(item.amount, item.currency)}</strong>
           <small>${formatMoney(convertToBase(item.amount, item.currency) ?? 0)}</small>
         </div>
-        <button class="delete-button" type="button" data-delete="recurring" data-id="${safeText(item.id)}">×</button>
+
+        <button class="delete-button" type="button"
+          data-delete="recurring" data-id="${safeText(item.id)}">×</button>
       </article>
     `).join("")
     : `<div class="empty-state">${t("noRecurring")}</div>`;
@@ -1526,11 +1841,15 @@ function renderFilteredMovements() {
   const month = $("filtro-mes")?.value || "all";
 
   const filtered = state.movements.filter(item => {
-    const text = `${item.description || ""} ${categoryName(item.category || "")}`.toLowerCase();
+    const text =
+      `${item.description || ""} ${categoryName(item.category || "")}`.toLowerCase();
+
     const matchesSearch = text.includes(search);
     const matchesType = type === "all" || item.type === type;
     const matchesCategory = category === "all" || item.category === category;
-    const matchesMonth = month === "all" || (item.date || "").slice(0, 7) === month;
+    const matchesMonth =
+      month === "all" || (item.date || "").slice(0, 7) === month;
+
     return matchesSearch && matchesType && matchesCategory && matchesMonth;
   });
 
@@ -1550,16 +1869,18 @@ function setupMovementFilters() {
   if ($("limpiar-filtros")) {
     $("limpiar-filtros").addEventListener("click", () => {
       ["filtro-busqueda", "filtro-tipo", "filtro-categoria", "filtro-mes"].forEach(id => {
-        if ($(id)) $(id).value = "all";
+        if ($(id)) {
+          $(id).value = id === "filtro-busqueda" ? "" : "all";
+        }
       });
-      if ($("filtro-busqueda")) $("filtro-busqueda").value = "";
+
       renderFilteredMovements();
     });
   }
 }
 
 /* =========================================================
-   PANEL PRINCIPAL Y DINERO DISPONIBLE
+   DINERO DISPONIBLE
    ========================================================= */
 
 function getDebtPaymentTotals() {
@@ -1567,7 +1888,9 @@ function getDebtPaymentTotals() {
   const paid = [];
 
   state.debts.forEach(debt => {
-    (debt.payments || []).forEach(payment => {
+    const payments = Array.isArray(debt.payments) ? debt.payments : [];
+
+    payments.forEach(payment => {
       const item = {
         amount: Number(payment.amount),
         currency: payment.currency || debt.currency
@@ -1584,6 +1907,10 @@ function getDebtPaymentTotals() {
   };
 }
 
+/* =========================================================
+   PANEL PRINCIPAL
+   ========================================================= */
+
 function renderDashboard() {
   const incomes = state.movements.filter(item => item.type === "income");
   const expenses = state.movements.filter(item => item.type === "expense");
@@ -1592,49 +1919,122 @@ function renderDashboard() {
   const totalExpense = sumConverted(expenses);
   const totalSavings = sumConverted(state.savings);
 
-  const budget = convertToBase(state.budget.amount, state.budget.currency) ?? 0;
+  const budget =
+    convertToBase(state.budget.amount, state.budget.currency) ?? 0;
+
   const balance = totalIncome - totalExpense - totalSavings;
 
   const debtPayments = getDebtPaymentTotals();
-  const availableMoney = balance + debtPayments.received - debtPayments.paid;
 
-  if ($("balance-total")) $("balance-total").textContent = formatMoney(balance);
-  if ($("total-ingresos")) $("total-ingresos").textContent = formatMoney(totalIncome);
-  if ($("total-gastos")) $("total-gastos").textContent = formatMoney(totalExpense);
-  if ($("total-ahorros")) $("total-ahorros").textContent = formatMoney(totalSavings);
-  if ($("total-presupuesto")) $("total-presupuesto").textContent = formatMoney(budget);
-  if ($("total-disponible")) $("total-disponible").textContent = formatMoney(availableMoney);
-  if ($("ahorros-total-pagina")) $("ahorros-total-pagina").textContent = formatMoney(totalSavings);
+  const availableMoney =
+    balance + debtPayments.received - debtPayments.paid;
 
-  const greeting = state.userName
-    ? t("helloName").replace("{name}", safeText(state.userName))
-    : t("hello");
-
-  if ($("greeting-personalizado")) $("greeting-personalizado").textContent = greeting;
-
-  if ($("estadistica-ingresos")) $("estadistica-ingresos").textContent = formatMoney(totalIncome);
-  if ($("estadistica-gastos")) $("estadistica-gastos").textContent = formatMoney(totalExpense);
-  if ($("estadistica-ahorros")) $("estadistica-ahorros").textContent = formatMoney(totalSavings);
-  if ($("estadistica-balance")) $("estadistica-balance").textContent = formatMoney(balance);
-
-  const spent = sumConverted(expenses);
-  const percentage = budget > 0 ? Math.min(100, spent / budget * 100) : 0;
-
-  if ($("porcentaje-presupuesto")) {
-    $("porcentaje-presupuesto").textContent = `${Math.round(budget > 0 ? spent / budget * 100 : 0)}%`;
+  if ($("balance-total")) {
+    $("balance-total").textContent = formatMoney(balance);
   }
 
-  if ($("barra-presupuesto")) $("barra-presupuesto").style.width = `${percentage}%`;
-  if ($("presupuesto-gastado")) $("presupuesto-gastado").textContent = formatMoney(spent);
+  if ($("total-ingresos")) {
+    $("total-ingresos").textContent = formatMoney(totalIncome);
+  }
+
+  if ($("total-gastos")) {
+    $("total-gastos").textContent = formatMoney(totalExpense);
+  }
+
+  if ($("total-ahorros")) {
+    $("total-ahorros").textContent = formatMoney(totalSavings);
+  }
+
+  if ($("total-presupuesto")) {
+    $("total-presupuesto").textContent = formatMoney(budget);
+  }
+
+  if ($("total-disponible")) {
+    $("total-disponible").textContent = formatMoney(availableMoney);
+  }
+
+  if ($("ahorros-total-pagina")) {
+    $("ahorros-total-pagina").textContent = formatMoney(totalSavings);
+  }
+
+  /*
+    textContent recibe el nombre sin escapar HTML.
+    Así se muestran correctamente nombres con &, < o >.
+  */
+  const greeting = state.userName
+    ? t("helloName").replace("{name}", state.userName)
+    : t("hello");
+
+  if ($("greeting-personalizado")) {
+    $("greeting-personalizado").textContent = greeting;
+  }
+
+  if ($("estadistica-ingresos")) {
+    $("estadistica-ingresos").textContent = formatMoney(totalIncome);
+  }
+
+  if ($("estadistica-gastos")) {
+    $("estadistica-gastos").textContent = formatMoney(totalExpense);
+  }
+
+  if ($("estadistica-ahorros")) {
+    $("estadistica-ahorros").textContent = formatMoney(totalSavings);
+  }
+
+  if ($("estadistica-balance")) {
+    $("estadistica-balance").textContent = formatMoney(balance);
+  }
+
+  /*
+    CORRECCIÓN:
+    El presupuesto mensual solo compara gastos del mes actual.
+    El total histórico sigue utilizándose en las estadísticas.
+  */
+  const currentMonth = monthKey();
+
+  const currentMonthExpenses = expenses.filter(item =>
+    (item.date || "").slice(0, 7) === currentMonth
+  );
+
+  const spent = sumConverted(currentMonthExpenses);
+
+  const percentage = budget > 0
+    ? Math.min(100, spent / budget * 100)
+    : 0;
+
+  if ($("porcentaje-presupuesto")) {
+    $("porcentaje-presupuesto").textContent =
+      `${Math.round(budget > 0 ? spent / budget * 100 : 0)}%`;
+  }
+
+  if ($("barra-presupuesto")) {
+    $("barra-presupuesto").style.width = `${percentage}%`;
+  }
+
+  if ($("presupuesto-gastado")) {
+    $("presupuesto-gastado").textContent = formatMoney(spent);
+  }
+
   if ($("presupuesto-restante")) {
     $("presupuesto-restante").textContent = budget > 0
       ? formatMoney(budget - spent)
       : t("emptyBudget");
   }
 
-  renderList("lista-movimientos-inicio", state.movements.slice(0, 5), t("noMovements"));
+  renderList(
+    "lista-movimientos-inicio",
+    state.movements.slice(0, 5),
+    t("noMovements")
+  );
+
   renderFilteredMovements();
-  renderList("lista-ahorros", state.savings, t("noSavings"), true);
+
+  renderList(
+    "lista-ahorros",
+    state.savings,
+    t("noSavings"),
+    true
+  );
 }
 
 /* =========================================================
@@ -1646,37 +2046,60 @@ function renderAlerts() {
   if (!container) return;
 
   const alerts = [];
-  const expenses = state.movements.filter(item => item.type === "expense");
-  const budget = convertToBase(state.budget.amount, state.budget.currency) ?? 0;
+
+  const currentMonth = monthKey();
+
+  const expenses = state.movements.filter(item =>
+    item.type === "expense" &&
+    (item.date || "").slice(0, 7) === currentMonth
+  );
+
+  const budget =
+    convertToBase(state.budget.amount, state.budget.currency) ?? 0;
+
   const spent = sumConverted(expenses);
 
   if (budget > 0 && spent > budget) {
-    alerts.push(`⚠️ Has superado tu presupuesto mensual por ${formatMoney(spent - budget)}.`);
+    alerts.push(
+      `⚠️ ${t("budgetExceeded")} ${formatMoney(spent - budget)}.`
+    );
   } else if (budget > 0 && spent >= budget * 0.8) {
-    alerts.push(`🔔 Has utilizado más del 80% de tu presupuesto mensual.`);
+    alerts.push(`🔔 ${t("budgetWarning")}`);
   }
 
-  const overdue = state.debts.filter(debt => debtStatus(debt) === "overdue");
+  const overdue = state.debts.filter(debt =>
+    debtStatus(debt) === "overdue"
+  );
+
   if (overdue.length) {
-    alerts.push(`📅 Tienes ${overdue.length} deuda(s) vencida(s). Revisa sus fechas y saldos.`);
+    alerts.push(`📅 ${overdue.length} ${t("overdueDebtsAlert")}`);
   }
 
   const dueSoon = state.debts.filter(debt => {
-    if (!debt.dueDate || debtStatus(debt) !== "pending") return false;
-    const days = (new Date(debt.dueDate + "T12:00:00") - new Date(todayISO() + "T12:00:00")) / 86400000;
+    if (!debt.dueDate || debtStatus(debt) !== "pending") {
+      return false;
+    }
+
+    const due = new Date(`${debt.dueDate}T12:00:00`);
+    const today = new Date(`${todayISO()}T12:00:00`);
+
+    const days = (due - today) / 86400000;
+
     return days >= 0 && days <= 7;
   });
 
   if (dueSoon.length) {
-    alerts.push(`⏰ Tienes ${dueSoon.length} deuda(s) con vencimiento en los próximos 7 días.`);
+    alerts.push(`⏰ ${dueSoon.length} ${t("dueSoonAlert")}`);
   }
 
   const goalsOverdue = state.goals.filter(goal =>
-    goal.targetDate && goal.targetDate < todayISO() && Number(goal.current) < Number(goal.amount)
+    goal.targetDate &&
+    goal.targetDate < todayISO() &&
+    Number(goal.current) < Number(goal.amount)
   );
 
   if (goalsOverdue.length) {
-    alerts.push(`🎯 Tienes ${goalsOverdue.length} meta(s) cuya fecha objetivo ya pasó.`);
+    alerts.push(`🎯 ${goalsOverdue.length} ${t("overdueGoalsAlert")}`);
   }
 
   const goalsCompleted = state.goals.filter(goal =>
@@ -1684,11 +2107,13 @@ function renderAlerts() {
   );
 
   if (goalsCompleted.length) {
-    alerts.push(`🎉 ¡Has completado ${goalsCompleted.length} meta(s) financieras!`);
+    alerts.push(`🎉 ${goalsCompleted.length} ${t("completedGoalsAlert")}`);
   }
 
   container.innerHTML = alerts.length
-    ? alerts.map(alert => `<div class="alert-item">${safeText(alert)}</div>`).join("")
+    ? alerts.map(alert => `
+        <div class="alert-item">${safeText(alert)}</div>
+      `).join("")
     : `<div class="empty-state">${t("noAlerts")}</div>`;
 }
 
@@ -1700,13 +2125,23 @@ function renderAssistant() {
   const container = $("resumen-asistente");
   if (!container) return;
 
-  if (!state.movements.length && !state.debts.length && !state.goals.length) {
+  if (
+    !state.movements.length &&
+    !state.debts.length &&
+    !state.goals.length
+  ) {
     container.innerHTML = `<p>${t("assistantEmpty")}</p>`;
     return;
   }
 
-  const income = sumConverted(state.movements.filter(item => item.type === "income"));
-  const expenses = sumConverted(state.movements.filter(item => item.type === "expense"));
+  const income = sumConverted(
+    state.movements.filter(item => item.type === "income")
+  );
+
+  const expenses = sumConverted(
+    state.movements.filter(item => item.type === "expense")
+  );
+
   const savings = sumConverted(state.savings);
   const debtTotals = getDebtPaymentTotals();
 
@@ -1717,52 +2152,59 @@ function renderAssistant() {
     const ratio = expenses / income;
 
     if (ratio > 0.9) {
-      messages.push("🔴 Tus gastos representan más del 90% de tus ingresos registrados. Revisa los gastos que puedes reducir.");
+      messages.push(`🔴 ${t("expenseRatioHigh")}`);
     } else if (ratio > 0.7) {
-      messages.push("🟠 Tus gastos representan más del 70% de tus ingresos. Intenta reservar una parte mayor para ahorro.");
+      messages.push(`🟠 ${t("expenseRatioMedium")}`);
     } else {
-      messages.push("🟢 Tus gastos están por debajo del 70% de tus ingresos registrados. Mantén el seguimiento.");
+      messages.push(`🟢 ${t("expenseRatioGood")}`);
     }
   }
 
   if (net < 0) {
-    messages.push("⚠️ Tus gastos superan tus ingresos registrados. Conviene revisar tu presupuesto.");
+    messages.push(`⚠️ ${t("expensesExceedIncome")}`);
   }
 
   if (savings > 0) {
-    messages.push(`🐷 Has registrado ${formatMoney(savings)} en ahorros. ¡Sigue construyendo tu reserva!`);
+    messages.push(`🐷 ${t("savingsAssistant")} ${formatMoney(savings)}.`);
   }
 
   const receivable = sumConverted(
     state.debts.filter(debt => debt.type === "receivable"),
-    "currency", "remaining"
+    "currency",
+    "remaining"
   );
 
   const payable = sumConverted(
     state.debts.filter(debt => debt.type === "payable"),
-    "currency", "remaining"
+    "currency",
+    "remaining"
   );
 
   if (payable > 0) {
-    messages.push(`💳 Tienes ${formatMoney(payable)} pendientes de pago. Revisa vencimientos y condiciones.`);
+    messages.push(`💳 ${t("payableAssistant")} ${formatMoney(payable)}.`);
   }
 
   if (receivable > 0) {
-    messages.push(`📥 Tienes ${formatMoney(receivable)} pendientes por cobrar. Da seguimiento a esos pagos.`);
+    messages.push(`📥 ${t("receivableAssistant")} ${formatMoney(receivable)}.`);
   }
 
   if (state.goals.length) {
-    const completed = state.goals.filter(goal => Number(goal.current) >= Number(goal.amount)).length;
-    messages.push(`🎯 Tienes ${state.goals.length} metas activas y ${completed} completada(s).`);
+    const completed = state.goals.filter(goal =>
+      Number(goal.current) >= Number(goal.amount)
+    ).length;
+
+    messages.push(
+      `🎯 ${t("goalsAssistant")} ${state.goals.length}. ${completed} ${state.language === "en" ? "completed" : "completadas"}.`
+    );
   }
 
   if (debtTotals.received || debtTotals.paid) {
-    messages.push(`ℹ️ Los abonos de deudas ya están incluidos en el cálculo de dinero disponible, no en tus ingresos o gastos normales.`);
+    messages.push(`ℹ️ ${t("debtPaymentsAssistant")}`);
   }
 
-  container.innerHTML = messages.map(message =>
-    `<p class="assistant-tip">${safeText(message)}</p>`
-  ).join("");
+  container.innerHTML = messages.map(message => `
+    <p class="assistant-tip">${safeText(message)}</p>
+  `).join("");
 }
 
 /* =========================================================
@@ -1770,12 +2212,19 @@ function renderAssistant() {
    ========================================================= */
 
 function monthTotals(date) {
-  const month = date.toISOString().slice(0, 7);
-  const items = state.movements.filter(item => (item.date || "").slice(0, 7) === month);
+  const month = monthKey(date);
+
+  const items = state.movements.filter(item =>
+    (item.date || "").slice(0, 7) === month
+  );
 
   return {
-    income: sumConverted(items.filter(item => item.type === "income")),
-    expense: sumConverted(items.filter(item => item.type === "expense"))
+    income: sumConverted(
+      items.filter(item => item.type === "income")
+    ),
+    expense: sumConverted(
+      items.filter(item => item.type === "expense")
+    )
   };
 }
 
@@ -1784,16 +2233,30 @@ function renderMonthlyComparison() {
   if (!container) return;
 
   const now = new Date();
+
   const current = monthTotals(now);
-  const previousDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  const previousDate = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1
+  );
+
   const previous = monthTotals(previousDate);
 
   const difference = current.expense - previous.expense;
-  const expenseMessage = difference > 0
-    ? `Tus gastos aumentaron ${formatMoney(difference)}.`
-    : difference < 0
-      ? `Tus gastos disminuyeron ${formatMoney(Math.abs(difference))}.`
-      : "Tus gastos son iguales a los del mes anterior.";
+
+  let expenseMessage;
+
+  if (difference > 0) {
+    expenseMessage =
+      `${t("expensesIncreased")} ${formatMoney(difference)}.`;
+  } else if (difference < 0) {
+    expenseMessage =
+      `${t("expensesDecreased")} ${formatMoney(Math.abs(difference))}.`;
+  } else {
+    expenseMessage = t("expensesEqual");
+  }
 
   container.innerHTML = `
     <div class="comparison-grid">
@@ -1802,12 +2265,14 @@ function renderMonthlyComparison() {
         <p>${t("income")}: ${formatMoney(current.income)}</p>
         <p>${t("expenses")}: ${formatMoney(current.expense)}</p>
       </div>
+
       <div class="comparison-item">
         <strong>${t("previousMonth")}</strong>
         <p>${t("income")}: ${formatMoney(previous.income)}</p>
         <p>${t("expenses")}: ${formatMoney(previous.expense)}</p>
       </div>
     </div>
+
     <p>${safeText(expenseMessage)}</p>
   `;
 }
@@ -1822,26 +2287,36 @@ function renderChart() {
 
   const totals = {};
 
-  state.movements.filter(item => item.type === "expense").forEach(item => {
-    const value = convertToBase(item.amount, item.currency);
-    if (value !== null) {
-      totals[item.category] = (totals[item.category] || 0) + value;
-    }
-  });
+  state.movements
+    .filter(item => item.type === "expense")
+    .forEach(item => {
+      const value = convertToBase(item.amount, item.currency);
 
-  const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-  const maximum = Math.max(1, ...entries.map(entry => entry[1]));
+      if (value !== null) {
+        totals[item.category] =
+          (totals[item.category] || 0) + value;
+      }
+    });
+
+  const entries = Object.entries(totals)
+    .sort((a, b) => b[1] - a[1]);
+
+  const maximum = Math.max(
+    1,
+    ...entries.map(entry => entry[1])
+  );
 
   container.innerHTML = entries.length
     ? entries.map(([category, amount]) => `
-      <div class="chart-row">
-        <span>${safeText(categoryName(category))}</span>
-        <div class="chart-track">
-          <div class="chart-bar" style="width:${amount / maximum * 100}%"></div>
+        <div class="chart-row">
+          <span>${safeText(categoryName(category))}</span>
+          <div class="chart-track">
+            <div class="chart-bar"
+              style="width:${amount / maximum * 100}%"></div>
+          </div>
+          <strong>${formatMoney(amount)}</strong>
         </div>
-        <strong>${formatMoney(amount)}</strong>
-      </div>
-    `).join("")
+      `).join("")
     : `<div class="empty-state">${t("noMovements")}</div>`;
 }
 
@@ -1851,16 +2326,21 @@ function renderChart() {
 
 function renderManualRates() {
   const container = $("campos-tasas");
+
   if (container) {
-    container.innerHTML = CURRENCIES.filter(code => code !== "CRC").map(code => `
-      <div class="manual-rate-row">
-        <span>${code}</span>
-        <input type="number" min="0.000001" step="any"
-          data-rate="${code}"
-          value="${Number(state.manualRates[code]) || ""}"
-          aria-label="${code}">
-      </div>
-    `).join("");
+    container.innerHTML = CURRENCIES
+      .filter(code => code !== "CRC")
+      .map(code => `
+        <div class="manual-rate-row">
+          <span>${code}</span>
+          <input type="number"
+            min="0.000001"
+            step="any"
+            data-rate="${code}"
+            value="${Number(state.manualRates[code]) || ""}"
+            aria-label="${code}">
+        </div>
+      `).join("");
   }
 
   document.querySelectorAll('input[name="modo-cambio"]').forEach(radio => {
@@ -1868,46 +2348,75 @@ function renderManualRates() {
   });
 
   if ($("tasas-manuales")) {
-    $("tasas-manuales").hidden = state.exchangeMode === "automatic";
+    $("tasas-manuales").hidden =
+      state.exchangeMode === "automatic";
+  }
+
+  if ($("estado-cambios") && state.ratesUpdatedAt) {
+    $("estado-cambios").textContent =
+      t("rateStatus") + state.ratesUpdatedAt;
   }
 }
 
 async function updateExchangeRates() {
-  if ($("estado-cambios")) $("estado-cambios").textContent = t("loading");
+  if ($("estado-cambios")) {
+    $("estado-cambios").textContent = t("loading");
+  }
 
   try {
-    const response = await fetch("https://open.er-api.com/v6/latest/USD", {
-      cache: "no-store"
-    });
+    const response = await fetch(
+      "https://open.er-api.com/v6/latest/USD",
+      { cache: "no-store" }
+    );
 
-    if (!response.ok) throw new Error("Network error");
+    if (!response.ok) {
+      throw new Error("Network error");
+    }
 
     const data = await response.json();
-    if (data.result !== "success" || !data.rates) throw new Error("Invalid rates");
+
+    if (data.result !== "success" || !data.rates) {
+      throw new Error("Invalid rates");
+    }
 
     const usdToCRC = Number(data.rates.CRC);
-    if (!usdToCRC) throw new Error("CRC rate missing");
+
+    if (!usdToCRC) {
+      throw new Error("CRC rate missing");
+    }
 
     const rates = { CRC: 1 };
 
-    CURRENCIES.filter(code => code !== "CRC").forEach(code => {
-      const usdToCurrency = Number(data.rates[code]);
-      if (usdToCurrency > 0) rates[code] = usdToCRC / usdToCurrency;
-    });
+    CURRENCIES
+      .filter(code => code !== "CRC")
+      .forEach(code => {
+        const usdToCurrency = Number(data.rates[code]);
+
+        if (usdToCurrency > 0) {
+          rates[code] = usdToCRC / usdToCurrency;
+        }
+      });
 
     state.onlineRates = rates;
-    state.ratesUpdatedAt = data.time_last_update_utc || new Date().toISOString();
+    state.ratesUpdatedAt =
+      data.time_last_update_utc || new Date().toISOString();
 
     saveState();
     renderAll();
 
     if ($("estado-cambios")) {
-      $("estado-cambios").textContent = t("rateSource") + " " + state.ratesUpdatedAt;
+      $("estado-cambios").textContent =
+        t("rateSource") + " " + state.ratesUpdatedAt;
     }
 
     showToast(t("ratesUpdated"));
   } catch (error) {
-    if ($("estado-cambios")) $("estado-cambios").textContent = t("ratesError");
+    console.error("Error actualizando tasas:", error);
+
+    if ($("estado-cambios")) {
+      $("estado-cambios").textContent = t("ratesError");
+    }
+
     showToast(t("ratesError"));
   }
 }
@@ -1931,14 +2440,98 @@ function exportData() {
 
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
+
   link.href = url;
   link.download = "mis-finanzas-backup.json";
+
   document.body.appendChild(link);
   link.click();
   link.remove();
 
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+
   showToast(t("exported"));
+}
+
+function validateImportedState(imported) {
+  if (
+    !imported ||
+    typeof imported !== "object" ||
+    Array.isArray(imported)
+  ) {
+    throw new Error("Invalid backup");
+  }
+
+  const validLanguages = ["es", "en"];
+  const validModes = ["automatic", "manual", "both"];
+
+  const result = {
+    ...cloneDefault(),
+    ...imported
+  };
+
+  result.language = validLanguages.includes(imported.language)
+    ? imported.language
+    : "es";
+
+  result.baseCurrency = CURRENCIES.includes(imported.baseCurrency)
+    ? imported.baseCurrency
+    : "CRC";
+
+  result.exchangeMode = validModes.includes(imported.exchangeMode)
+    ? imported.exchangeMode
+    : "both";
+
+  result.userName = String(imported.userName || "").slice(0, 40);
+
+  ["movements", "savings", "recurring", "debts", "goals"].forEach(key => {
+    if (imported[key] !== undefined && !Array.isArray(imported[key])) {
+      throw new Error(`Invalid ${key}`);
+    }
+
+    result[key] = Array.isArray(imported[key]) ? imported[key] : [];
+  });
+
+  const budget = imported.budget || {};
+
+  result.budget = {
+    amount: Number(budget.amount) >= 0 ? Number(budget.amount) : 0,
+    currency: CURRENCIES.includes(budget.currency)
+      ? budget.currency
+      : result.baseCurrency
+  };
+
+  result.manualRates = {
+    ...DEFAULT_STATE.manualRates
+  };
+
+  if (
+    imported.manualRates &&
+    typeof imported.manualRates === "object"
+  ) {
+    CURRENCIES.forEach(code => {
+      const value = Number(imported.manualRates[code]);
+
+      if (code === "CRC") {
+        result.manualRates.CRC = 1;
+      } else if (Number.isFinite(value) && value > 0) {
+        result.manualRates[code] = value;
+      }
+    });
+  }
+
+  result.onlineRates =
+    imported.onlineRates &&
+    typeof imported.onlineRates === "object"
+      ? imported.onlineRates
+      : null;
+
+  result.ratesUpdatedAt =
+    typeof imported.ratesUpdatedAt === "string"
+      ? imported.ratesUpdatedAt
+      : null;
+
+  return result;
 }
 
 function importData(event) {
@@ -1952,35 +2545,25 @@ function importData(event) {
       const parsed = JSON.parse(reader.result);
       const imported = parsed.data || parsed;
 
-      if (!imported || typeof imported !== "object" ||
-          !Array.isArray(imported.movements) ||
-          !Array.isArray(imported.savings)) {
-        throw new Error("Invalid backup");
-      }
+      const validated = validateImportedState(imported);
 
-      if (!confirm("Importar este respaldo reemplazará los datos actuales de esta aplicación en este dispositivo. ¿Deseas continuar?")) {
+      if (!confirm(
+        "Importar este respaldo reemplazará los datos actuales de esta aplicación en este dispositivo. ¿Deseas continuar?"
+      )) {
         event.target.value = "";
         return;
       }
 
-      state = {
-        ...cloneDefault(),
-        ...imported,
-        movements: Array.isArray(imported.movements) ? imported.movements : [],
-        savings: Array.isArray(imported.savings) ? imported.savings : [],
-        recurring: Array.isArray(imported.recurring) ? imported.recurring : [],
-        debts: Array.isArray(imported.debts) ? imported.debts : [],
-        goals: Array.isArray(imported.goals) ? imported.goals : [],
-        budget: { ...DEFAULT_STATE.budget, ...(imported.budget || {}) },
-        manualRates: { ...DEFAULT_STATE.manualRates, ...(imported.manualRates || {}) }
-      };
+      state = validated;
 
       saveState();
       setupCurrencies();
       translatePage();
       renderAll();
+
       showToast(t("imported"));
     } catch (error) {
+      console.error("Error importando respaldo:", error);
       showToast(t("importError"));
     }
 
@@ -2003,11 +2586,14 @@ function deleteRecord(type, id) {
   if (!confirm(t("confirmDelete"))) return;
 
   if (type === "movement") {
-    state.movements = state.movements.filter(item => item.id !== id);
+    state.movements =
+      state.movements.filter(item => item.id !== id);
   } else if (type === "saving") {
-    state.savings = state.savings.filter(item => item.id !== id);
+    state.savings =
+      state.savings.filter(item => item.id !== id);
   } else if (type === "recurring") {
-    state.recurring = state.recurring.filter(item => item.id !== id);
+    state.recurring =
+      state.recurring.filter(item => item.id !== id);
   }
 
   saveState();
@@ -2019,13 +2605,16 @@ function setupDeleteButtons() {
   document.addEventListener("click", event => {
     const button = event.target.closest("[data-delete]");
     if (!button) return;
+
     deleteRecord(button.dataset.delete, button.dataset.id);
   });
 
   if ($("clear-movements")) {
     $("clear-movements").addEventListener("click", () => {
       if (!confirm(t("confirmClear"))) return;
+
       state.movements = [];
+
       saveState();
       renderAll();
     });
@@ -2039,7 +2628,11 @@ function setupDeleteButtons() {
 function setupSettings() {
   if ($("selector-idioma")) {
     $("selector-idioma").addEventListener("change", event => {
-      state.language = event.target.value;
+      state.language =
+        ["es", "en"].includes(event.target.value)
+          ? event.target.value
+          : "es";
+
       saveState();
       translatePage();
     });
@@ -2047,20 +2640,25 @@ function setupSettings() {
 
   if ($("moneda-principal")) {
     $("moneda-principal").addEventListener("change", event => {
+      if (!CURRENCIES.includes(event.target.value)) return;
+
       state.baseCurrency = event.target.value;
+
       saveState();
 
-      document.querySelectorAll(".currency-select").forEach(select => {
-        if (!select.value) select.value = state.baseCurrency;
-      });
-
+      /*
+        No sobrescribimos las monedas que ya eligió el usuario
+        en formularios de movimientos, ahorros o deudas.
+      */
       renderAll();
     });
   }
 
   if ($("guardar-nombre")) {
     $("guardar-nombre").addEventListener("click", () => {
-      state.userName = $("nombre-usuario").value.trim().slice(0, 40);
+      state.userName =
+        $("nombre-usuario").value.trim().slice(0, 40);
+
       saveState();
       renderAll();
       showToast(t("nameSaved"));
@@ -2069,7 +2667,12 @@ function setupSettings() {
 
   document.querySelectorAll('input[name="modo-cambio"]').forEach(radio => {
     radio.addEventListener("change", event => {
+      if (!["automatic", "manual", "both"].includes(event.target.value)) {
+        return;
+      }
+
       state.exchangeMode = event.target.value;
+
       saveState();
       renderAll();
     });
@@ -2079,7 +2682,10 @@ function setupSettings() {
     $("guardar-tasas").addEventListener("click", () => {
       document.querySelectorAll("[data-rate]").forEach(input => {
         const value = Number(input.value);
-        if (value > 0) state.manualRates[input.dataset.rate] = value;
+
+        if (Number.isFinite(value) && value > 0) {
+          state.manualRates[input.dataset.rate] = value;
+        }
       });
 
       saveState();
@@ -2089,7 +2695,10 @@ function setupSettings() {
   }
 
   if ($("actualizar-cambios")) {
-    $("actualizar-cambios").addEventListener("click", updateExchangeRates);
+    $("actualizar-cambios").addEventListener(
+      "click",
+      updateExchangeRates
+    );
   }
 
   if ($("exportar-datos")) {
@@ -2103,6 +2712,7 @@ function setupSettings() {
   if ($("boton-salir")) {
     $("boton-salir").addEventListener("click", () => {
       if (!confirm(t("confirmExit"))) return;
+
       window.close();
       showToast(t("exitHelp"));
     });
@@ -2124,7 +2734,12 @@ function setupForms() {
   ];
 
   forms.forEach(([id, handler]) => {
-    if ($(id)) $(id).addEventListener("submit", handler);
+    const form = $(id);
+
+    if (form && !form.dataset.mfInitialized) {
+      form.addEventListener("submit", handler);
+      form.dataset.mfInitialized = "true";
+    }
   });
 }
 
@@ -2144,11 +2759,13 @@ function renderAll() {
   renderMonthlyComparison();
 
   if ($("monto-presupuesto")) {
-    $("monto-presupuesto").value = state.budget.amount || "";
+    $("monto-presupuesto").value =
+      state.budget.amount || "";
   }
 
   if ($("moneda-presupuesto")) {
-    $("moneda-presupuesto").value = state.budget.currency || state.baseCurrency;
+    $("moneda-presupuesto").value =
+      state.budget.currency || state.baseCurrency;
   }
 }
 
@@ -2167,23 +2784,42 @@ function initialize() {
   setupSettings();
   setupGuide();
 
-  if ($("selector-idioma")) $("selector-idioma").value = state.language;
-  if ($("moneda-principal")) $("moneda-principal").value = state.baseCurrency;
-  if ($("nombre-usuario")) $("nombre-usuario").value = state.userName || "";
+  if ($("selector-idioma")) {
+    $("selector-idioma").value = state.language;
+  }
+
+  if ($("moneda-principal")) {
+    $("moneda-principal").value = state.baseCurrency;
+  }
+
+  if ($("nombre-usuario")) {
+    $("nombre-usuario").value = state.userName || "";
+  }
 
   document.querySelectorAll(".currency-select").forEach(select => {
-    if (!select.value) select.value = state.baseCurrency;
+    if (!CURRENCIES.includes(select.value)) {
+      select.value = state.baseCurrency;
+    }
   });
 
   if ($("moneda-presupuesto")) {
-    $("moneda-presupuesto").value = state.budget.currency;
+    $("moneda-presupuesto").value =
+      state.budget.currency || state.baseCurrency;
   }
 
-  ["fecha-movimiento", "fecha-ahorro", "fecha-creacion-deuda"].forEach(id => {
-    if ($(id) && !$(id).value) $(id).value = todayISO();
+  [
+    "fecha-movimiento",
+    "fecha-ahorro",
+    "fecha-creacion-deuda"
+  ].forEach(id => {
+    if ($(id) && !$(id).value) {
+      $(id).value = todayISO();
+    }
   });
 
-  if ($("moneda-meta")) $("moneda-meta").value = state.baseCurrency;
+  if ($("moneda-meta")) {
+    $("moneda-meta").value = state.baseCurrency;
+  }
 
   translatePage();
   saveState();
@@ -2193,4 +2829,8 @@ function initialize() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", initialize);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initialize, { once: true });
+} else {
+  initialize();
+}
