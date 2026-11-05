@@ -950,3 +950,392 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
+/* =========================================
+   NUEVAS FUNCIONES - MIS FINANZAS
+   Compatibilidad con index.html actualizado
+   ========================================= */
+
+/* ALERTAS FINANCIERAS */
+
+#panel-alertas {
+  margin-bottom: 17px;
+}
+
+#panel-alertas h3 {
+  margin-bottom: 13px;
+}
+
+#lista-alertas {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.alert-item > span {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.alert-item strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 13px;
+}
+
+.alert-item.warning {
+  background: #fff8e8;
+  border-color: #f3dfad;
+}
+
+.alert-item.danger {
+  background: var(--red-light);
+  border-color: #f4d0d0;
+}
+
+.alert-item.success {
+  background: var(--green-light);
+  border-color: #d4eee3;
+}
+
+.alert-item.info {
+  background: var(--blue-light);
+  border-color: #d8e4fa;
+}
+
+/* ASISTENTE FINANCIERO */
+
+#panel-asistente {
+  margin-bottom: 17px;
+}
+
+#resumen-asistente {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.assistant-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px;
+  background: #f7f9fc;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.assistant-tip > span {
+  font-size: 21px;
+  flex-shrink: 0;
+}
+
+.assistant-tip strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+/* RESUMEN DE DEUDAS EN INICIO */
+
+#resumen-deudas {
+  margin-bottom: 17px;
+}
+
+#resumen-deudas-cobrar,
+#resumen-deudas-pagar {
+  font-size: 18px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+#resumen-deudas-cobrar {
+  color: var(--green);
+}
+
+#resumen-deudas-pagar {
+  color: var(--red);
+}
+
+/* METAS FINANCIERAS */
+
+#metas .card {
+  margin-bottom: 17px;
+}
+
+#form-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+#lista-metas {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-top: 13px;
+}
+
+.goal-item {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 15px;
+  box-shadow: var(--shadow);
+}
+
+.goal-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.goal-item-header strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.goal-item p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.goal-progress-track {
+  height: 10px;
+  width: 100%;
+  background: #edf0f4;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.goal-progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--green);
+  border-radius: inherit;
+  transition: width .25s ease;
+}
+
+.goal-details {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.goal-details strong {
+  color: var(--text);
+}
+
+.goal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.goal-actions button {
+  flex: 1;
+  min-width: 100px;
+  border: 0;
+  border-radius: 9px;
+  padding: 10px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.goal-contribution-button {
+  background: var(--green-light);
+  color: #13744f;
+}
+
+.goal-delete-button {
+  background: var(--red-light);
+  color: #b83b3b;
+}
+
+/* FILTROS DE MOVIMIENTOS Y DEUDAS */
+
+.filters-container {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.filters-container h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.filters-container label {
+  margin-top: 10px;
+}
+
+.filters-container input,
+.filters-container select {
+  min-height: 42px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+#limpiar-filtros {
+  margin-top: 12px;
+}
+
+/* COMPARACIÓN MENSUAL */
+
+#comparacion-mensual {
+  margin-top: 15px;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.comparison-item {
+  min-width: 0;
+  background: #f8f9fb;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px;
+}
+
+.comparison-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+
+.comparison-item strong {
+  display: block;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.comparison-item small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 6px;
+}
+
+.comparison-positive {
+  color: var(--green);
+}
+
+.comparison-negative {
+  color: var(--red);
+}
+
+/* IMPORTAR Y EXPORTAR DATOS */
+
+#importar-datos {
+  margin-top: 10px;
+  padding: 13px;
+  background: #f8f9fb;
+  border: 1px dashed #cbd4df;
+  border-radius: 12px;
+}
+
+#importar-datos input[type="file"] {
+  min-height: auto;
+  padding: 10px;
+  background: white;
+  font-size: 11px;
+}
+
+#importar-datos p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* ESTADOS VACÍOS DE LAS NUEVAS FUNCIONES */
+
+#lista-metas:empty::after {
+  content: "Todavía no tienes metas financieras.";
+  display: block;
+  text-align: center;
+  padding: 20px 12px;
+  color: var(--muted);
+  background: white;
+  border: 1px dashed #dce2e9;
+  border-radius: 13px;
+  font-size: 12px;
+}
+
+/* ACCESIBILIDAD */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #718db8;
+  outline-offset: 2px;
+}
+
+/* RESPONSIVE PARA CELULARES */
+
+@media (max-width: 480px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .goal-item-header {
+    flex-direction: column;
+  }
+
+  .goal-actions button {
+    min-width: 85px;
+  }
+
+  .alert-item {
+    padding: 11px;
+  }
+
+  .assistant-tip {
+    padding: 11px;
+  }
+}
+
+@media (max-width: 360px) {
+  .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-details {
+    flex-direction: column;
+  }
+}
+
