@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#111827">
   <meta name="description" content="Mis Finanzas: administra ingresos, gastos, ahorros, presupuestos, deudas y metas financieras.">
+  <meta name="application-name" content="Mis Finanzas">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
@@ -18,18 +20,25 @@
 <body>
   <header class="app-header">
     <div>
-      <button class="header-title-button" id="home-title" type="button">
+      <button class="header-title-button" id="home-title" type="button" aria-label="Volver al inicio">
         <h1 data-i18n="appTitle">Mis Finanzas</h1>
       </button>
       <p data-i18n="appSubtitle">Tu dinero, bajo control</p>
     </div>
-    <button class="icon-button" id="header-settings" type="button" aria-label="Configuración">⚙</button>
+
+    <button
+      class="icon-button"
+      id="header-settings"
+      type="button"
+      aria-label="Configuración"
+      title="Configuración"
+    >⚙</button>
   </header>
 
   <main class="app-main">
 
     <!-- INICIO / DASHBOARD -->
-    <section class="page-section active" id="inicio">
+    <section class="page-section active" id="inicio" aria-label="Inicio">
 
       <div class="welcome-row">
         <div>
@@ -38,56 +47,57 @@
           <h2 id="balance-total">₡0,00</h2>
           <span class="muted" data-i18n="availableBalance">Disponible en tu moneda principal</span>
         </div>
-        <span class="balance-icon">₡</span>
+        <span class="balance-icon" aria-hidden="true">₡</span>
       </div>
 
       <div class="summary-grid">
         <article class="summary-card income-card">
           <span data-i18n="income">Ingresos</span>
           <strong id="total-ingresos">₡0,00</strong>
-          <small>↗</small>
+          <small aria-hidden="true">↗</small>
         </article>
 
         <article class="summary-card expense-card">
           <span data-i18n="expenses">Gastos</span>
           <strong id="total-gastos">₡0,00</strong>
-          <small>↘</small>
+          <small aria-hidden="true">↘</small>
         </article>
 
         <article class="summary-card savings-card">
           <span data-i18n="savings">Ahorros</span>
           <strong id="total-ahorros">₡0,00</strong>
-          <small>🐷</small>
+          <small aria-hidden="true">🐷</small>
         </article>
 
         <article class="summary-card budget-card">
           <span data-i18n="budget">Presupuesto</span>
           <strong id="total-presupuesto">₡0,00</strong>
-          <small>▤</small>
+          <small aria-hidden="true">▤</small>
         </article>
       </div>
 
       <!-- ACCIONES RÁPIDAS -->
       <div class="quick-actions">
         <h3 data-i18n="quickActions">Acciones rápidas</h3>
+
         <div class="quick-grid">
           <button class="quick-button" data-quick="income" type="button">
-            <span>＋</span>
+            <span aria-hidden="true">＋</span>
             <span data-i18n="addIncome">Ingreso</span>
           </button>
 
           <button class="quick-button" data-quick="expense" type="button">
-            <span>－</span>
+            <span aria-hidden="true">－</span>
             <span data-i18n="addExpense">Gasto</span>
           </button>
 
           <button class="quick-button" data-quick="saving" type="button">
-            <span>🐷</span>
+            <span aria-hidden="true">🐷</span>
             <span data-i18n="addSaving">Ahorrar</span>
           </button>
 
           <button class="quick-button" data-section="presupuesto" type="button">
-            <span>▤</span>
+            <span aria-hidden="true">▤</span>
             <span data-i18n="setBudget">Presupuesto</span>
           </button>
         </div>
@@ -109,6 +119,7 @@
         <div class="section-heading">
           <h3 data-i18n="financialAlerts">🔔 Alertas financieras</h3>
         </div>
+
         <div id="lista-alertas" class="list-container" aria-live="polite">
           <p class="muted">Aquí aparecerán recordatorios de pagos, vencimientos y presupuestos.</p>
         </div>
@@ -119,28 +130,35 @@
         <div class="section-heading">
           <h3 data-i18n="financialAssistant">🤖 Asistente financiero</h3>
         </div>
+
         <p class="muted" data-i18n="assistantDescription">
           Analiza tus finanzas y encuentra oportunidades para mejorar.
         </p>
+
         <div id="resumen-asistente" class="list-container" aria-live="polite">
           <p>Registra tus movimientos para comenzar a recibir recomendaciones.</p>
         </div>
+
         <button class="secondary-button" type="button" data-section="consejos">
           Ver consejos financieros
         </button>
       </article>
 
-      <!-- DEUDAS EN RESUMEN -->
+      <!-- RESUMEN DE DEUDAS -->
       <article class="card" id="resumen-deudas">
         <div class="section-heading">
           <h3 data-i18n="debts">💳 Deudas</h3>
-          <button class="text-button" type="button" data-section="deudas" data-i18n="seeAll">Ver todas</button>
+          <button class="text-button" type="button" data-section="deudas" data-i18n="seeAll">
+            Ver todas
+          </button>
         </div>
+
         <div class="summary-grid">
           <article class="summary-card income-card">
             <span data-i18n="totalReceivable">Por cobrar</span>
             <strong id="resumen-deudas-cobrar">₡0,00</strong>
           </article>
+
           <article class="summary-card expense-card">
             <span data-i18n="totalPayable">Por pagar</span>
             <strong id="resumen-deudas-pagar">₡0,00</strong>
@@ -151,8 +169,11 @@
       <!-- MOVIMIENTOS RECIENTES -->
       <div class="section-heading">
         <h3 data-i18n="recentMovements">Movimientos recientes</h3>
-        <button class="text-button" type="button" data-section="movimientos" data-i18n="seeAll">Ver todos</button>
+        <button class="text-button" type="button" data-section="movimientos" data-i18n="seeAll">
+          Ver todos
+        </button>
       </div>
+
       <div id="lista-movimientos-inicio" class="list-container"></div>
 
     </section>
@@ -170,27 +191,28 @@
 
         <form id="form-movimiento">
 
-          <label data-i18n="movementType">Tipo de movimiento</label>
+          <label for="tipo-movimiento" data-i18n="movementType">Tipo de movimiento</label>
           <select id="tipo-movimiento" required>
             <option value="income" data-i18n="income">Ingreso</option>
             <option value="expense" data-i18n="expenses">Gasto</option>
           </select>
 
-          <label data-i18n="description">Descripción</label>
+          <label for="descripcion-movimiento" data-i18n="description">Descripción</label>
           <input id="descripcion-movimiento" type="text" required maxlength="80" placeholder="Ej. Salario">
 
           <div class="form-row">
             <div>
-              <label data-i18n="amount">Monto</label>
+              <label for="monto-movimiento" data-i18n="amount">Monto</label>
               <input id="monto-movimiento" type="number" min="0.01" step="any" required placeholder="0.00">
             </div>
+
             <div>
-              <label data-i18n="currency">Moneda</label>
+              <label for="moneda-movimiento" data-i18n="currency">Moneda</label>
               <select id="moneda-movimiento" class="currency-select"></select>
             </div>
           </div>
 
-          <label data-i18n="category">Categoría</label>
+          <label for="categoria-movimiento" data-i18n="category">Categoría</label>
           <select id="categoria-movimiento">
             <option value="salary" data-i18n="catSalary">Salario</option>
             <option value="business" data-i18n="catBusiness">Negocio</option>
@@ -203,7 +225,7 @@
             <option value="other" data-i18n="catOther">Otros</option>
           </select>
 
-          <label data-i18n="date">Fecha</label>
+          <label for="fecha-movimiento" data-i18n="date">Fecha</label>
           <input id="fecha-movimiento" type="date" required>
 
           <button class="primary-button" type="submit" data-i18n="saveMovement">
@@ -228,6 +250,7 @@
               <option value="expense">Gastos</option>
             </select>
           </div>
+
           <div>
             <label for="filtro-categoria" data-i18n="category">Categoría</label>
             <select id="filtro-categoria">
@@ -282,21 +305,22 @@
 
         <form id="form-ahorro">
 
-          <label data-i18n="savingGoal">Nombre del ahorro o meta</label>
+          <label for="nombre-ahorro" data-i18n="savingGoal">Nombre del ahorro o meta</label>
           <input id="nombre-ahorro" type="text" required maxlength="80" placeholder="Ej. Fondo de emergencia">
 
           <div class="form-row">
             <div>
-              <label data-i18n="amount">Monto</label>
+              <label for="monto-ahorro" data-i18n="amount">Monto</label>
               <input id="monto-ahorro" type="number" min="0.01" step="any" required placeholder="0.00">
             </div>
+
             <div>
-              <label data-i18n="currency">Moneda</label>
+              <label for="moneda-ahorro" data-i18n="currency">Moneda</label>
               <select id="moneda-ahorro" class="currency-select"></select>
             </div>
           </div>
 
-          <label data-i18n="date">Fecha</label>
+          <label for="fecha-ahorro" data-i18n="date">Fecha</label>
           <input id="fecha-ahorro" type="date" required>
 
           <button class="primary-button" type="submit" data-i18n="saveSaving">
@@ -308,6 +332,7 @@
       <div class="section-heading">
         <h3 data-i18n="savingHistory">Historial de ahorros</h3>
       </div>
+
       <div id="lista-ahorros" class="list-container"></div>
 
     </section>
@@ -338,6 +363,7 @@
               <label for="monto-meta" data-i18n="targetAmount">Monto objetivo</label>
               <input id="monto-meta" type="number" min="0.01" step="any" required placeholder="0.00">
             </div>
+
             <div>
               <label for="moneda-meta" data-i18n="currency">Moneda</label>
               <select id="moneda-meta" class="currency-select"></select>
@@ -355,6 +381,7 @@
 
       <article class="card">
         <h3 data-i18n="myGoals">Mis metas</h3>
+
         <div id="lista-metas" class="list-container">
           <p class="muted">Aquí aparecerán tus objetivos financieros.</p>
         </div>
@@ -374,10 +401,10 @@
         <h3 data-i18n="monthlyBudget">Presupuesto mensual</h3>
 
         <form id="form-presupuesto">
-          <label data-i18n="budgetAmount">Monto del presupuesto</label>
+          <label for="monto-presupuesto" data-i18n="budgetAmount">Monto del presupuesto</label>
           <input id="monto-presupuesto" type="number" min="0" step="any" required placeholder="0.00">
 
-          <label data-i18n="currency">Moneda</label>
+          <label for="moneda-presupuesto" data-i18n="currency">Moneda</label>
           <select id="moneda-presupuesto" class="currency-select"></select>
 
           <button class="primary-button" type="submit" data-i18n="saveBudget">
@@ -392,7 +419,7 @@
           <strong id="porcentaje-presupuesto">0%</strong>
         </div>
 
-        <div class="progress-track">
+        <div class="progress-track" role="progressbar" aria-label="Progreso del presupuesto" aria-valuemin="0" aria-valuemax="100">
           <div id="barra-presupuesto" class="progress-fill"></div>
         </div>
 
@@ -418,12 +445,14 @@
       </div>
 
       <article class="card">
+        <h3 data-i18n="saveRecurring">Nuevo movimiento recurrente</h3>
+
         <form id="form-recurrente">
 
-          <label data-i18n="description">Descripción</label>
-          <input id="descripcion-recurrente" required maxlength="80">
+          <label for="descripcion-recurrente" data-i18n="description">Descripción</label>
+          <input id="descripcion-recurrente" type="text" required maxlength="80">
 
-          <label data-i18n="movementType">Tipo de movimiento</label>
+          <label for="tipo-recurrente" data-i18n="movementType">Tipo de movimiento</label>
           <select id="tipo-recurrente">
             <option value="income" data-i18n="income">Ingreso</option>
             <option value="expense" data-i18n="expenses">Gasto</option>
@@ -431,16 +460,17 @@
 
           <div class="form-row">
             <div>
-              <label data-i18n="amount">Monto</label>
+              <label for="monto-recurrente" data-i18n="amount">Monto</label>
               <input id="monto-recurrente" type="number" min="0.01" step="any" required>
             </div>
+
             <div>
-              <label data-i18n="currency">Moneda</label>
+              <label for="moneda-recurrente" data-i18n="currency">Moneda</label>
               <select id="moneda-recurrente" class="currency-select"></select>
             </div>
           </div>
 
-          <label data-i18n="frequency">Frecuencia</label>
+          <label for="frecuencia-recurrente" data-i18n="frequency">Frecuencia</label>
           <select id="frecuencia-recurrente">
             <option value="monthly" data-i18n="monthly">Mensual</option>
             <option value="weekly" data-i18n="weekly">Semanal</option>
@@ -484,37 +514,37 @@
 
         <form id="form-deuda">
 
-          <label data-i18n="debtType">Tipo de deuda</label>
+          <label for="tipo-deuda" data-i18n="debtType">Tipo de deuda</label>
           <select id="tipo-deuda" required>
             <option value="receivable" data-i18n="receivable">Me deben (por cobrar)</option>
             <option value="payable" data-i18n="payable">Debo pagar (por pagar)</option>
           </select>
 
-          <label data-i18n="debtPerson">Persona o entidad</label>
+          <label for="persona-deuda" data-i18n="debtPerson">Persona o entidad</label>
           <input id="persona-deuda" type="text" maxlength="100" required placeholder="Ej. Juan o Banco">
 
-          <label data-i18n="description">Descripción</label>
+          <label for="descripcion-deuda" data-i18n="description">Descripción</label>
           <input id="descripcion-deuda" type="text" maxlength="120" placeholder="Ej. Préstamo personal">
 
           <div class="form-row">
             <div>
-              <label data-i18n="originalAmount">Monto original</label>
+              <label for="monto-deuda" data-i18n="originalAmount">Monto original</label>
               <input id="monto-deuda" type="number" min="0.01" step="any" required placeholder="0.00">
             </div>
 
             <div>
-              <label data-i18n="currency">Moneda</label>
+              <label for="moneda-deuda" data-i18n="currency">Moneda</label>
               <select id="moneda-deuda" class="currency-select" required></select>
             </div>
           </div>
 
-          <label data-i18n="creationDate">Fecha de creación</label>
+          <label for="fecha-creacion-deuda" data-i18n="creationDate">Fecha de creación</label>
           <input id="fecha-creacion-deuda" type="date" required>
 
-          <label data-i18n="dueDate">Fecha de vencimiento</label>
+          <label for="fecha-vencimiento-deuda" data-i18n="dueDate">Fecha de vencimiento</label>
           <input id="fecha-vencimiento-deuda" type="date">
 
-          <label data-i18n="notes">Notas</label>
+          <label for="notas-deuda" data-i18n="notes">Notas</label>
           <textarea id="notas-deuda" rows="3" maxlength="500" placeholder="Información adicional..."></textarea>
 
           <button class="primary-button" type="submit" data-i18n="saveDebt">
@@ -543,9 +573,11 @@
         <div class="section-heading">
           <h3 data-i18n="receivableDebts">Deudas por cobrar</h3>
         </div>
+
         <p class="muted" data-i18n="receivableDescription">
           Dinero que otras personas o entidades deben pagarte.
         </p>
+
         <div id="lista-deudas-cobrar" class="list-container"></div>
       </article>
 
@@ -553,9 +585,11 @@
         <div class="section-heading">
           <h3 data-i18n="payableDebts">Deudas por pagar</h3>
         </div>
+
         <p class="muted" data-i18n="payableDescription">
           Dinero que debes pagar a personas o entidades.
         </p>
+
         <div id="lista-deudas-pagar" class="list-container"></div>
       </article>
 
@@ -618,7 +652,7 @@
       <div class="tip-list">
 
         <article class="card tip-card">
-          <span>💰</span>
+          <span aria-hidden="true">💰</span>
           <div>
             <h3 data-i18n="tip1Title">Págate primero</h3>
             <p data-i18n="tip1Text">Aparta una parte de tus ingresos para ahorrar antes de gastar.</p>
@@ -626,7 +660,7 @@
         </article>
 
         <article class="card tip-card">
-          <span>🎯</span>
+          <span aria-hidden="true">🎯</span>
           <div>
             <h3 data-i18n="tip2Title">Define metas</h3>
             <p data-i18n="tip2Text">Divide tus objetivos de ahorro en cantidades pequeñas y alcanzables.</p>
@@ -634,7 +668,7 @@
         </article>
 
         <article class="card tip-card">
-          <span>📊</span>
+          <span aria-hidden="true">📊</span>
           <div>
             <h3 data-i18n="tip3Title">Controla tu presupuesto</h3>
             <p data-i18n="tip3Text">Revisa tus gastos cada semana y ajusta tus límites cuando sea necesario.</p>
@@ -642,7 +676,7 @@
         </article>
 
         <article class="card tip-card">
-          <span>🧾</span>
+          <span aria-hidden="true">🧾</span>
           <div>
             <h3 data-i18n="tip4Title">Reduce gastos hormiga</h3>
             <p data-i18n="tip4Text">Identifica compras pequeñas y frecuentes que afectan tu dinero.</p>
@@ -650,7 +684,7 @@
         </article>
 
         <article class="card tip-card">
-          <span>🛟</span>
+          <span aria-hidden="true">🛟</span>
           <div>
             <h3 data-i18n="tip5Title">Crea un fondo de emergencia</h3>
             <p data-i18n="tip5Text">Construye una reserva para imprevistos y evita depender del crédito.</p>
@@ -658,7 +692,7 @@
         </article>
 
         <article class="card tip-card">
-          <span>💳</span>
+          <span aria-hidden="true">💳</span>
           <div>
             <h3 data-i18n="tip6Title">Atiende tus deudas</h3>
             <p data-i18n="tip6Text">Prioriza las deudas con intereses altos y evita nuevos compromisos innecesarios.</p>
@@ -677,6 +711,7 @@
         <p data-i18n="settingsDescription">Personaliza tu aplicación.</p>
       </div>
 
+      <!-- PERSONALIZACIÓN -->
       <article class="card">
         <h3 data-i18n="personalization">Personalización</h3>
 
@@ -688,6 +723,7 @@
         </button>
       </article>
 
+      <!-- IDIOMA Y MONEDA -->
       <article class="card">
 
         <label for="selector-idioma" data-i18n="language">Idioma</label>
@@ -700,6 +736,7 @@
         <select id="moneda-principal" class="currency-select"></select>
 
         <h3 data-i18n="exchangeRates">Tipos de cambio</h3>
+
         <p class="muted" data-i18n="exchangeDescription">
           La aplicación puede consultar tasas automáticas o utilizar tasas manuales.
         </p>
@@ -729,10 +766,13 @@
 
         <div id="tasas-manuales" class="manual-rates">
           <h3 data-i18n="manualRates">Tasas manuales</h3>
+
           <p class="muted" data-i18n="manualRatesDescription">
             Indica cuánto vale una unidad de cada moneda en CRC.
           </p>
+
           <div id="campos-tasas"></div>
+
           <button id="guardar-tasas" type="button" class="secondary-button" data-i18n="saveRates">
             Guardar tasas manuales
           </button>
@@ -743,12 +783,14 @@
       <!-- PRIVACIDAD -->
       <article class="card">
         <h3 data-i18n="privacy">🔒 Privacidad y seguridad</h3>
+
         <p class="muted" data-i18n="privacyDescription">
           Tus datos financieros se almacenan localmente en este dispositivo.
           No compartas tus copias de seguridad con personas no autorizadas.
         </p>
+
         <div class="privacy-status">
-          <span>🔐</span>
+          <span aria-hidden="true">🔐</span>
           <span data-i18n="localStorageStatus">Almacenamiento local del dispositivo</span>
         </div>
       </article>
@@ -768,6 +810,7 @@
         <label for="importar-datos" class="file-label" data-i18n="importData">
           📤 Restaurar copia de seguridad
         </label>
+
         <input id="importar-datos" type="file" accept=".json,application/json">
 
         <p class="muted" data-i18n="backupWarning">
@@ -788,45 +831,45 @@
       <div class="more-menu">
 
         <button type="button" data-section="deudas">
-          <span>💳</span>
+          <span aria-hidden="true">💳</span>
           <span data-i18n="debts">Deudas</span>
-          <span>›</span>
+          <span aria-hidden="true">›</span>
         </button>
 
         <button type="button" data-section="metas">
-          <span>🎯</span>
+          <span aria-hidden="true">🎯</span>
           <span data-i18n="financialGoals">Metas financieras</span>
-          <span>›</span>
+          <span aria-hidden="true">›</span>
         </button>
 
         <button type="button" data-section="recurrentes">
-          <span>🔁</span>
+          <span aria-hidden="true">🔁</span>
           <span data-i18n="recurring">Recurrentes</span>
-          <span>›</span>
+          <span aria-hidden="true">›</span>
         </button>
 
         <button type="button" data-section="estadisticas">
-          <span>📊</span>
+          <span aria-hidden="true">📊</span>
           <span data-i18n="statistics">Estadísticas</span>
-          <span>›</span>
+          <span aria-hidden="true">›</span>
         </button>
 
         <button type="button" data-section="consejos">
-          <span>💡</span>
+          <span aria-hidden="true">💡</span>
           <span data-i18n="tips">Consejos financieros</span>
-          <span>›</span>
+          <span aria-hidden="true">›</span>
         </button>
 
         <button type="button" data-section="configuracion">
-          <span>⚙️</span>
+          <span aria-hidden="true">⚙️</span>
           <span data-i18n="settings">Configuración</span>
-          <span>›</span>
+          <span aria-hidden="true">›</span>
         </button>
 
         <button id="boton-salir" type="button">
-          <span>🚪</span>
+          <span aria-hidden="true">🚪</span>
           <span data-i18n="exit">Salir de la aplicación</span>
-          <span>›</span>
+          <span aria-hidden="true">›</span>
         </button>
 
       </div>
@@ -838,36 +881,38 @@
   <!-- NAVEGACIÓN INFERIOR -->
   <nav class="bottom-nav" aria-label="Navegación principal">
 
-    <button class="nav-button active" data-section="inicio" type="button">
-      <span>⌂</span>
+    <button class="nav-button active" data-section="inicio" type="button" aria-label="Inicio">
+      <span aria-hidden="true">⌂</span>
       <small data-i18n="home">Inicio</small>
     </button>
 
-    <button class="nav-button" data-section="movimientos" type="button">
-      <span>⇄</span>
+    <button class="nav-button" data-section="movimientos" type="button" aria-label="Movimientos">
+      <span aria-hidden="true">⇄</span>
       <small data-i18n="movements">Movimientos</small>
     </button>
 
-    <button class="nav-button" data-section="ahorros" type="button">
-      <span>🐷</span>
+    <button class="nav-button" data-section="ahorros" type="button" aria-label="Ahorros">
+      <span aria-hidden="true">🐷</span>
       <small data-i18n="savings">Ahorros</small>
     </button>
 
-    <button class="nav-button" data-section="presupuesto" type="button">
-      <span>▤</span>
+    <button class="nav-button" data-section="presupuesto" type="button" aria-label="Presupuesto">
+      <span aria-hidden="true">▤</span>
       <small data-i18n="budget">Presupuesto</small>
     </button>
 
-    <button class="nav-button" data-section="mas" id="boton-mas" type="button">
-      <span>•••</span>
+    <button class="nav-button" data-section="mas" id="boton-mas" type="button" aria-label="Más opciones">
+      <span aria-hidden="true">•••</span>
       <small data-i18n="more">Más</small>
     </button>
 
   </nav>
 
+  <!-- NOTIFICACIONES -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+  <!-- MOTOR PRINCIPAL -->
   <script src="./script.js"></script>
 
 </body>
-</html>
+            </html>
